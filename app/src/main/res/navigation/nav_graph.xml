@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/MainFragment">
+    app:startDestination="@id/permissionFragment">
 
     <fragment
         android:id="@+id/MainFragment"
@@ -24,6 +24,9 @@
         <action
             android:id="@+id/action_LoginFragment_to_MainFragment"
             app:destination="@id/MainFragment" />
+        <action
+            android:id="@+id/action_LoginFragment_to_createUserFragment"
+            app:destination="@id/createUserFragment" />
     </fragment>
     <fragment
         android:id="@+id/permissionFragment"
@@ -37,4 +40,8 @@
             android:id="@+id/action_permissionFragment_to_MainFragment"
             app:destination="@id/MainFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/createUserFragment"
+        android:name="com.bitpunchlab.android.shareroutes.CreateUserFragment"
+        android:label="CreateUserFragment" />
 </navigation>

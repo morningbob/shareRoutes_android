@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="loginViewModel"
+            type="com.bitpunchlab.android.shareroutes.LoginViewModel" />
+    </data>
+
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,14 +18,14 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="10dp"
         tools:srcCompat="?attr/actionModePasteDrawable" />
 
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="20dp"
         android:text="@string/create_account_title"
         android:textSize="25sp"
         android:textAlignment="center"/>
@@ -29,17 +36,18 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
-        android:layout_marginTop="30dp"
-        android:text="@string/login_name"
+        android:layout_marginTop="10dp"
+        android:text="@string/name"
         android:textSize="25sp" />
 
     <EditText
         android:id="@+id/edittext_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp" />
+        android:layout_marginRight="30dp"
+        android:text="@={loginViewModel.userInfo.name}"/>
 
     <TextView
         android:id="@+id/textview_email"
@@ -47,17 +55,18 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/login_name"
+        android:layout_marginTop="10dp"
+        android:text="@string/email"
         android:textSize="25sp" />
 
     <EditText
         android:id="@+id/edittext_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp" />
+        android:layout_marginRight="30dp"
+        android:text="@={loginViewModel.userInfo.email}"/>
 
     <TextView
         android:id="@+id/textview_password"
@@ -65,17 +74,18 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/login_name"
+        android:layout_marginTop="10dp"
+        android:text="@string/password"
         android:textSize="25sp" />
 
     <EditText
         android:id="@+id/edittext_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp" />
+        android:layout_marginRight="30dp"
+        android:text="@={loginViewModel.userInfo.password}"/>
 
     <TextView
         android:id="@+id/textview_password_confirm"
@@ -83,17 +93,18 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/login_name"
+        android:layout_marginTop="10dp"
+        android:text="@string/confirm_password"
         android:textSize="25sp" />
 
     <EditText
         android:id="@+id/edittext_password_confirm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp" />
+        android:layout_marginRight="30dp"
+        android:text="@={loginViewModel.userInfo.confirmPassword}"/>
 
     <Button
         android:id="@+id/button_send"

@@ -1,20 +1,25 @@
 package com.bitpunchlab.android.shareroutes
 
 import android.app.Activity
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import android.util.Patterns
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import androidx.lifecycle.*
 import com.google.firebase.auth.FirebaseAuth
+import java.util.regex.Pattern
 
 private const val TAG = "LoginViewModel"
 
 class LoginViewModel(val activity: Activity) : ViewModel() {
 
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
-
     var isLoggedIn = MutableLiveData<Boolean>(false)
+    val userInfo = UserInfo()
+
+    val enableRegistration: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        //addSource(userInfo.email, userInfo.name, userInfo.password)
+    }
 
     init {
         val currentUser = auth.currentUser
@@ -49,8 +54,20 @@ class LoginViewModel(val activity: Activity) : ViewModel() {
             }
     }
 
-}
+    fun isEmailValid() : Boolean {
+        return Patterns.EMAIL_ADDRESS.matcher(userInfo.email).matches()
+    }
 
+    fun isPasswordValid() : Boolean {
+        val passwordPattern = Pattern.compile("^[A-Za-z0-9]{8,20}$")
+        return passwordPattern.matcher(userInfo.password).matches()
+    }
+
+    fun isConfirmPasswordValid() : Boolean {
+        return userInfo.password == userInfo.confirmPassword
+    }
+
+}
 
 
 class LoginViewModelFactory(private val activity: Activity)

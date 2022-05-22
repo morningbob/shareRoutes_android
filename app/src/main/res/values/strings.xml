@@ -21,4 +21,8 @@
     <string name="create_account">Create a New Account</string>
     <string name="create_account_title">Create Account</string>
     <string name="button_login">Login</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="name">Name</string>
+    <string name="confirm_password">Confirm Password</string>
 </resources>

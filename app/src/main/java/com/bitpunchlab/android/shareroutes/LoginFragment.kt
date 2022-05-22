@@ -49,7 +49,9 @@ class LoginFragment : Fragment() {
             }
         }
 
-
+        binding.buttonCreateAccount.setOnClickListener {
+            findNavController().navigate(R.id.action_LoginFragment_to_createUserFragment)
+        }
 
         return binding.root
 
