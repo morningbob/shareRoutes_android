@@ -34,3 +34,13 @@ class UserInfo : BaseObservable() {
             notifyPropertyChanged(BR.confirmPassword)
         }
 }
+
+class UserEmail : BaseObservable() {
+    @get:Bindable
+    var email2: String = ""
+        set(value) {
+            field = value
+            notifyPropertyChanged(BR.email2)
+        }
+
+}

@@ -15,11 +15,34 @@ class LoginViewModel(val activity: Activity) : ViewModel() {
 
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
     var isLoggedIn = MutableLiveData<Boolean>(false)
-    val userInfo = UserInfo()
+    val username = MutableLiveData<String>("")
+    val userEmail = MutableLiveData<String>("")
+    val userPassword = MutableLiveData<String>("")
+    val userConfirmPassword = MutableLiveData<String>("")
 
-    val enableRegistration: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
-        //addSource(userInfo.email, userInfo.name, userInfo.password)
+    val emailValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(userEmail) { email ->
+            value = isEmailValid(email)
+            Log.i("email valid? ", value.toString())
+        }
     }
+
+    val passwordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(userPassword) { password ->
+            value = isPasswordValid(password)
+            Log.i("password valid? ", value.toString())
+        }
+    }
+
+    val confirmPasswordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(userPassword) {
+            value = isConfirmPasswordValid(userPassword.value!!, userConfirmPassword.value!!)
+            Log.i("confirm valid? ", value.toString())
+        }
+    }
+
+    private var liveDataMerger = MediatorLiveData<Boolean>()
+
 
     init {
         val currentUser = auth.currentUser
@@ -30,6 +53,7 @@ class LoginViewModel(val activity: Activity) : ViewModel() {
             Log.i(TAG, "not logged in")
             isLoggedIn.value = false
         }
+        //liveDataMerger.addSource(userPassword)
     }
 
     fun createNewUser(email: String, password: String) {
@@ -54,17 +78,17 @@ class LoginViewModel(val activity: Activity) : ViewModel() {
             }
     }
 
-    fun isEmailValid() : Boolean {
-        return Patterns.EMAIL_ADDRESS.matcher(userInfo.email).matches()
+    private fun isEmailValid(email: String) : Boolean {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
-    fun isPasswordValid() : Boolean {
+    private fun isPasswordValid(password: String) : Boolean {
         val passwordPattern = Pattern.compile("^[A-Za-z0-9]{8,20}$")
-        return passwordPattern.matcher(userInfo.password).matches()
+        return passwordPattern.matcher(password).matches()
     }
 
-    fun isConfirmPasswordValid() : Boolean {
-        return userInfo.password == userInfo.confirmPassword
+    fun isConfirmPasswordValid(password: String, confirmPassword: String) : Boolean {
+        return password == confirmPassword
     }
 
 }

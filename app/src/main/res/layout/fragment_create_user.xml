@@ -47,7 +47,8 @@
         android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:text="@={loginViewModel.userInfo.name}"/>
+        android:text="@={loginViewModel.username}"
+        />
 
     <TextView
         android:id="@+id/textview_email"
@@ -60,13 +61,13 @@
         android:textSize="25sp" />
 
     <EditText
-        android:id="@+id/edittext_email"
+        android:id="@+id/email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:text="@={loginViewModel.userInfo.email}"/>
+        android:text="@={loginViewModel.userEmail}"/>
 
     <TextView
         android:id="@+id/textview_password"
@@ -85,7 +86,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:text="@={loginViewModel.userInfo.password}"/>
+        android:text="@={loginViewModel.userPassword}"/>
 
     <TextView
         android:id="@+id/textview_password_confirm"
@@ -104,7 +105,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:text="@={loginViewModel.userInfo.confirmPassword}"/>
+        android:text="@={loginViewModel.userConfirmPassword}"/>
 
     <Button
         android:id="@+id/button_send"

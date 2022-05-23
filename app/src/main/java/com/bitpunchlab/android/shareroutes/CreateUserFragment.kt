@@ -32,16 +32,46 @@ class CreateUserFragment : Fragment() {
         loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
             .get(LoginViewModel::class.java)
 
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.loginViewModel = loginViewModel
+
         binding.buttonSend.setOnClickListener {
             // check all the fields are not empty
             // need to confirm passwords are the same and with some length
             //loginViewModel.createNewUser()
             //validatePassword()
+            //Log.i("email: ", loginViewModel.userInfo.value!!.email)
+            //Log.i("username: ", loginViewModel.username.value!!)
+            Log.i("is valid email? ", loginViewModel.emailValid.value.toString())
         }
 
-        loginViewModel.email.observe(viewLifecycleOwner, Observer { email ->
+        loginViewModel.username.observe(viewLifecycleOwner, Observer { name ->
+            name?.let {
+                Log.i("username from observing: ", name)
+            }
+        })
+
+        loginViewModel.userEmail.observe(viewLifecycleOwner, Observer { email ->
             email?.let {
-                Log.i("valid email? ", loginViewModel.isEmailValid().toString())
+                Log.i("email from observing", email)
+            }
+        })
+
+        loginViewModel.emailValid.observe(viewLifecycleOwner, Observer { value ->
+            value?.let {
+                if (value) {
+                    Log.i("test: ", "valid email")
+                } else {
+                    Log.i("test: ", "invalid email")
+                }
+            }
+        })
+
+        loginViewModel.
+/*
+        loginViewModel.userName.observe(viewLifecycleOwner, Observer { name ->
+            name?.let {
+                Log.i("userName: ", name)
             }
         })
 
@@ -56,7 +86,7 @@ class CreateUserFragment : Fragment() {
                 Log.i("passwords the same? ", loginViewModel.isConfirmPasswordValid().toString())
             }
         })
-
+*/
         return binding.root
     }
 
