@@ -13,14 +13,14 @@
     android:layout_height="match_parent"
     tools:context=".CreateUserFragment"
     android:orientation="vertical">
-
+<!--
     <ImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
         tools:srcCompat="?attr/actionModePasteDrawable" />
-
+-->
 
     <TextView
         android:layout_width="match_parent"
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="30dp"
         android:text="@string/name"
         android:textSize="25sp" />
 
@@ -47,8 +47,17 @@
         android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:text="@={loginViewModel.username}"
+        android:text="@={loginViewModel.userName}"
         />
+
+    <TextView
+        android:id="@+id/name_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:textSize="12sp"
+        android:text="@={loginViewModel.nameError}"
+        android:textColor="@color/orange"/>
 
     <TextView
         android:id="@+id/textview_email"
@@ -70,6 +79,14 @@
         android:text="@={loginViewModel.userEmail}"/>
 
     <TextView
+        android:id="@+id/email_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:textSize="12sp"
+        android:textColor="@color/orange"/>
+
+    <TextView
         android:id="@+id/textview_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -87,6 +104,14 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:text="@={loginViewModel.userPassword}"/>
+
+    <TextView
+        android:id="@+id/password_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:textSize="12sp"
+        android:textColor="@color/orange"/>
 
     <TextView
         android:id="@+id/textview_password_confirm"
@@ -107,12 +132,21 @@
         android:layout_marginRight="30dp"
         android:text="@={loginViewModel.userConfirmPassword}"/>
 
+    <TextView
+        android:id="@+id/confirm_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:textSize="12sp"
+        android:textColor="@color/orange"/>
+
     <Button
         android:id="@+id/button_send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="@string/button_send"
+        android:clickable="false"
         android:layout_gravity="center"/>
 
 </LinearLayout>

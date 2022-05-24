@@ -38,57 +38,24 @@ class CreateUserFragment : Fragment() {
         binding.buttonSend.setOnClickListener {
             // check all the fields are not empty
             // need to confirm passwords are the same and with some length
-            //loginViewModel.createNewUser()
-            //validatePassword()
-            //Log.i("email: ", loginViewModel.userInfo.value!!.email)
-            //Log.i("username: ", loginViewModel.username.value!!)
-            Log.i("is valid email? ", loginViewModel.emailValid.value.toString())
+            Log.i("ready to register? ", loginViewModel.registerUserLiveData.value.toString())
         }
 
-        loginViewModel.username.observe(viewLifecycleOwner, Observer { name ->
-            name?.let {
-                Log.i("username from observing: ", name)
-            }
-        })
+        errorMessagesSetup()
 
-        loginViewModel.userEmail.observe(viewLifecycleOwner, Observer { email ->
-            email?.let {
-                Log.i("email from observing", email)
-            }
-        })
-
-        loginViewModel.emailValid.observe(viewLifecycleOwner, Observer { value ->
+        loginViewModel.registerUserLiveData.observe(viewLifecycleOwner, Observer { value ->
             value?.let {
-                if (value) {
-                    Log.i("test: ", "valid email")
-                } else {
-                    Log.i("test: ", "invalid email")
-                }
+                Log.i("ready to register user: ", value.toString())
+                binding.buttonSend.isClickable = true
             }
         })
 
-        loginViewModel.
-/*
-        loginViewModel.userName.observe(viewLifecycleOwner, Observer { name ->
-            name?.let {
-                Log.i("userName: ", name)
-            }
-        })
-
-        loginViewModel.password.observe(viewLifecycleOwner, Observer { password ->
-            password?.let {
-                Log.i("valid password? ", loginViewModel.isPasswordValid().toString())
-            }
-        })
-
-        loginViewModel.confirmPassword.observe(viewLifecycleOwner, Observer { confirmPassword ->
-            confirmPassword?.let {
-                Log.i("passwords the same? ", loginViewModel.isConfirmPasswordValid().toString())
-            }
-        })
-*/
         return binding.root
     }
 
+    private fun errorMessagesSetup() {
 
+
+
+    }
 }

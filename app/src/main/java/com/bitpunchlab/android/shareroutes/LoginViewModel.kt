@@ -1,5 +1,6 @@
 package com.bitpunchlab.android.shareroutes
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
 import android.util.Patterns
@@ -11,38 +12,77 @@ import java.util.regex.Pattern
 
 private const val TAG = "LoginViewModel"
 
-class LoginViewModel(val activity: Activity) : ViewModel() {
+class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : ViewModel() {
 
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
     var isLoggedIn = MutableLiveData<Boolean>(false)
-    val username = MutableLiveData<String>("")
+    val userName = MutableLiveData<String>("")
     val userEmail = MutableLiveData<String>("")
     val userPassword = MutableLiveData<String>("")
     val userConfirmPassword = MutableLiveData<String>("")
+    val nameError = MutableLiveData<String>("")
+    val emailError = MutableLiveData<String>("")
+    val passwordError = MutableLiveData<String>("")
+    val confirmPasswordError = MutableLiveData<String>("")
 
-    val emailValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+    val nameValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(userName) { name ->
+            if (name.isNullOrEmpty()) {
+                nameError.value = "Name must not be empty."
+                value = false
+            } else {
+                value = true
+                nameError.value = ""
+            }
+        }
+    }
+
+    private val emailValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(userEmail) { email ->
-            value = isEmailValid(email)
+            if (!isEmailValid(email)) {
+                emailError.value = "Please enter a valid email."
+                value = false
+            } else {
+                value = true
+                emailError.value = ""
+            }
+            //value =
             Log.i("email valid? ", value.toString())
         }
     }
 
-    val passwordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+    private val passwordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(userPassword) { password ->
-            value = isPasswordValid(password)
+            if (isPasswordContainSpace(password)) {
+                passwordError.value = "Password cannot has space."
+                value = false
+            } else if (!isPasswordValid(password)) {
+                passwordError.value = "Password can only be composed of letters and numbers."
+                value = false
+            } else {
+                passwordError.value = ""
+                value = true
+            }
+            //value = isPasswordValid(password)
             Log.i("password valid? ", value.toString())
         }
     }
 
-    val confirmPasswordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
-        addSource(userPassword) {
-            value = isConfirmPasswordValid(userPassword.value!!, userConfirmPassword.value!!)
+    private val confirmPasswordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(userConfirmPassword) { confirmPassword ->
+            if (!isConfirmPasswordValid(userPassword.value!!, confirmPassword)) {
+                confirmPasswordError.value = "Passwords must be the same."
+                value = false
+            } else {
+                confirmPasswordError.value = ""
+                value = true
+            }
+            //value = isConfirmPasswordValid(userPassword.value!!, it)
             Log.i("confirm valid? ", value.toString())
         }
     }
 
-    private var liveDataMerger = MediatorLiveData<Boolean>()
-
+    var registerUserLiveData = MediatorLiveData<Boolean>()
 
     init {
         val currentUser = auth.currentUser
@@ -53,7 +93,35 @@ class LoginViewModel(val activity: Activity) : ViewModel() {
             Log.i(TAG, "not logged in")
             isLoggedIn.value = false
         }
-        //liveDataMerger.addSource(userPassword)
+        registerUserLiveData.addSource(nameValid) { valid ->
+            // we only apply that isEnableRegistration test if the name is valid
+            if (valid) {
+                registerUserLiveData.value = isEnableRegistration()
+            } else {
+                registerUserLiveData.value = false
+            }
+        }
+        registerUserLiveData.addSource(emailValid) { valid ->
+            if (valid) {
+                registerUserLiveData.value = isEnableRegistration()
+            } else {
+                registerUserLiveData.value = false
+            }
+        }
+        registerUserLiveData.addSource(passwordValid) { value ->
+            if (value) {
+                registerUserLiveData.value = isEnableRegistration()
+            } else {
+                registerUserLiveData.value = false
+            }
+        }
+        registerUserLiveData.addSource(confirmPasswordValid) { value ->
+            if (value) {
+                registerUserLiveData.value = isEnableRegistration()
+            } else {
+                registerUserLiveData.value = false
+            }
+        }
     }
 
     fun createNewUser(email: String, password: String) {
@@ -87,10 +155,18 @@ class LoginViewModel(val activity: Activity) : ViewModel() {
         return passwordPattern.matcher(password).matches()
     }
 
-    fun isConfirmPasswordValid(password: String, confirmPassword: String) : Boolean {
+    private fun isPasswordContainSpace(password: String) : Boolean {
+        return password.contains(" ")
+    }
+
+    private fun isConfirmPasswordValid(password: String, confirmPassword: String) : Boolean {
+        //Log.i("confirming password: ", "password: $password, confirm: $confirmPassword")
         return password == confirmPassword
     }
 
+    private fun isEnableRegistration() : Boolean {
+        return (emailValid.value!! && passwordValid.value!! && confirmPasswordValid.value!!)
+    }
 }
 
 
