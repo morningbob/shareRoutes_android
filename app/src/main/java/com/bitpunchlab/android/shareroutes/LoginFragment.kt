@@ -38,16 +38,20 @@ class LoginFragment : Fragment() {
 
         binding.buttonLogin.setOnClickListener {
             // check if there is value in both edittext field
-            loginName = binding.edittextName.text.toString()
-            if (!loginName.isNullOrEmpty() && !loginPassword.isNullOrEmpty()) {
-                Log.i(TAG, "got login name: $loginName")
-                Log.i(TAG, "got password: $loginPassword")
+            //loginName = binding.edittextName.text.toString()
+            //if (!loginName.isNullOrEmpty() && !loginPassword.isNullOrEmpty()) {
+                //Log.i(TAG, "got login name: $loginName")
+                //Log.i(TAG, "got password: $loginPassword")
                 // authenticate
-                loginViewModel.authenticateUser(loginName!!, loginPassword!!)
-            } else {
+            //    loginViewModel.authenticateUser(loginName!!, loginPassword!!)
+            //} else {
                 // alert user
-            }
+            //}
+
+
         }
+
+
 
         binding.buttonCreateAccount.setOnClickListener {
             findNavController().navigate(R.id.action_LoginFragment_to_createUserFragment)

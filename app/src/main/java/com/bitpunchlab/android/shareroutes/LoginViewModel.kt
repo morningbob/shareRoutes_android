@@ -8,6 +8,7 @@ import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.lifecycle.*
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import java.util.regex.Pattern
 
 private const val TAG = "LoginViewModel"
@@ -16,6 +17,9 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
 
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
     var isLoggedIn = MutableLiveData<Boolean>(false)
+    var registeredUser = MutableLiveData<Boolean>(false)
+    var readyLogin = MutableLiveData<Boolean>(false)
+    var currentUser : FirebaseUser? = null
     val userName = MutableLiveData<String>("")
     val userEmail = MutableLiveData<String>("")
     val userPassword = MutableLiveData<String>("")
@@ -25,7 +29,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     val passwordError = MutableLiveData<String>("")
     val confirmPasswordError = MutableLiveData<String>("")
 
-    val nameValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+    private val nameValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(userName) { name ->
             if (name.isNullOrEmpty()) {
                 nameError.value = "Name must not be empty."
@@ -39,12 +43,18 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
 
     private val emailValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(userEmail) { email ->
-            if (!isEmailValid(email)) {
-                emailError.value = "Please enter a valid email."
-                value = false
+            if (!email.isNullOrEmpty()) {
+                if (!isEmailValid(email)) {
+
+                    emailError.value = "Please enter a valid email."
+                    value = false
+
+                } else {
+                    value = true
+                    emailError.value = ""
+                }
             } else {
-                value = true
-                emailError.value = ""
+                value = false
             }
             //value =
             Log.i("email valid? ", value.toString())
@@ -53,36 +63,46 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
 
     private val passwordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(userPassword) { password ->
-            if (isPasswordContainSpace(password)) {
-                passwordError.value = "Password cannot has space."
-                value = false
-            } else if (!isPasswordValid(password)) {
-                passwordError.value = "Password can only be composed of letters and numbers."
-                value = false
+            if (!password.isNullOrEmpty()) {
+                if (isPasswordContainSpace(password)) {
+                    passwordError.value = "Password cannot has space."
+                    value = false
+                } else if (password.count() < 8) {
+                    passwordError.value = "Password should be at least 8 characters."
+                    value = false
+                } else if (!isPasswordValid(password)) {
+                    passwordError.value = "Password can only be composed of letters and numbers."
+                    value = false
+                } else {
+                    passwordError.value = ""
+                    value = true
+                }
             } else {
-                passwordError.value = ""
-                value = true
+                value = false
             }
-            //value = isPasswordValid(password)
             Log.i("password valid? ", value.toString())
         }
     }
 
     private val confirmPasswordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(userConfirmPassword) { confirmPassword ->
-            if (!isConfirmPasswordValid(userPassword.value!!, confirmPassword)) {
-                confirmPasswordError.value = "Passwords must be the same."
-                value = false
+            if (!confirmPassword.isNullOrEmpty()) {
+                if (!isConfirmPasswordValid(userPassword.value!!, confirmPassword)) {
+                    confirmPasswordError.value = "Passwords must be the same."
+                    value = false
+                } else {
+                    confirmPasswordError.value = ""
+                    value = true
+                }
             } else {
-                confirmPasswordError.value = ""
-                value = true
+                value = false
             }
-            //value = isConfirmPasswordValid(userPassword.value!!, it)
             Log.i("confirm valid? ", value.toString())
         }
     }
 
     var registerUserLiveData = MediatorLiveData<Boolean>()
+    var readyLoginLiveData = MediatorLiveData<Boolean>()
 
     init {
         val currentUser = auth.currentUser
@@ -108,27 +128,43 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                 registerUserLiveData.value = false
             }
         }
-        registerUserLiveData.addSource(passwordValid) { value ->
-            if (value) {
+        registerUserLiveData.addSource(passwordValid) { valid ->
+            if (valid) {
                 registerUserLiveData.value = isEnableRegistration()
             } else {
                 registerUserLiveData.value = false
             }
         }
-        registerUserLiveData.addSource(confirmPasswordValid) { value ->
-            if (value) {
+        registerUserLiveData.addSource(confirmPasswordValid) { valid ->
+            if (valid) {
                 registerUserLiveData.value = isEnableRegistration()
             } else {
                 registerUserLiveData.value = false
+            }
+        }
+        readyLoginLiveData.addSource(emailValid) { valid ->
+            if (valid) {
+                readyLoginLiveData.value = isReadyLogin()
+            } else {
+                readyLoginLiveData.value = false
+            }
+        }
+        readyLoginLiveData.addSource(passwordValid) { valid ->
+            if (valid) {
+                readyLoginLiveData.value = isReadyLogin()
+            } else {
+                readyLoginLiveData.value = false
             }
         }
     }
 
-    fun createNewUser(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password)
+    fun createNewUser() {
+        auth.createUserWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully created user")
+                    registeredUser.postValue(true)
+                    currentUser = auth.currentUser
                 } else {
                     Log.i(TAG, "error in creating user")
                 }
@@ -140,10 +176,15 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully logged in user")
+                    currentUser = auth.currentUser
                 } else {
                     Log.i(TAG, "error logging in user")
                 }
             }
+    }
+
+    fun logoutUser() {
+        auth.signOut()
     }
 
     private fun isEmailValid(email: String) : Boolean {
@@ -166,6 +207,10 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
 
     private fun isEnableRegistration() : Boolean {
         return (emailValid.value!! && passwordValid.value!! && confirmPasswordValid.value!!)
+    }
+
+    private fun isReadyLogin() : Boolean {
+        return (emailValid.value!! && passwordValid.value!!)
     }
 }
 

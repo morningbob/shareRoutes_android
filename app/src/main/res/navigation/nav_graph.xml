@@ -43,5 +43,9 @@
     <fragment
         android:id="@+id/createUserFragment"
         android:name="com.bitpunchlab.android.shareroutes.CreateUserFragment"
-        android:label="CreateUserFragment" />
+        android:label="CreateUserFragment" >
+        <action
+            android:id="@+id/action_createUserFragment_to_MainFragment"
+            app:destination="@id/MainFragment" />
+    </fragment>
 </navigation>

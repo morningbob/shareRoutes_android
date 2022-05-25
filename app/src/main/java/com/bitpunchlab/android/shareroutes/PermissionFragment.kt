@@ -91,6 +91,7 @@ class PermissionFragment : Fragment() {
     private fun testIfLogin() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
+            Log.i(TAG, "already logged in")
             // navigate to Main Fragment
             findNavController().navigate(R.id.action_permissionFragment_to_MainFragment)
         } else {

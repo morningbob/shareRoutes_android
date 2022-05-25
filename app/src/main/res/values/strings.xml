@@ -25,4 +25,7 @@
     <string name="email">Email</string>
     <string name="name">Name</string>
     <string name="confirm_password">Confirm Password</string>
+    <string name="registration_failure_alert_title">Failed to register</string>
+    <string name="registration_failure_alert_desc">Failed to register user.  Server is busy.  Please try again later.</string>
+
 </resources>
