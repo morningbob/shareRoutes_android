@@ -30,6 +30,7 @@ class MainFragment : Fragment() {
         binding.buttonLogout.setOnClickListener {
             Log.i(TAG, "logging out")
             loginViewModel.logoutUser()
+            findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
         }
 
         return binding.root

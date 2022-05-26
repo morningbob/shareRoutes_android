@@ -18,8 +18,6 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private lateinit var loginViewModel: LoginViewModel
-    private var loginName: String? = null
-    private var loginPassword: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,33 +27,33 @@ class LoginFragment : Fragment() {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
             .get(LoginViewModel::class.java)
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.loginViewModel = loginViewModel
 
-        loginViewModel.isLoggedIn.observe(viewLifecycleOwner, Observer { loggedIn ->
-            if (loggedIn) {
-
+        loginViewModel.readyLoginLiveData.observe(viewLifecycleOwner, Observer { value ->
+            if (value) {
+                binding.buttonLogin.visibility = View.VISIBLE
             }
         })
 
         binding.buttonLogin.setOnClickListener {
-            // check if there is value in both edittext field
-            //loginName = binding.edittextName.text.toString()
-            //if (!loginName.isNullOrEmpty() && !loginPassword.isNullOrEmpty()) {
-                //Log.i(TAG, "got login name: $loginName")
-                //Log.i(TAG, "got password: $loginPassword")
-                // authenticate
-            //    loginViewModel.authenticateUser(loginName!!, loginPassword!!)
-            //} else {
-                // alert user
-            //}
-
-
+            Log.i("loginEmail: ", loginViewModel.loginEmail.value!!)
+            loginViewModel.authenticateUser()
         }
-
-
 
         binding.buttonCreateAccount.setOnClickListener {
             findNavController().navigate(R.id.action_LoginFragment_to_createUserFragment)
         }
+
+        loginViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
+            if (user != null) {
+                Log.i(TAG, "logged in user")
+                findNavController().navigate(R.id.action_LoginFragment_to_MainFragment)
+            } else {
+                Log.i(TAG, "failed to login user")
+
+            }
+        })
 
         return binding.root
 
@@ -63,8 +61,6 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
     }
 
     override fun onDestroyView() {

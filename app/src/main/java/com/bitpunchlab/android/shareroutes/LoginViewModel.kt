@@ -17,9 +17,10 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
 
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
     var isLoggedIn = MutableLiveData<Boolean>(false)
-    var registeredUser = MutableLiveData<Boolean>(false)
-    var readyLogin = MutableLiveData<Boolean>(false)
-    var currentUser : FirebaseUser? = null
+    var loggedInUser = MutableLiveData<Boolean>(false)
+    var currentUser = MutableLiveData<FirebaseUser>()
+    val loginEmail = MutableLiveData<String>("")
+    val loginPassword = MutableLiveData<String>("")
     val userName = MutableLiveData<String>("")
     val userEmail = MutableLiveData<String>("")
     val userPassword = MutableLiveData<String>("")
@@ -45,10 +46,8 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         addSource(userEmail) { email ->
             if (!email.isNullOrEmpty()) {
                 if (!isEmailValid(email)) {
-
                     emailError.value = "Please enter a valid email."
                     value = false
-
                 } else {
                     value = true
                     emailError.value = ""
@@ -105,14 +104,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     var readyLoginLiveData = MediatorLiveData<Boolean>()
 
     init {
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            Log.i(TAG, "already logged in")
-            isLoggedIn.value = true
-        } else {
-            Log.i(TAG, "not logged in")
-            isLoggedIn.value = false
-        }
+
         registerUserLiveData.addSource(nameValid) { valid ->
             // we only apply that isEnableRegistration test if the name is valid
             if (valid) {
@@ -163,20 +155,20 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully created user")
-                    registeredUser.postValue(true)
-                    currentUser = auth.currentUser
+                    loggedInUser.postValue(true)
+                    currentUser.postValue(auth.currentUser)
                 } else {
                     Log.i(TAG, "error in creating user")
                 }
             }
     }
 
-    fun authenticateUser(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
+    fun authenticateUser() {
+        auth.signInWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully logged in user")
-                    currentUser = auth.currentUser
+                    currentUser.postValue(auth.currentUser)
                 } else {
                     Log.i(TAG, "error logging in user")
                 }
@@ -184,7 +176,15 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     }
 
     fun logoutUser() {
+        resetLoginState()
         auth.signOut()
+    }
+
+    private fun resetLoginState() {
+        userName.value = ""
+        userEmail.value = ""
+        userPassword.value = ""
+        userConfirmPassword.value = ""
     }
 
     private fun isEmailValid(email: String) : Boolean {

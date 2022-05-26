@@ -53,13 +53,12 @@ class CreateUserFragment : Fragment() {
             }
         })
 
-        loginViewModel.registeredUser.observe(viewLifecycleOwner, Observer { registered ->
-            if (registered) {
+        loginViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
+            if (user != null) {
                 Log.i(TAG, "navigate to main fragment")
                 findNavController().navigate(R.id.action_createUserFragment_to_MainFragment)
             } else {
                 Log.i(TAG, "alert user failure")
-
             }
         })
 
