@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMainBinding
@@ -27,11 +28,20 @@ class MainFragment : Fragment() {
         loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
             .get(LoginViewModel::class.java)
 
+        binding.lifecycleOwner = viewLifecycleOwner
+
         binding.buttonLogout.setOnClickListener {
             Log.i(TAG, "logging out")
             loginViewModel.logoutUser()
-            findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
+            //findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
         }
+
+        loginViewModel.loggedOutUser.observe(viewLifecycleOwner, Observer { loggedOut ->
+            if (loggedOut) {
+
+                findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
+            }
+        })
 
         return binding.root
 

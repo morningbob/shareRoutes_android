@@ -37,7 +37,6 @@ class LoginFragment : Fragment() {
         })
 
         binding.buttonLogin.setOnClickListener {
-            Log.i("loginEmail: ", loginViewModel.loginEmail.value!!)
             loginViewModel.authenticateUser()
         }
 
@@ -45,12 +44,13 @@ class LoginFragment : Fragment() {
             findNavController().navigate(R.id.action_LoginFragment_to_createUserFragment)
         }
 
-        loginViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
-            if (user != null) {
+        loginViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
+            if (loggedIn) {
                 Log.i(TAG, "logged in user")
                 findNavController().navigate(R.id.action_LoginFragment_to_MainFragment)
-            } else {
+            } else if (!loggedIn){
                 Log.i(TAG, "failed to login user")
+                // show alert
 
             }
         })

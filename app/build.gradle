@@ -57,4 +57,7 @@ dependencies {
     // Firebase Auth
     implementation platform('com.google.firebase:firebase-bom:30.0.2')
     implementation 'com.google.firebase:firebase-auth'
+
+    // Firebase Database
+    implementation 'com.google.firebase:firebase-database-ktx'
 }

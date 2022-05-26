@@ -7,8 +7,14 @@ import android.util.Patterns
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.lifecycle.*
+import com.bitpunchlab.android.shareroutes.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import java.util.regex.Pattern
 
 private const val TAG = "LoginViewModel"
@@ -17,10 +23,9 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
 
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
     var isLoggedIn = MutableLiveData<Boolean>(false)
-    var loggedInUser = MutableLiveData<Boolean>(false)
+    var loggedInUser = MutableLiveData<Boolean>()
+    var loggedOutUser = MutableLiveData<Boolean>(false)
     var currentUser = MutableLiveData<FirebaseUser>()
-    val loginEmail = MutableLiveData<String>("")
-    val loginPassword = MutableLiveData<String>("")
     val userName = MutableLiveData<String>("")
     val userEmail = MutableLiveData<String>("")
     val userPassword = MutableLiveData<String>("")
@@ -29,6 +34,15 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     val emailError = MutableLiveData<String>("")
     val passwordError = MutableLiveData<String>("")
     val confirmPasswordError = MutableLiveData<String>("")
+    var user : User? = null
+    private var database : DatabaseReference = Firebase.database.reference
+
+    private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
+        if (auth.currentUser == null) {
+            Log.i(TAG, "logout out successfully")
+            loggedOutUser.postValue(true)
+        }
+    }
 
     private val nameValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(userName) { name ->
@@ -104,6 +118,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     var readyLoginLiveData = MediatorLiveData<Boolean>()
 
     init {
+        auth.addAuthStateListener(authStateListener)
 
         registerUserLiveData.addSource(nameValid) { valid ->
             // we only apply that isEnableRegistration test if the name is valid
@@ -150,7 +165,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         }
     }
 
-    fun createNewUser() {
+    fun registerNewUser() {
         auth.createUserWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
@@ -161,6 +176,8 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                     Log.i(TAG, "error in creating user")
                 }
             }
+        //checkIfEmailUsed()
+        saveUser(userName.value!!, userEmail.value!!, userPassword.value!!)
     }
 
     fun authenticateUser() {
@@ -169,10 +186,45 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully logged in user")
                     currentUser.postValue(auth.currentUser)
+                    loggedInUser.postValue(true)
                 } else {
                     Log.i(TAG, "error logging in user")
                 }
             }
+    }
+
+    private fun saveUser(name: String, email: String, password: String) {
+        user = createUser(name, email, password)
+        saveUserInDatabase(user!!)
+    }
+
+    private fun createUser(name: String, email: String, password: String) : User {
+        return User(userName = name, userEmail = email, userPassword = password)
+    }
+
+    private fun saveUserInDatabase(user: User)  {
+        //var result = false
+        database.child("users").child(user.userID).setValue(user, DatabaseReference.CompletionListener() {
+            error: DatabaseError?, ref: DatabaseReference ->
+            if (error != null) {
+                Log.i(TAG, "there is error writing to database: ${error.message}")
+
+            } else {
+                //result = true
+                Log.i(TAG, "successfully saved user")
+            }
+        })
+        // we also update the emails, that list all the emails of the user for quick reference
+        val keyID = database.push().key
+        keyID?.let { key ->
+            database.child("emails").child(key).setValue(user.userEmail)
+        }
+        //return result
+    }
+
+    private fun checkIfEmailUsed(email: String) {
+        database.child("emails")
+        //database.orderByKey()
     }
 
     fun logoutUser() {

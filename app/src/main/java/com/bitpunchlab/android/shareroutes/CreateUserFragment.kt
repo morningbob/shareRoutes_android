@@ -43,7 +43,7 @@ class CreateUserFragment : Fragment() {
             // check all the fields are not empty
             // need to confirm passwords are the same and with some length
             Log.i("registering user? ", loginViewModel.registerUserLiveData.value.toString())
-            loginViewModel.createNewUser()
+            loginViewModel.registerNewUser()
         }
 
         loginViewModel.registerUserLiveData.observe(viewLifecycleOwner, Observer { value ->
@@ -53,12 +53,13 @@ class CreateUserFragment : Fragment() {
             }
         })
 
-        loginViewModel.currentUser.observe(viewLifecycleOwner, Observer { user ->
-            if (user != null) {
+        loginViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
+            if (loggedIn) {
                 Log.i(TAG, "navigate to main fragment")
                 findNavController().navigate(R.id.action_createUserFragment_to_MainFragment)
-            } else {
+            } else if (!loggedIn) {
                 Log.i(TAG, "alert user failure")
+                registrationFailureAlert()
             }
         })
 
