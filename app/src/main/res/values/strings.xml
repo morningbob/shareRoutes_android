@@ -27,5 +27,9 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="registration_failure_alert_title">Failed to register</string>
     <string name="registration_failure_alert_desc">Failed to register user.  Server is busy.  Please try again later.</string>
+    <string name="login_failure_alert_title">Failed to Login</string>
+    <string name="login_failure_alert_desc">Failed to login user.  Either the password is incorrect or the email not exist.</string>
+    <string name="email_exists_alert_title">Email already exists</string>
+    <string name="email_exists_alert_desc">The email you entered already exists in the database.  You can try to login again.  Or, you can use another email to register a new account.</string>
 
 </resources>

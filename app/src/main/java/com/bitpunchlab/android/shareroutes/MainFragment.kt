@@ -35,14 +35,13 @@ class MainFragment : Fragment() {
             loginViewModel.logoutUser()
             //findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
         }
-
+/*
         loginViewModel.loggedOutUser.observe(viewLifecycleOwner, Observer { loggedOut ->
             if (loggedOut) {
-
                 findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
             }
         })
-
+*/
         return binding.root
 
     }
@@ -50,9 +49,6 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonFirst.setOnClickListener {
-            findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
-        }
     }
 
     override fun onDestroyView() {

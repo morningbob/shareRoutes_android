@@ -1,5 +1,7 @@
 package com.bitpunchlab.android.shareroutes
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -47,11 +49,23 @@ class LoginFragment : Fragment() {
         loginViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
             if (loggedIn) {
                 Log.i(TAG, "logged in user")
+                // I clear the states in both places because if loggedIn is null,
+                // we won't clear the states
+                //loginViewModel.resetLoginState()
                 findNavController().navigate(R.id.action_LoginFragment_to_MainFragment)
+
             } else if (!loggedIn){
                 Log.i(TAG, "failed to login user")
-                // show alert
+                loginViewModel.resetLoginState()
 
+            }
+            // if loggedIn == null, that's the case when user just see the login page without
+            // doing anything, so we'll do nothing because nothing is wrong.
+        })
+
+        loginViewModel.loginError.observe(viewLifecycleOwner, Observer { error ->
+            if (error) {
+                loginFailureAlert()
             }
         })
 
@@ -66,5 +80,19 @@ class LoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun loginFailureAlert() {
+        val loginAlert = AlertDialog.Builder(context)
+
+        loginAlert.setCancelable(false)
+        loginAlert.setTitle(getString(R.string.login_failure_alert_title))
+        loginAlert.setMessage(getString(R.string.login_failure_alert_desc))
+        loginAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener() { dialog, button ->
+
+            })
+
+        loginAlert.show()
     }
 }

@@ -43,7 +43,8 @@ class CreateUserFragment : Fragment() {
             // check all the fields are not empty
             // need to confirm passwords are the same and with some length
             Log.i("registering user? ", loginViewModel.registerUserLiveData.value.toString())
-            loginViewModel.registerNewUser()
+            loginViewModel.checkIfEmailUsed(loginViewModel.userEmail.value!!)
+            //loginViewModel.registerNewUser()
         }
 
         loginViewModel.registerUserLiveData.observe(viewLifecycleOwner, Observer { value ->
@@ -56,10 +57,22 @@ class CreateUserFragment : Fragment() {
         loginViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
             if (loggedIn) {
                 Log.i(TAG, "navigate to main fragment")
+                //loginViewModel.resetLoginState()
                 findNavController().navigate(R.id.action_createUserFragment_to_MainFragment)
             } else if (!loggedIn) {
                 Log.i(TAG, "alert user failure")
+                loginViewModel.resetLoginState()
                 registrationFailureAlert()
+            }
+        })
+
+        loginViewModel.verifyEmailError.observe(viewLifecycleOwner, Observer { error ->
+            if (error) {
+                // show alert of error
+                emailExistsAlert()
+                loginViewModel.resetLoginState()
+            } else {
+                loginViewModel.registerNewUser()
             }
         })
 
@@ -74,6 +87,7 @@ class CreateUserFragment : Fragment() {
     private fun registrationFailureAlert() {
         val registrationAlert = AlertDialog.Builder(context)
 
+        registrationAlert.setCancelable(false)
         registrationAlert.setTitle(getString(R.string.registration_failure_alert_title))
         registrationAlert.setMessage(getString(R.string.registration_failure_alert_desc))
         registrationAlert.setPositiveButton(getString(R.string.ok_button),
@@ -82,5 +96,19 @@ class CreateUserFragment : Fragment() {
             })
 
         registrationAlert.show()
+    }
+
+    private fun emailExistsAlert() {
+        val emailAlert = AlertDialog.Builder(context)
+
+        emailAlert.setCancelable(false)
+        emailAlert.setTitle(getString(R.string.email_exists_alert_title))
+        emailAlert.setMessage(getString(R.string.email_exists_alert_desc))
+        emailAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener() { dialog, button ->
+
+            })
+
+        emailAlert.show()
     }
 }

@@ -10,9 +10,7 @@ import androidx.lifecycle.*
 import com.bitpunchlab.android.shareroutes.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.util.regex.Pattern
@@ -25,7 +23,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     var isLoggedIn = MutableLiveData<Boolean>(false)
     var loggedInUser = MutableLiveData<Boolean>()
     var loggedOutUser = MutableLiveData<Boolean>(false)
-    var currentUser = MutableLiveData<FirebaseUser>()
+    //var currentUser = MutableLiveData<FirebaseUser>()
     val userName = MutableLiveData<String>("")
     val userEmail = MutableLiveData<String>("")
     val userPassword = MutableLiveData<String>("")
@@ -36,12 +34,15 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     val confirmPasswordError = MutableLiveData<String>("")
     var user : User? = null
     private var database : DatabaseReference = Firebase.database.reference
+    var loginError = MutableLiveData<Boolean>(false)
+    val verifyEmailError = MutableLiveData<Boolean>()
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         if (auth.currentUser == null) {
             Log.i(TAG, "logout out successfully")
             loggedOutUser.postValue(true)
         }
+        // may post true value to loggedInUser here
     }
 
     private val nameValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
@@ -69,7 +70,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             } else {
                 value = false
             }
-            //value =
+            //value = false
             Log.i("email valid? ", value.toString())
         }
     }
@@ -93,6 +94,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             } else {
                 value = false
             }
+            //value = false
             Log.i("password valid? ", value.toString())
         }
     }
@@ -111,6 +113,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                 value = false
             }
             Log.i("confirm valid? ", value.toString())
+            //value
         }
     }
 
@@ -171,12 +174,11 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully created user")
                     loggedInUser.postValue(true)
-                    currentUser.postValue(auth.currentUser)
+                    //currentUser.postValue(auth.currentUser)
                 } else {
                     Log.i(TAG, "error in creating user")
                 }
             }
-        //checkIfEmailUsed()
         saveUser(userName.value!!, userEmail.value!!, userPassword.value!!)
     }
 
@@ -185,10 +187,11 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully logged in user")
-                    currentUser.postValue(auth.currentUser)
+                    //currentUser.postValue(auth.currentUser)
                     loggedInUser.postValue(true)
                 } else {
                     Log.i(TAG, "error logging in user")
+                    loginError.postValue(true)
                 }
             }
     }
@@ -222,9 +225,38 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         //return result
     }
 
-    private fun checkIfEmailUsed(email: String) {
-        database.child("emails")
+    private var valueEventListener = object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            // post value true or false for found or not found
+            // that ends the verification, and proceed register or alert failure
+            Log.i("snapshot: ", snapshot.value.toString())
+            if (snapshot.children.count() > 0) {
+                verifyEmailError.postValue(true)
+            } else {
+                verifyEmailError.postValue(false)
+            }
+            for (user in snapshot.children) {
+                Log.i("user email: ", user.child("userEmail").toString())
+                //verifyEmailError.postValue(true)
+            }
+
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            Log.i("error: ", error.message)
+        }
+
+    }
+
+    fun checkIfEmailUsed(email: String) {
+        //val allEmails = database.child("emails")
         //database.orderByKey()
+        //allEmails.addValueEventListener()
+        database
+            .child("users")
+            .orderByChild("userEmail")
+            .equalTo(email)
+            .addListenerForSingleValueEvent(valueEventListener)
     }
 
     fun logoutUser() {
@@ -232,7 +264,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         auth.signOut()
     }
 
-    private fun resetLoginState() {
+    fun resetLoginState() {
         userName.value = ""
         userEmail.value = ""
         userPassword.value = ""
@@ -258,7 +290,14 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     }
 
     private fun isEnableRegistration() : Boolean {
-        return (emailValid.value!! && passwordValid.value!! && confirmPasswordValid.value!!)
+        //return (emailValid.value!! && passwordValid.value!! && confirmPasswordValid.value!!)
+        //var result = false
+        // this is to prevent crash if the values are null at the beginning
+        return (emailValid.value != null || passwordValid.value != null
+                || confirmPasswordValid.value != null) &&
+                (emailValid.value!! && passwordValid.value!! && confirmPasswordValid.value!!)
+
+
     }
 
     private fun isReadyLogin() : Boolean {
