@@ -35,13 +35,12 @@ class MainFragment : Fragment() {
             loginViewModel.logoutUser()
             //findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
         }
-/*
-        loginViewModel.loggedOutUser.observe(viewLifecycleOwner, Observer { loggedOut ->
-            if (loggedOut) {
+
+        loginViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
+            if (loggedIn == null) {
                 findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
             }
         })
-*/
         return binding.root
 
     }

@@ -31,7 +31,7 @@
     <fragment
         android:id="@+id/permissionFragment"
         android:name="com.bitpunchlab.android.shareroutes.PermissionFragment"
-        android:label="fragment_permission"
+        android:label="@string/permission_page"
         tools:layout="@layout/fragment_permission" >
         <action
             android:id="@+id/action_permissionFragment_to_LoginFragment"
@@ -43,7 +43,7 @@
     <fragment
         android:id="@+id/createUserFragment"
         android:name="com.bitpunchlab.android.shareroutes.CreateUserFragment"
-        android:label="CreateUserFragment" >
+        android:label="@string/create_account" >
         <action
             android:id="@+id/action_createUserFragment_to_MainFragment"
             app:destination="@id/MainFragment" />

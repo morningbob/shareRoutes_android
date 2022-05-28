@@ -20,8 +20,12 @@ private const val TAG = "LoginViewModel"
 class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : ViewModel() {
 
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
-    var isLoggedIn = MutableLiveData<Boolean>(false)
-    var loggedInUser = MutableLiveData<Boolean>()
+    // I define the loggedInUser as nullable that null represents the original non-login state
+    // when the user first visits the page.  That the user is just not logged in yet.  Not failed to
+    // login.  So, it is null, not false.
+    // so, whenever it is false, it only means there is error logging in (maybe on the server side)
+    // when it is null, don't trigger error.
+    var loggedInUser = MutableLiveData<Boolean?>()
     var loggedOutUser = MutableLiveData<Boolean>(false)
     //var currentUser = MutableLiveData<FirebaseUser>()
     val userName = MutableLiveData<String>("")
@@ -35,12 +39,19 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     var user : User? = null
     private var database : DatabaseReference = Firebase.database.reference
     var loginError = MutableLiveData<Boolean>(false)
-    val verifyEmailError = MutableLiveData<Boolean>()
+    // this is the same technique as loggedInUser, I need 3 states,
+    // null: when user is trying to create an account
+    // true: email already exists in database
+    // false: email doesn't exists in database, it is after checking
+    val verifyEmailError = MutableLiveData<Boolean?>()
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
-        if (auth.currentUser == null) {
+        // this is when user is in the logout process, it is not completed yet,
+        // so, the user is still logged in.
+        // this is to distinguish from when the user didn't login yet, but is not logging out
+        if (loggedInUser.value != null && auth.currentUser == null) {
             Log.i(TAG, "logout out successfully")
-            loggedOutUser.postValue(true)
+            loggedInUser.postValue(null)
         }
         // may post true value to loggedInUser here
     }
@@ -269,6 +280,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         userEmail.value = ""
         userPassword.value = ""
         userConfirmPassword.value = ""
+        verifyEmailError.value = null
     }
 
     private fun isEmailValid(email: String) : Boolean {

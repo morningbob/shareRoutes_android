@@ -47,14 +47,12 @@ class LoginFragment : Fragment() {
         }
 
         loginViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
-            if (loggedIn) {
+            if (loggedIn == true) {
                 Log.i(TAG, "logged in user")
-                // I clear the states in both places because if loggedIn is null,
-                // we won't clear the states
                 //loginViewModel.resetLoginState()
                 findNavController().navigate(R.id.action_LoginFragment_to_MainFragment)
 
-            } else if (!loggedIn){
+            } else if (loggedIn != null && loggedIn == false){
                 Log.i(TAG, "failed to login user")
                 loginViewModel.resetLoginState()
 

@@ -16,7 +16,7 @@
 
     <string name="main_fragment">Home</string>
     <string name="login_fragment">Login Page</string>
-    <string name="login_name">Login name: </string>
+    <string name="login_email">Login email: </string>
     <string name="button_send">Send</string>
     <string name="create_account">Create a New Account</string>
     <string name="create_account_title">Create Account</string>
@@ -31,5 +31,10 @@
     <string name="login_failure_alert_desc">Failed to login user.  Either the password is incorrect or the email not exist.</string>
     <string name="email_exists_alert_title">Email already exists</string>
     <string name="email_exists_alert_desc">The email you entered already exists in the database.  You can try to login again.  Or, you can use another email to register a new account.</string>
-
+    <string name="create_account_page">Create Account</string>
+    <string name="permission_page">Permissions</string>
+    <string name="share_routes_button">Share a route</string>
+    <string name="suggest_routes_button">Get suggested routes</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

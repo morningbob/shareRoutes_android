@@ -55,23 +55,24 @@ class CreateUserFragment : Fragment() {
         })
 
         loginViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
-            if (loggedIn) {
+            if (loggedIn == true) {
                 Log.i(TAG, "navigate to main fragment")
                 //loginViewModel.resetLoginState()
                 findNavController().navigate(R.id.action_createUserFragment_to_MainFragment)
-            } else if (!loggedIn) {
+            } else if (loggedIn != null && loggedIn == false) {
                 Log.i(TAG, "alert user failure")
                 loginViewModel.resetLoginState()
                 registrationFailureAlert()
             }
+            // when it is null, do nothing
         })
 
         loginViewModel.verifyEmailError.observe(viewLifecycleOwner, Observer { error ->
-            if (error) {
+            if (error == true) {
                 // show alert of error
                 emailExistsAlert()
                 loginViewModel.resetLoginState()
-            } else {
+            } else if (error == false){
                 loginViewModel.registerNewUser()
             }
         })
