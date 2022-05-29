@@ -41,6 +41,11 @@ class MainFragment : Fragment() {
                 findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
             }
         })
+
+        binding.buttonShareRoutes.setOnClickListener {
+            findNavController().navigate(R.id.action_MainFragment_to_shareARouteFragment)
+        }
+
         return binding.root
 
     }

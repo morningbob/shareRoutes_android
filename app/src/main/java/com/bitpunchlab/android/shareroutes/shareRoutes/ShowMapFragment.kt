@@ -27,11 +27,11 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = parentFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+            .findFragmentById(R.id.map) as SupportMapFragment?
+        mapFragment?.getMapAsync(this)
 
         return inflater.inflate(R.layout.fragment_show_map, container, false)
     }

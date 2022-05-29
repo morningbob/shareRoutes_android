@@ -6,12 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bitpunchlab.android.shareroutes.R
+import com.bitpunchlab.android.shareroutes.databinding.FragmentShareARouteBinding
 import com.bitpunchlab.android.shareroutes.databinding.FragmentShareRoutesBinding
 
 
-class ShareRoutesFragment : Fragment() {
+class ShareARouteFragment : Fragment() {
 
-    private var _binding : FragmentShareRoutesBinding? = null
+    private var _binding : FragmentShareARouteBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +24,7 @@ class ShareRoutesFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentShareRoutesBinding.inflate(layoutInflater, container, false)
+        _binding = FragmentShareARouteBinding.inflate(layoutInflater, container, false)
 
         return binding.root
     }
@@ -38,4 +39,6 @@ class ShareRoutesFragment : Fragment() {
         val transaction = childFragmentManager.beginTransaction()
         transaction.replace(R.id.map_fragment_container, mapFragment).commit()
     }
+
+
 }
