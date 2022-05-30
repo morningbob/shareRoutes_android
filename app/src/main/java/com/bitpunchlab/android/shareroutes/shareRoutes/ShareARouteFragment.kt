@@ -75,6 +75,7 @@ class ShareARouteFragment : Fragment() {
         enabledLocation.observe(viewLifecycleOwner, Observer { enabled ->
             if (enabled) {
                 findCurrentLocation()
+                findDeviceLocation()
             }
         })
 
