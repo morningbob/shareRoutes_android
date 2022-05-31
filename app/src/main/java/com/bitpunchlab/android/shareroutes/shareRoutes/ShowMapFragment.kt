@@ -24,7 +24,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var map: GoogleMap
     private lateinit var locationInfoViewModel: LocationInfoViewModel
-    private var mapFragment: SupportMapFragment? = null
+    private lateinit var mapFragment: SupportMapFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,9 +41,9 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
-        mapFragment = parentFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment?.getMapAsync(this)
+        mapFragment = childFragmentManager
+            .findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
         return view
     }
