@@ -8,9 +8,6 @@
     <string name="cancel_button">Cancel</string>
     <string name="permission_intro">The app needs access to your location in order to suggest routes and/or share routes to the other users.</string>
     <string name="title_activity_main">MainActivity</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
@@ -35,7 +32,10 @@
     <string name="permission_page">Permissions</string>
     <string name="share_routes_button">Share a route</string>
     <string name="suggest_routes_button">Get suggested routes</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_maps2">MapsActivity2</string>
+    <string name="share_a_route_title">Share a Route</string>
+    <string name="add_marker_alert_title">Add Marker</string>
+    <string name="add_marker_alert_desc">Do you want to add a marker on where you tapped?</string>
+    <string name="add_button">Add</string>
+    <string name="explain_route_creation">You can tap on the map to add a marker.  The app will try to connect all the markers to create a route.  Or you can tap the record button to record the route as you walk along.</string>
+
 </resources>

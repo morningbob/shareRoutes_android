@@ -4,6 +4,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         tools:context=".shareRoutes.ShareARouteFragment"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -13,5 +14,39 @@
             android:layout_height="400dp">
 
         </FrameLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/explain_route_creation"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/record_route_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_marginRight="20dp"
+                android:text="Record Route" />
+
+            <Button
+                android:id="@+id/create_route_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="Create Route" />
+        </LinearLayout>
+<!--
+        <Button
+            android:id="@+id/add_marker_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="Add Marker" />
+        -->
     </LinearLayout>
 </layout>

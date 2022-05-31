@@ -1,9 +1,4 @@
 package com.bitpunchlab.android.shareroutes
 
 
-enum class AppState {
-
-    LOGGING_IN,
-    LOGGED_IN,
-    LOGGED_OUT
-}
+const val DIRECTION_API_BASE_URL = "https://maps.googleapis.com/maps/api/directions/json"

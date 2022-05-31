@@ -40,7 +40,6 @@ class ShareARouteFragment : Fragment() {
     private lateinit var placesClient: PlacesClient
     private lateinit var locationViewModel: LocationInfoViewModel
     private lateinit var fusedLocationProviderClient : FusedLocationProviderClient
-    private var lastKnowLocation : Location? = null
 
     private var requestLocationLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             isGranted: Boolean ->
@@ -164,4 +163,6 @@ class ShareARouteFragment : Fragment() {
             })
         locationAlert.show()
     }
+
+
 }
