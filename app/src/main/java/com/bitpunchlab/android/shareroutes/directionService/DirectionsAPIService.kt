@@ -10,6 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
@@ -24,8 +25,9 @@ private val retrofit = Retrofit.Builder()
 
 interface DirectionsAPIService {
 
-    @GET
-    fun getRoute() : Deferred<DirectionsResult>
+    @GET("?destination=Montreal&origin=Toronto")
+    fun getRoute(@Query("key") apiKey: String) : Deferred<String>
+
 }
 
 object Network {
