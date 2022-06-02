@@ -27,6 +27,8 @@ import com.google.maps.model.TravelMode
 import java.lang.Exception
 
 private const val TAG = "ShowMapFragment"
+private const val MAX_DISTANCE = 500
+private const val PATH_LINE_WIDTH = 10F
 
 class ShowMapFragment : Fragment(), OnMapReadyCallback {
 
@@ -34,6 +36,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var locationInfoViewModel: LocationInfoViewModel
     private lateinit var mapFragment: SupportMapFragment
     private var path = MutableLiveData<ArrayList<LatLng>>(ArrayList())
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +56,6 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-
-
         return view
     }
 
@@ -66,7 +67,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         map.uiSettings.isZoomControlsEnabled = true
         // set up onTap listener
         map.setOnMapClickListener { clickedLocation ->
-            Log.i("user tapped the map: ", "location ${clickedLocation}")
+            Log.i("user tapped the map: ", "location $clickedLocation")
             addMarkerAlert(clickedLocation)
         }
 
@@ -81,13 +82,20 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         path.observe(viewLifecycleOwner, Observer { thePath ->
             Log.i("path variable count", thePath.size.toString())
             //Log.i("path: ", thePath.toString())
-            if (thePath.isNotEmpty()) {
-                val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(5F)
-                map.addPolyline(opts)
-            }
-            map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(52.757500, -108.286110)))
+            //if (thePath.isNotEmpty()) {
+            //    val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(10F)
+            //    map.addPolyline(opts)
+            //}
+            // we move the camera only after we got all the points of the polyline
+            // and we should construct the line only once.
+            //map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(52.757500, -108.286110)))
         })
 
+        locationInfoViewModel.readyToCreateRoute.observe(viewLifecycleOwner, Observer { ready ->
+            if (ready) {
+                getARouteGeneral()
+            }
+        })
     }
 
     private fun showUserLocation() {
@@ -110,19 +118,6 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
             map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
             Log.i("showed location", "location: lat ${location.latitude} long ${location.longitude}")
 
-            // sample markers
-            //map.addMarker(MarkerOptions().position())
-            val originLocation = Location("")
-            originLocation.latitude = 52.321945
-            originLocation.longitude = -106.584167
-
-            val destLocation = Location("")
-            destLocation.latitude = 52.757500
-            destLocation.longitude = -108.286110
-            val distance = originLocation.distanceTo(destLocation)
-            Log.i("onMapReady distance: ", distance.toString())
-            //measureDistance()
-            //getARouteGeneral()
         } else {
             Log.i(TAG, "can't get location")
         }
@@ -144,7 +139,11 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         markerAlert.setMessage(getString(R.string.add_marker_alert_desc))
         markerAlert.setPositiveButton(getString(R.string.add_button),
             DialogInterface.OnClickListener() { dialog, button ->
-            addMarker(position = clickedLocation, "new marker")
+            if (checkMaxDistance(clickedLocation)) {
+                addMarker(position = clickedLocation, "new marker")
+            } else {
+                maxDistanceExceededAlert()
+            }
 
         })
         markerAlert.setNegativeButton(getString(R.string.cancel_button),
@@ -159,24 +158,25 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
     // the url can contains origin, destination, waypoints and API key
     // waypoints: we can submit some points between the origin and destination,
     //      to guide to generate the nearest route
-    // can specific transportion method too
-    //private fun getARoute(originLocation: LatLng, destinationLocation: LatLng, waypoints: List<LatLng>) {
-        //val geoContext = GeoApiContext
-    private fun getARoute() {
-        val responseString = Network.apiService.getRoute(apiKey = MAPS_API_KEY)
-        Log.i("result from Directions API: ", responseString.toString())
-    }
+    // can specific transportation method too
 
+    // this method initiates a get request to Directions API
+    // it retrieve the markers' lat lng and compose the origin and destination in the request
+    // it also get all the points of the route from the result
     private fun getARouteGeneral() {
+        // at first, we can just get the first and last markers from the view model
+        val originMarker = locationInfoViewModel.markerList.value!!.first()
+        val destinationMarker = locationInfoViewModel.markerList.value!!.last()
+
         val geoContext = GeoApiContext.Builder()
             .apiKey(MAPS_API_KEY)
             .build()
 
         val directionRequest = DirectionsApi.newRequest(geoContext)
             .mode(TravelMode.WALKING)
-            .origin(com.google.maps.model.LatLng(52.321945, -106.584167))
-            .destination(com.google.maps.model.LatLng(52.757500, -108.286110))
-
+            .origin(com.google.maps.model.LatLng(originMarker.position.latitude, originMarker.position.longitude))
+            .destination(com.google.maps.model.LatLng(destinationMarker.position.latitude,
+                destinationMarker.position.longitude))
 
         try {
             val directionResult = directionRequest.await()
@@ -214,11 +214,17 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
                                     Log.i("response", "steps point")
                                     if (stepPoints != null) {
                                         val coordsInside : List<com.google.maps.model.LatLng> = stepPoints.decodePath()
-                                        for (coord in coordsInside) {
-                                            //path.value!!.add(LatLng(coord.lat, coord.lng))
-                                            //Log.i("adding points", path.value.toString())
-                                            add(LatLng(coord.lat, coord.lng))
-                                        }
+                                    coordsInside.forEachIndexed { index, coord ->
+                                        add(LatLng(coord.lat, coord.lng))
+                                        //if (index == (coordsInside.size - 1)) {
+                                            // notify the end of parsing the result
+
+                                        //}
+                                    }
+                                    // assume this is the end of parsing the result
+                                    Log.i("parsing result completed", "we construct path here")
+                                    constructPath()
+
                                     }
                                 }
                             }
@@ -227,6 +233,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
                 }
             }
             // there used to be 0 result exception
+            // so need to consider and handle when no direction result is found.
         } catch (e: Exception) {
             Log.i("response", "there is error getting directions")
             Log.i("error", e.printStackTrace().toString())
@@ -249,15 +256,57 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
     // it is because if the distance is too long, there are too many points in the
     // response that the app can't process.
     // Yet, for walking distance, a route to walk a dog, it should be too long too
-    private fun measureDistance(origin: Location, destination: Location) {
-        // get the first and last markers
 
+    // this method keeps checking the distance between the first marker and the coordinate
+    // of the clicked place.
+    // if the distance exceeds 50 km, there will be an alert to remind user, user can't add
+    // the marker
+    private fun checkMaxDistance(clickedLocation: LatLng) : Boolean {
+        if (locationInfoViewModel.markerList.value!!.isNotEmpty()) {
+            val originMarker = locationInfoViewModel.markerList.value!!.first()
+            //val destinationMarker = locationInfoViewModel.markerList.value!!.last()
+
+            // convert to location object to get the distance
+            val originLocation = Location("")
+            originLocation.latitude = originMarker.position.latitude
+            originLocation.longitude = originMarker.position.longitude
+            val destinationLocation = Location("")
+            destinationLocation.latitude = clickedLocation.latitude
+            destinationLocation.longitude = clickedLocation.longitude
+
+            val distance = originLocation.distanceTo(destinationLocation)
+            return distance > MAX_DISTANCE
+        } else {
+            // in the case that the marker list is empty, that means it is the first marker
+            // we'll let the test pass
+            return true
+        }
+    }
+
+    private fun maxDistanceExceededAlert() {
+        val exceededAlert = AlertDialog.Builder(requireContext())
+
+        exceededAlert.setCancelable(false)
+        exceededAlert.setTitle(getString(R.string.maximum_distance_exceed_alert_title))
+        exceededAlert.setMessage(getString(R.string.maximum_distance_exceed_alert_desc))
+        exceededAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+            // do nothing, wait for another event
+        })
+
+        exceededAlert.show()
+    }
+
+    private fun constructPath() {
+        if (path.value!!.isNotEmpty()) {
+            val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
+                PATH_LINE_WIDTH)
+            map.addPolyline(opts)
+        }
+        // we move the camera only after we got all the points of the polyline
+        // and we should construct the line only once.
+        val destinationMarker = locationInfoViewModel.markerList.value!!.last()
+        map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(destinationMarker.position.latitude,
+            destinationMarker.position.longitude)))
     }
 }
-/*
-val sydney = LatLng(-34.0, 151.0)
-        map.isMyLocationEnabled = true
-        map.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        map.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-
- */

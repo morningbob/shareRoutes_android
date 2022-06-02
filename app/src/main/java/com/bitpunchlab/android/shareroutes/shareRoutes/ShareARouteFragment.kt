@@ -78,6 +78,10 @@ class ShareARouteFragment : Fragment() {
             }
         })
 
+        binding.createRouteButton.setOnClickListener {
+            locationViewModel._readyToCreateRoute.value = true
+        }
+
         return binding.root
     }
 

@@ -37,5 +37,7 @@
     <string name="add_marker_alert_desc">Do you want to add a marker on where you tapped?</string>
     <string name="add_button">Add</string>
     <string name="explain_route_creation">You can tap on the map to add a marker.  The app will try to connect all the markers to create a route.  Or you can tap the record button to record the route as you walk along.</string>
+    <string name="maximum_distance_exceed_alert_title">Maximum Distance</string>
+    <string name="maximum_distance_exceed_alert_desc">The app restricted the maximum distance of the route to be 50 km.  Please choose another place.</string>
 
 </resources>

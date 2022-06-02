@@ -17,8 +17,11 @@ class LocationInfoViewModel : ViewModel() {
     var _lastKnownLocation = MutableLiveData<Location?>()
     val lastKnownLocation get() = _lastKnownLocation
 
-    var _markerList = MutableLiveData<List<MarkerOptions>>()
+    var _markerList = MutableLiveData<List<MarkerOptions>>(emptyList())
     val markerList get() = _markerList
+
+    var _readyToCreateRoute = MutableLiveData<Boolean>(false)
+    val readyToCreateRoute get() = _readyToCreateRoute
 
     var _markerToBeAdded = MutableLiveData<MarkerOptions>()
     val markerToBeAdded get() = _markerToBeAdded
@@ -37,4 +40,6 @@ class LocationInfoViewModel : ViewModel() {
         list.add(marker)
         markerList.value = list
     }
+
+
 }
