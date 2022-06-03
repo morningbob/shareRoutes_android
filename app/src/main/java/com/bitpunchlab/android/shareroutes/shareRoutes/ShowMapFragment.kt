@@ -22,12 +22,13 @@ import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.maps.DirectionsApi
+import com.google.maps.DirectionsApiRequest
 import com.google.maps.GeoApiContext
 import com.google.maps.model.TravelMode
 import java.lang.Exception
 
 private const val TAG = "ShowMapFragment"
-private const val MAX_DISTANCE = 500
+private const val MAX_DISTANCE = 5000
 private const val PATH_LINE_WIDTH = 10F
 
 class ShowMapFragment : Fragment(), OnMapReadyCallback {
@@ -81,14 +82,6 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
 
         path.observe(viewLifecycleOwner, Observer { thePath ->
             Log.i("path variable count", thePath.size.toString())
-            //Log.i("path: ", thePath.toString())
-            //if (thePath.isNotEmpty()) {
-            //    val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(10F)
-            //    map.addPolyline(opts)
-            //}
-            // we move the camera only after we got all the points of the polyline
-            // and we should construct the line only once.
-            //map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(52.757500, -108.286110)))
         })
 
         locationInfoViewModel.readyToCreateRoute.observe(viewLifecycleOwner, Observer { ready ->
@@ -117,6 +110,10 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
 
             map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
             Log.i("showed location", "location: lat ${location.latitude} long ${location.longitude}")
+            // temporary, add the current position as the first marker
+            var marker = MarkerOptions().position(location).title("origin")
+            //addMarker(marker)
+            locationInfoViewModel.addToMarkerList(marker)
 
         } else {
             Log.i(TAG, "can't get location")
@@ -168,6 +165,17 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         val originMarker = locationInfoViewModel.markerList.value!!.first()
         val destinationMarker = locationInfoViewModel.markerList.value!!.last()
 
+        var waypointMarkers : MutableList<MarkerOptions> = locationInfoViewModel.markerList.value!!.toMutableList()
+
+        waypointMarkers.removeFirst()  // the origin marker
+        waypointMarkers.removeLast()  // the destination marker
+
+        val waypointLatLng = waypointMarkers.map { com.google.maps.model.LatLng(it.position.latitude,
+            it.position.longitude) }
+
+        Log.i("waypoint list", waypointLatLng.toString())
+        Log.i("waypoint", waypointLatLng[0].toString())
+
         val geoContext = GeoApiContext.Builder()
             .apiKey(MAPS_API_KEY)
             .build()
@@ -177,6 +185,9 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
             .origin(com.google.maps.model.LatLng(originMarker.position.latitude, originMarker.position.longitude))
             .destination(com.google.maps.model.LatLng(destinationMarker.position.latitude,
                 destinationMarker.position.longitude))
+            .waypoints(*waypointLatLng.toTypedArray())
+            // here, we don't set optimize to true because we want the original route,
+            // not faster route.
 
         try {
             val directionResult = directionRequest.await()
@@ -201,8 +212,11 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
                                         Log.i("response", "steps point")
                                         if (stepOfStepPoints != null) {
                                             val coordsInside : List<com.google.maps.model.LatLng> = stepOfStepPoints.decodePath()
+                                            //coordsInside.forEach {  coord ->
                                             for (coord in coordsInside) {
-                                                path.value!!.add(LatLng(coord.lat, coord.lng))
+                                                Log.i("coordInside", "for each added once")
+                                                add(LatLng(coord.lat, coord.lng))
+                                                //path.value!!.add(LatLng(coord.lat, coord.lng))
                                                 //Log.i("adding points", path.value.toString())
                                             }
                                         }
@@ -214,24 +228,27 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
                                     Log.i("response", "steps point")
                                     if (stepPoints != null) {
                                         val coordsInside : List<com.google.maps.model.LatLng> = stepPoints.decodePath()
-                                    coordsInside.forEachIndexed { index, coord ->
-                                        add(LatLng(coord.lat, coord.lng))
+                                        for (coord in coordsInside) {
+                                        //coordsInside.forEachIndexed { index, coord ->
+                                            add(LatLng(coord.lat, coord.lng))
+                                            Log.i("coordInside", "for each added once")
                                         //if (index == (coordsInside.size - 1)) {
                                             // notify the end of parsing the result
 
                                         //}
-                                    }
-                                    // assume this is the end of parsing the result
-                                    Log.i("parsing result completed", "we construct path here")
-                                    constructPath()
+                                        }
 
                                     }
+
                                 }
                             }
                         }
                     }
                 }
             }
+            // assume this is the end of parsing the result
+            Log.i("parsing result completed", "we construct path here")
+            constructPath()
             // there used to be 0 result exception
             // so need to consider and handle when no direction result is found.
         } catch (e: Exception) {
@@ -275,7 +292,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
             destinationLocation.longitude = clickedLocation.longitude
 
             val distance = originLocation.distanceTo(destinationLocation)
-            return distance > MAX_DISTANCE
+            return distance < MAX_DISTANCE
         } else {
             // in the case that the marker list is empty, that means it is the first marker
             // we'll let the test pass

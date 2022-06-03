@@ -79,7 +79,13 @@ class ShareARouteFragment : Fragment() {
         })
 
         binding.createRouteButton.setOnClickListener {
-            locationViewModel._readyToCreateRoute.value = true
+            // check if there are at least 2 markers in the marker list before calling the function
+            if (locationViewModel.markerList.value!!.size >= 2) {
+                locationViewModel._readyToCreateRoute.value = true
+            } else {
+                // alert user that there is not enough markers
+                markersAlert()
+            }
         }
 
         return binding.root
@@ -166,6 +172,19 @@ class ShareARouteFragment : Fragment() {
                 // do nothing, and let user stay in permission fragment
             })
         locationAlert.show()
+    }
+
+    private fun markersAlert() {
+        val markerAlert = AlertDialog.Builder(requireContext())
+
+        markerAlert.setTitle(getString(R.string.markers_num_alert_title))
+        markerAlert.setMessage(getString(R.string.marker_num_alert_desc))
+        markerAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+            // do nothing and wait for user to add markers
+        })
+
+        markerAlert.show()
     }
 
 
