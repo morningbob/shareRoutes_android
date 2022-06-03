@@ -78,13 +78,21 @@ class ShareARouteFragment : Fragment() {
             }
         })
 
+        binding.startRouteButton.setOnClickListener {
+            // alert user to create markers
+            createMarkerAlert()
+            // when user clicks on the button, the tap listener is then activated
+            // so user can tap to add markers
+            locationViewModel._startCreatingRoute.value = true
+        }
+
         binding.createRouteButton.setOnClickListener {
             // check if there are at least 2 markers in the marker list before calling the function
             if (locationViewModel.markerList.value!!.size >= 2) {
                 locationViewModel._readyToCreateRoute.value = true
             } else {
                 // alert user that there is not enough markers
-                markersAlert()
+                noMarkersAlert()
             }
         }
 
@@ -174,7 +182,24 @@ class ShareARouteFragment : Fragment() {
         locationAlert.show()
     }
 
-    private fun markersAlert() {
+    private fun createMarkerAlert() {
+        val createAlert = AlertDialog.Builder(requireContext())
+
+        createAlert.setCancelable(false)
+        createAlert.setTitle(getString(R.string.create_route_intro_alert_title))
+        createAlert.setMessage(getString(R.string.create_route_intro_alert_desc))
+        createAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing, the show map fragment is enabling click listener
+            })
+        createAlert.setNegativeButton(getString(R.string.cancel_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // don't enable click listener
+                
+            })
+    }
+
+    private fun noMarkersAlert() {
         val markerAlert = AlertDialog.Builder(requireContext())
 
         markerAlert.setTitle(getString(R.string.markers_num_alert_title))
@@ -187,5 +212,5 @@ class ShareARouteFragment : Fragment() {
         markerAlert.show()
     }
 
-
+    //private fun
 }

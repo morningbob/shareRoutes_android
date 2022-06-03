@@ -20,17 +20,12 @@ class LocationInfoViewModel : ViewModel() {
     var _markerList = MutableLiveData<List<MarkerOptions>>(emptyList())
     val markerList get() = _markerList
 
+    var _startCreatingRoute = MutableLiveData<Boolean>(false)
+    val startCreatingRoute get() = _startCreatingRoute
+
     var _readyToCreateRoute = MutableLiveData<Boolean>(false)
     val readyToCreateRoute get() = _readyToCreateRoute
 
-    var _markerToBeAdded = MutableLiveData<MarkerOptions>()
-    val markerToBeAdded get() = _markerToBeAdded
-
-    // provided for the other fragment to add marker to show map fragment
-    // I use this view model to provide communications for 2 fragments
-    fun addMarkerToMap() {
-
-    }
 
     fun addToMarkerList(marker: MarkerOptions) {
         var list = mutableListOf<MarkerOptions>()//emptyList<MarkerOptions>()
@@ -40,6 +35,4 @@ class LocationInfoViewModel : ViewModel() {
         list.add(marker)
         markerList.value = list
     }
-
-
 }

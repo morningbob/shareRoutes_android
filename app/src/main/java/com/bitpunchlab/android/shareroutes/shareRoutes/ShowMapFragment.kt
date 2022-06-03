@@ -38,10 +38,8 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mapFragment: SupportMapFragment
     private var path = MutableLiveData<ArrayList<LatLng>>(ArrayList())
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -66,11 +64,6 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         map = googleMap
         // enable zoom function
         map.uiSettings.isZoomControlsEnabled = true
-        // set up onTap listener
-        map.setOnMapClickListener { clickedLocation ->
-            Log.i("user tapped the map: ", "location $clickedLocation")
-            addMarkerAlert(clickedLocation)
-        }
 
         locationInfoViewModel.lastKnownLocation.observe(viewLifecycleOwner, Observer { location ->
             location?.let {
@@ -84,9 +77,21 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
             Log.i("path variable count", thePath.size.toString())
         })
 
+        locationInfoViewModel.startCreatingRoute.observe(viewLifecycleOwner, Observer { start ->
+            if (start) {
+                // set up onTap listener
+                map.setOnMapClickListener { clickedLocation ->
+                    Log.i("user tapped the map: ", "location $clickedLocation")
+                    addMarkerAlert(clickedLocation)
+                }
+            }
+        })
+
         locationInfoViewModel.readyToCreateRoute.observe(viewLifecycleOwner, Observer { ready ->
             if (ready) {
-                getARouteGeneral()
+                getARoute()
+                // clean the marker list, markers on the map, path after the route was created.
+
             }
         })
     }
@@ -160,7 +165,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
     // this method initiates a get request to Directions API
     // it retrieve the markers' lat lng and compose the origin and destination in the request
     // it also get all the points of the route from the result
-    private fun getARouteGeneral() {
+    private fun getARoute() {
         // at first, we can just get the first and last markers from the view model
         val originMarker = locationInfoViewModel.markerList.value!!.first()
         val destinationMarker = locationInfoViewModel.markerList.value!!.last()
@@ -325,5 +330,9 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         val destinationMarker = locationInfoViewModel.markerList.value!!.last()
         map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(destinationMarker.position.latitude,
             destinationMarker.position.longitude)))
+    }
+
+    private fun cleanMarkersInfo() {
+
     }
 }
