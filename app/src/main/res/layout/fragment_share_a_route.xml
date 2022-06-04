@@ -26,7 +26,11 @@
 -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="42dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:orientation="horizontal">
 
             <Button
@@ -34,9 +38,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
-                android:layout_marginRight="20dp"
-                android:text="Start" />
 
+                android:text="Start" />
+<!--
             <Button
                 android:id="@+id/record_route_button"
                 android:layout_width="wrap_content"
@@ -44,13 +48,45 @@
                 android:textSize="20sp"
                 android:layout_marginRight="20dp"
                 android:text="Record Route" />
-
+-->
             <Button
                 android:id="@+id/create_route_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
                 android:textSize="20sp"
                 android:text="Create Route" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/share_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="Share" />
+
+            <Button
+                android:id="@+id/clear_path_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="Clear Path" />
+
+            <Button
+                android:id="@+id/restart_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:text="Restart" />
+
+
+
         </LinearLayout>
 <!--
         <Button

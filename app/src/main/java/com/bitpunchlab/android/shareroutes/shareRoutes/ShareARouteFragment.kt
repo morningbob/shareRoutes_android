@@ -96,6 +96,18 @@ class ShareARouteFragment : Fragment() {
             }
         }
 
+        binding.clearPathButton.setOnClickListener {
+            locationViewModel._shouldClearPath.value = true
+        }
+
+        binding.shareButton.setOnClickListener {
+            shareAlert()
+        }
+
+        binding.restartButton.setOnClickListener {
+            locationViewModel._shouldRestart.value = true
+        }
+
         return binding.root
     }
 
@@ -192,11 +204,15 @@ class ShareARouteFragment : Fragment() {
             DialogInterface.OnClickListener { dialog, button ->
                 // do nothing, the show map fragment is enabling click listener
             })
+        /*
         createAlert.setNegativeButton(getString(R.string.cancel_button),
             DialogInterface.OnClickListener { dialog, button ->
                 // don't enable click listener
                 
             })
+
+         */
+        createAlert.show()
     }
 
     private fun noMarkersAlert() {
@@ -210,6 +226,27 @@ class ShareARouteFragment : Fragment() {
         })
 
         markerAlert.show()
+    }
+
+    private fun shareAlert() {
+        val shareAlert = AlertDialog.Builder(requireContext())
+
+        shareAlert.setCancelable(false)
+        shareAlert.setTitle("Share the Route")
+        shareAlert.setMessage("Once the Firebase realtime database is set up, I will send it to the database.")
+
+        shareAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // clear previous path info
+                locationViewModel._clearRouteInfo.value = true
+            })
+
+        shareAlert.setNegativeButton(getString(R.string.cancel_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing
+            })
+
+        shareAlert.show()
     }
 
     //private fun

@@ -3,6 +3,7 @@ package com.bitpunchlab.android.shareroutes.map
 import android.location.Location
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.model.PlaceLikelihood
 
@@ -17,7 +18,7 @@ class LocationInfoViewModel : ViewModel() {
     var _lastKnownLocation = MutableLiveData<Location?>()
     val lastKnownLocation get() = _lastKnownLocation
 
-    var _markerList = MutableLiveData<List<MarkerOptions>>(emptyList())
+    var _markerList = MutableLiveData<List<Marker>>(emptyList())
     val markerList get() = _markerList
 
     var _startCreatingRoute = MutableLiveData<Boolean>(false)
@@ -26,9 +27,21 @@ class LocationInfoViewModel : ViewModel() {
     var _readyToCreateRoute = MutableLiveData<Boolean>(false)
     val readyToCreateRoute get() = _readyToCreateRoute
 
+    var _clearRouteInfo = MutableLiveData<Boolean>(false)
+    val clearRouteInfo get() = _clearRouteInfo
 
-    fun addToMarkerList(marker: MarkerOptions) {
-        var list = mutableListOf<MarkerOptions>()//emptyList<MarkerOptions>()
+    var _removeAMarker = MutableLiveData<Boolean>(false)
+    val removeAMarker get() = _removeAMarker
+
+    var _shouldClearPath = MutableLiveData<Boolean>(false)
+    val shouldClearPath get() = _shouldClearPath
+
+    var _shouldRestart = MutableLiveData<Boolean>(false)
+    val shouldRestart get() = _shouldRestart
+
+
+    fun addToMarkerList(marker: Marker) {
+        var list = mutableListOf<Marker>()//emptyList<MarkerOptions>()
         if (!markerList.value.isNullOrEmpty()) {
             list = markerList.value!!.toMutableList()
         }

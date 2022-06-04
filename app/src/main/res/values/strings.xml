@@ -43,5 +43,6 @@
     <string name="marker_num_alert_desc">There is not enough marker to create a route.  Please add up to 10 markers.</string>
     <string name="create_route_intro_alert_title">Create a Route</string>
     <string name="create_route_intro_alert_desc">You can tap on the map to add a marker.  The app will try to connect all the markers to create a route.  Or you can tap the record button to record the route as you walk along.</string>
+    <string name="confirm_button">Confirm</string>
 
 </resources>

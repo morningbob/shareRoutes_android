@@ -16,13 +16,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bitpunchlab.android.shareroutes.BuildConfig.MAPS_API_KEY
 import com.bitpunchlab.android.shareroutes.R
-import com.bitpunchlab.android.shareroutes.directionService.DirectionsAPIService
-import com.bitpunchlab.android.shareroutes.directionService.Network
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.maps.DirectionsApi
-import com.google.maps.DirectionsApiRequest
 import com.google.maps.GeoApiContext
 import com.google.maps.model.TravelMode
 import java.lang.Exception
@@ -30,13 +27,15 @@ import java.lang.Exception
 private const val TAG = "ShowMapFragment"
 private const val MAX_DISTANCE = 5000
 private const val PATH_LINE_WIDTH = 10F
+private const val MAX_NUMBER_MARKERS = 10
 
-class ShowMapFragment : Fragment(), OnMapReadyCallback {
+class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var map: GoogleMap
     private lateinit var locationInfoViewModel: LocationInfoViewModel
     private lateinit var mapFragment: SupportMapFragment
     private var path = MutableLiveData<ArrayList<LatLng>>(ArrayList())
+    private var routeLine : Polyline? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +63,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         map = googleMap
         // enable zoom function
         map.uiSettings.isZoomControlsEnabled = true
+        //map.setOnMarkerClickListener(this)
 
         locationInfoViewModel.lastKnownLocation.observe(viewLifecycleOwner, Observer { location ->
             location?.let {
@@ -84,6 +84,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
                     Log.i("user tapped the map: ", "location $clickedLocation")
                     addMarkerAlert(clickedLocation)
                 }
+                map.setOnMarkerClickListener(this)
             }
         })
 
@@ -91,9 +92,27 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
             if (ready) {
                 getARoute()
                 // clean the marker list, markers on the map, path after the route was created.
-
             }
         })
+
+        locationInfoViewModel.clearRouteInfo.observe(viewLifecycleOwner, Observer { clear ->
+            if (clear) {
+                cleanRouteInfo()
+            }
+        })
+
+        locationInfoViewModel.shouldClearPath.observe(viewLifecycleOwner, Observer { clear ->
+            if (clear) {
+                clearPath()
+            }
+        })
+
+        locationInfoViewModel.shouldRestart.observe(viewLifecycleOwner, Observer { restart ->
+            if (restart) {
+                cleanRouteInfo()
+            }
+        })
+
     }
 
     private fun showUserLocation() {
@@ -102,7 +121,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
                 locationInfoViewModel.lastKnownLocation.value != null) {
             var location = LatLng(locationInfoViewModel.lastKnownLocation.value!!.latitude,
                 locationInfoViewModel.lastKnownLocation.value!!.longitude)
-            map.addMarker(MarkerOptions().position(
+            var marker = map.addMarker(MarkerOptions().position(
                 location).title("Current location"))
             map.moveCamera(CameraUpdateFactory.newLatLng(location))
 
@@ -116,9 +135,11 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
             map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
             Log.i("showed location", "location: lat ${location.latitude} long ${location.longitude}")
             // temporary, add the current position as the first marker
-            var marker = MarkerOptions().position(location).title("origin")
+
             //addMarker(marker)
-            locationInfoViewModel.addToMarkerList(marker)
+            marker.let {
+                locationInfoViewModel.addToMarkerList(it!!)
+            }
 
         } else {
             Log.i(TAG, "can't get location")
@@ -126,11 +147,20 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun addMarker(position: LatLng, title: String) {
-        val bitmapDescriptor = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-        var marker = MarkerOptions().position(position).title(title).icon(bitmapDescriptor)
-        map.addMarker(marker)
-        // we save the marker in the view model
-        locationInfoViewModel.addToMarkerList(marker)
+        // check if there are enough markers
+        if (locationInfoViewModel.markerList.value!!.size < MAX_NUMBER_MARKERS) {
+            val bitmapDescriptor =
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+            var markerOptions = MarkerOptions().position(position).title(title).icon(bitmapDescriptor)
+            var marker = map.addMarker(markerOptions)
+            // we save the marker in the view model
+            marker.let {
+                locationInfoViewModel.addToMarkerList(it!!)
+            }
+        } else {
+            // remind user that they can only place 10 markers
+            maxNumMarkersAlert()
+        }
     }
 
     private fun addMarkerAlert(clickedLocation: LatLng) {
@@ -170,7 +200,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         val originMarker = locationInfoViewModel.markerList.value!!.first()
         val destinationMarker = locationInfoViewModel.markerList.value!!.last()
 
-        var waypointMarkers : MutableList<MarkerOptions> = locationInfoViewModel.markerList.value!!.toMutableList()
+        var waypointMarkers : MutableList<Marker> = locationInfoViewModel.markerList.value!!.toMutableList()
 
         waypointMarkers.removeFirst()  // the origin marker
         waypointMarkers.removeLast()  // the destination marker
@@ -314,6 +344,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         exceededAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
             // do nothing, wait for another event
+
         })
 
         exceededAlert.show()
@@ -323,7 +354,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
         if (path.value!!.isNotEmpty()) {
             val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
                 PATH_LINE_WIDTH)
-            map.addPolyline(opts)
+            routeLine = map.addPolyline(opts)
         }
         // we move the camera only after we got all the points of the polyline
         // and we should construct the line only once.
@@ -332,7 +363,84 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback {
             destinationMarker.position.longitude)))
     }
 
-    private fun cleanMarkersInfo() {
+    private fun clearPath() {
+        routeLine?.remove()
+    }
 
+    private fun cleanRouteInfo() {
+        locationInfoViewModel._markerList.value = emptyList()
+        path.value = ArrayList()
+        // clear the markers on the map
+        removeAllMarkers()
+        // clear the path on the map
+        routeLine?.remove()
+    }
+
+    private fun maxNumMarkersAlert() {
+        val numMarkersAlert = AlertDialog.Builder(requireContext())
+
+        numMarkersAlert.setCancelable(false)
+        numMarkersAlert.setTitle("Number of Markers")
+        numMarkersAlert.setMessage("You can only add up to 10 markers.")
+        numMarkersAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing, don't add the marker
+            })
+        numMarkersAlert.show()
+    }
+
+    // when user clicks a marker, we show an alert if the user wants to remove
+    // the marker.
+    override fun onMarkerClick(marker: Marker): Boolean {
+        Log.i("onMarkerClicked", "marker is clicked")
+        removeMarkerAlert(marker)
+        return true
+    }
+
+    // to remove a marker, also need to remove it from view model marker list
+    private fun removeMarkerFromViewModel(marker: Marker) {
+        if (!locationInfoViewModel.markerList.value.isNullOrEmpty()) {
+            val markerToRemove : Marker? = locationInfoViewModel.markerList.value!!.find { markerInList ->
+                markerInList.id == marker.id
+            }
+            markerToRemove?.let {
+                val markerList = locationInfoViewModel.markerList.value!!.toMutableList()
+                markerList.remove(it)
+                locationInfoViewModel._markerList.value = markerList
+            }
+        }
+    }
+
+    // loop through all markers to remove it
+    private fun removeAllMarkers() {
+        for (marker in locationInfoViewModel.markerList.value!!) {
+            Log.i("removing markers one by one", marker.id)
+            marker.remove()
+        }
+        // reset marker list by clearing set the list to null
+        //locationInfoViewModel._markerList.value = emptyList()
+        //Log.i("remove all markers, now marker list size",
+        //    locationInfoViewModel.markerList.value!!.size.toString())
+    }
+
+    private fun removeMarkerAlert(marker: Marker) {
+        val removeAlert = AlertDialog.Builder(requireContext())
+
+        removeAlert.setCancelable(false)
+        removeAlert.setTitle("Remove the Marker")
+        removeAlert.setMessage("Do you want to remove the marker?")
+
+        removeAlert.setPositiveButton(getString(R.string.confirm_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // remove the marker
+                marker.remove()
+                removeMarkerFromViewModel(marker)
+            })
+
+        removeAlert.setNegativeButton(getString(R.string.cancel_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing
+            })
+        removeAlert.show()
     }
 }
