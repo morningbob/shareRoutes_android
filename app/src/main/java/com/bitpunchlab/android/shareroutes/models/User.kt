@@ -6,6 +6,7 @@ import java.util.*
 class User(var userName : String, var userEmail : String, var userPassword : String) {
 
     val userID = UUID.randomUUID().toString()
+    var routesCreated : List<Route> = emptyList()
 
     fun printUser() {
         Log.i("User", "username: $userName")

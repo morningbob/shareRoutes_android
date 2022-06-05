@@ -102,10 +102,6 @@ class MainFragment : Fragment() {
         requestLocationLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
-    private fun findCurrentLocation() {
-
-    }
-
     private fun locationPermissionAlert() {
         val locationAlert = AlertDialog.Builder(context)
 

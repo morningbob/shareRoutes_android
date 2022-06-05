@@ -7,13 +7,17 @@ import android.util.Patterns
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.lifecycle.*
+import com.bitpunchlab.android.shareroutes.models.Route
 import com.bitpunchlab.android.shareroutes.models.User
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import java.util.regex.Pattern
+import kotlin.collections.ArrayList
 
 private const val TAG = "LoginViewModel"
 
@@ -44,6 +48,13 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     // true: email already exists in database
     // false: email doesn't exists in database, it is after checking
     val verifyEmailError = MutableLiveData<Boolean?>()
+    // we will get the user from the database if we successfully authenticate the user
+    var userObject = MutableLiveData<User>()
+    var userRoutes : List<Route> = emptyList()
+    private var retrievedUserObject = MutableLiveData<Boolean>(false)
+
+    var _routeToShare = MutableLiveData<List<LatLng>>(emptyList())
+    val routeToShare get() = _routeToShare
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         // this is when user is in the logout process, it is not completed yet,
@@ -52,8 +63,17 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         if (loggedInUser.value != null && auth.currentUser == null) {
             Log.i(TAG, "logout out successfully")
             loggedInUser.postValue(null)
+        } else if (auth.currentUser == null) {
+            Log.i("auth listener", "auth state is changed to null")
+        } else if (auth.currentUser != null) {
+            // this is the case when user logged in before, and close and then start the app
+            // again, it should be logged in
+            retrieveUserObject()
+            loggedInUser.postValue(true)
+
+            // need to get the user from the database for reference
+            // need to use user's routesCreated to save new route in database
         }
-        // may post true value to loggedInUser here
     }
 
     private val nameValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
@@ -81,7 +101,6 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             } else {
                 value = false
             }
-            //value = false
             Log.i("email valid? ", value.toString())
         }
     }
@@ -105,7 +124,6 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             } else {
                 value = false
             }
-            //value = false
             Log.i("password valid? ", value.toString())
         }
     }
@@ -124,7 +142,6 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                 value = false
             }
             Log.i("confirm valid? ", value.toString())
-            //value
         }
     }
 
@@ -180,6 +197,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     }
 
     fun registerNewUser() {
+        // this part is to register user in the Firebase Auth
         auth.createUserWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
@@ -190,15 +208,18 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                     Log.i(TAG, "error in creating user")
                 }
             }
+        // this part is to register user in my database
         saveUser(userName.value!!, userEmail.value!!, userPassword.value!!)
     }
 
+    // when we log in user, we also get the user object from the database as a
+    // reference to quickly access properties
     fun authenticateUser() {
         auth.signInWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully logged in user")
-                    //currentUser.postValue(auth.currentUser)
+                    //retrieveUserObject()
                     loggedInUser.postValue(true)
                 } else {
                     Log.i(TAG, "error logging in user")
@@ -207,9 +228,18 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             }
     }
 
+    private fun retrieveUserObject() {
+        database
+            .child("users")
+            .orderByChild("userEmail")
+            .equalTo(userEmail.value)
+            .addListenerForSingleValueEvent(userValueEventListener)
+    }
+
     private fun saveUser(name: String, email: String, password: String) {
         user = createUser(name, email, password)
         saveUserInDatabase(user!!)
+
     }
 
     private fun createUser(name: String, email: String, password: String) : User {
@@ -217,14 +247,12 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     }
 
     private fun saveUserInDatabase(user: User)  {
-        //var result = false
         database.child("users").child(user.userID).setValue(user, DatabaseReference.CompletionListener() {
             error: DatabaseError?, ref: DatabaseReference ->
             if (error != null) {
                 Log.i(TAG, "there is error writing to database: ${error.message}")
 
             } else {
-                //result = true
                 Log.i(TAG, "successfully saved user")
             }
         })
@@ -233,41 +261,58 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         keyID?.let { key ->
             database.child("emails").child(key).setValue(user.userEmail)
         }
-        //return result
     }
 
-    private var valueEventListener = object : ValueEventListener {
+    private var emailValueEventListener = object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
             // post value true or false for found or not found
             // that ends the verification, and proceed register or alert failure
             Log.i("snapshot: ", snapshot.value.toString())
             if (snapshot.children.count() > 0) {
                 verifyEmailError.postValue(true)
+                /*
+                for (user in snapshot.children) {
+                    Log.i("user email: ", user.child("userEmail").toString())
+                    //val routes = user.child("routesCreated")
+                    if (user.child("routesCreated") != null) {
+                        userRoutes = user.child("routesCreated").getValue<List<Route>>()!!
+                    }
+                }
+                 */
+                // we store the user object in the app
+                userObject.postValue(snapshot.children.first().getValue<User>())
+
             } else {
                 verifyEmailError.postValue(false)
             }
-            for (user in snapshot.children) {
-                Log.i("user email: ", user.child("userEmail").toString())
-                //verifyEmailError.postValue(true)
-            }
-
         }
 
         override fun onCancelled(error: DatabaseError) {
             Log.i("error: ", error.message)
         }
+    }
 
+    private var userValueEventListener = object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            Log.i("retrieving user", "result back")
+            if (snapshot.children.count() > 0) {
+                Log.i("retrieving user", "found the user")
+                userObject.postValue(snapshot.children.first().getValue<User>())
+            } else {
+                Log.i("retrieving user", "user not found")
+            }
+        }
+        override fun onCancelled(error: DatabaseError) {
+            Log.i("error: ", error.message)
+        }
     }
 
     fun checkIfEmailUsed(email: String) {
-        //val allEmails = database.child("emails")
-        //database.orderByKey()
-        //allEmails.addValueEventListener()
         database
             .child("users")
             .orderByChild("userEmail")
             .equalTo(email)
-            .addListenerForSingleValueEvent(valueEventListener)
+            .addListenerForSingleValueEvent(emailValueEventListener)
     }
 
     fun logoutUser() {
@@ -308,13 +353,69 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         return (emailValid.value != null || passwordValid.value != null
                 || confirmPasswordValid.value != null) &&
                 (emailValid.value!! && passwordValid.value!! && confirmPasswordValid.value!!)
-
-
     }
 
     private fun isReadyLogin() : Boolean {
         return (emailValid.value!! && passwordValid.value!!)
     }
+
+    // this method save the route in Firebase database
+    fun saveRoute(newRoute: Route) {
+        // get logged in user's auth object
+        // save in database
+        // we save the route in 2 places, 1 in a collection of all routes
+        // one inside the user object
+        // this is to make searching for routes faster to look up in routes
+        database.child("routes").child(newRoute.id).setValue(newRoute) {
+                error: DatabaseError?, ref: DatabaseReference ->
+            if (error != null) {
+                Log.i(TAG, "there is error writing to database: ${error.message}")
+
+            } else {
+                Log.i(TAG, "successfully saved route")
+                Log.i("saved new route in routes", "ok")
+            }
+        }
+        // first, we get the routesCreated from the user object
+        // then, we add the route in the routesCreated
+        // then, we update the routesCreated property by the new list
+        var newRoutes : MutableList<Route> = emptyList<Route>().toMutableList()
+        if (userObject.value != null) {
+            newRoutes = userObject.value!!.routesCreated.toMutableList()
+            Log.i("routes: ", "got old routes ${newRoutes.size}")
+
+            newRoutes.add(newRoute)
+        } else {
+            Log.i("routes: ", "no route")
+            newRoutes.add(newRoute)
+        }
+        // save in the user object for the user
+        // first we find the user
+        // then update the child of the user
+        //database.child("users").child(userObject!!.userID)
+        //    .addListenerForSingleValueEvent(userValueEventListener)
+        // need to handle the case where the user doesn't have any route created!!
+        database.child("users").child(userObject.value!!.userID)
+            .child("routesCreated").setValue(newRoutes){
+                    error: DatabaseError?, ref: DatabaseReference ->
+                if (error != null) {
+                    Log.i(TAG, "there is error writing to database: ${error.message}")
+
+                } else {
+                    Log.i(TAG, "successfully saved routes in user")
+                }
+            }
+    }
+/*
+    private fun getUserRoutes() {
+        database
+            .child("users")
+            .orderByChild("userID")
+            .equalTo(email)
+            .addListenerForSingleValueEvent(userValueEventListener)
+    }
+
+ */
 }
 
 

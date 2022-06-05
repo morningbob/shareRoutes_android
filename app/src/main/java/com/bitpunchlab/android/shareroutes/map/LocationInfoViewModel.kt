@@ -3,6 +3,7 @@ package com.bitpunchlab.android.shareroutes.map
 import android.location.Location
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.model.PlaceLikelihood
@@ -38,6 +39,9 @@ class LocationInfoViewModel : ViewModel() {
 
     var _shouldRestart = MutableLiveData<Boolean>(false)
     val shouldRestart get() = _shouldRestart
+
+    var _routeToShare = MutableLiveData<List<LatLng>>()
+    val routeToShare get() = _routeToShare
 
 
     fun addToMarkerList(marker: Marker) {

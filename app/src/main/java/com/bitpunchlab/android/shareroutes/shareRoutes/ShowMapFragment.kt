@@ -29,6 +29,12 @@ private const val MAX_DISTANCE = 5000
 private const val PATH_LINE_WIDTH = 10F
 private const val MAX_NUMBER_MARKERS = 10
 
+// this is the fragment that controls the supportMapFragment.
+// all the map related operations happen here
+// this include posting request to Directions API
+// and placing markers in the map
+// it also responsible for constructing the path of the route
+//
 class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var map: GoogleMap
@@ -63,7 +69,6 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
         map = googleMap
         // enable zoom function
         map.uiSettings.isZoomControlsEnabled = true
-        //map.setOnMarkerClickListener(this)
 
         locationInfoViewModel.lastKnownLocation.observe(viewLifecycleOwner, Observer { location ->
             location?.let {
@@ -221,8 +226,9 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
             .destination(com.google.maps.model.LatLng(destinationMarker.position.latitude,
                 destinationMarker.position.longitude))
             .waypoints(*waypointLatLng.toTypedArray())
-            // here, we don't set optimize to true because we want the original route,
-            // not faster route.
+            .optimizeWaypoints(true)
+            // here, we optimize to true because we want google to ignore the orders of the markers.
+
 
         try {
             val directionResult = directionRequest.await()
@@ -247,12 +253,9 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
                                         Log.i("response", "steps point")
                                         if (stepOfStepPoints != null) {
                                             val coordsInside : List<com.google.maps.model.LatLng> = stepOfStepPoints.decodePath()
-                                            //coordsInside.forEach {  coord ->
-                                            for (coord in coordsInside) {
+                                            coordsInside.forEach {  coord ->
                                                 Log.i("coordInside", "for each added once")
                                                 add(LatLng(coord.lat, coord.lng))
-                                                //path.value!!.add(LatLng(coord.lat, coord.lng))
-                                                //Log.i("adding points", path.value.toString())
                                             }
                                         }
                                     }
@@ -263,14 +266,9 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
                                     Log.i("response", "steps point")
                                     if (stepPoints != null) {
                                         val coordsInside : List<com.google.maps.model.LatLng> = stepPoints.decodePath()
-                                        for (coord in coordsInside) {
-                                        //coordsInside.forEachIndexed { index, coord ->
+                                        coordsInside.forEach { coord ->
                                             add(LatLng(coord.lat, coord.lng))
                                             Log.i("coordInside", "for each added once")
-                                        //if (index == (coordsInside.size - 1)) {
-                                            // notify the end of parsing the result
-
-                                        //}
                                         }
 
                                     }
@@ -355,6 +353,8 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
             val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
                 PATH_LINE_WIDTH)
             routeLine = map.addPolyline(opts)
+            // share the route points with share a route fragment
+            locationInfoViewModel._routeToShare.value = path.value
         }
         // we move the camera only after we got all the points of the polyline
         // and we should construct the line only once.
@@ -368,10 +368,10 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
     }
 
     private fun cleanRouteInfo() {
+        removeAllMarkers()
         locationInfoViewModel._markerList.value = emptyList()
         path.value = ArrayList()
         // clear the markers on the map
-        removeAllMarkers()
         // clear the path on the map
         routeLine?.remove()
     }
@@ -380,8 +380,8 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
         val numMarkersAlert = AlertDialog.Builder(requireContext())
 
         numMarkersAlert.setCancelable(false)
-        numMarkersAlert.setTitle("Number of Markers")
-        numMarkersAlert.setMessage("You can only add up to 10 markers.")
+        numMarkersAlert.setTitle(getString(R.string.max_markers_alert_title))
+        numMarkersAlert.setMessage(getString(R.string.max_markers_alert_desc))
         numMarkersAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
                 // do nothing, don't add the marker
@@ -413,6 +413,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
 
     // loop through all markers to remove it
     private fun removeAllMarkers() {
+        Log.i("remove all markers, list size", locationInfoViewModel.markerList.value!!.size.toString())
         for (marker in locationInfoViewModel.markerList.value!!) {
             Log.i("removing markers one by one", marker.id)
             marker.remove()
@@ -427,8 +428,8 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
         val removeAlert = AlertDialog.Builder(requireContext())
 
         removeAlert.setCancelable(false)
-        removeAlert.setTitle("Remove the Marker")
-        removeAlert.setMessage("Do you want to remove the marker?")
+        removeAlert.setTitle(getString(R.string.remove_marker_alert_title))
+        removeAlert.setMessage(getString(R.string.remove_marker_alert_desc))
 
         removeAlert.setPositiveButton(getString(R.string.confirm_button),
             DialogInterface.OnClickListener { dialog, button ->

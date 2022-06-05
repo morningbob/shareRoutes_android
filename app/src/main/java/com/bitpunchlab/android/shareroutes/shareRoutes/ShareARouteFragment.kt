@@ -18,9 +18,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bitpunchlab.android.shareroutes.BuildConfig.MAPS_API_KEY
+import com.bitpunchlab.android.shareroutes.LoginViewModel
+import com.bitpunchlab.android.shareroutes.LoginViewModelFactory
 import com.bitpunchlab.android.shareroutes.R
 import com.bitpunchlab.android.shareroutes.databinding.FragmentShareARouteBinding
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
+import com.bitpunchlab.android.shareroutes.models.Route
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -32,6 +35,11 @@ import com.google.android.libraries.places.api.net.PlacesClient
 
 private const val TAG = "ShareARouteFragment"
 
+// this class responsible for displaying the share routes interface
+// the map view, the controls of sharing.
+// it's layout include a fragment container to host the supportMapFragment
+// it communicates with show map fragment by using the location view model
+// it also deals with the database for sharing routes and getting routes suggestions
 class ShareARouteFragment : Fragment() {
 
     private var _binding : FragmentShareARouteBinding? = null
@@ -39,6 +47,7 @@ class ShareARouteFragment : Fragment() {
     private val enabledLocation = MutableLiveData<Boolean>(false)
     private lateinit var placesClient: PlacesClient
     private lateinit var locationViewModel: LocationInfoViewModel
+    private lateinit var loginViewModel: LoginViewModel
     private lateinit var fusedLocationProviderClient : FusedLocationProviderClient
 
     private var requestLocationLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -64,6 +73,8 @@ class ShareARouteFragment : Fragment() {
         _binding = FragmentShareARouteBinding.inflate(layoutInflater, container, false)
         locationViewModel = ViewModelProvider(requireActivity())
             .get(LocationInfoViewModel::class.java)
+        loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
+            .get(LoginViewModel::class.java)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         checkLocationPermission()
@@ -237,8 +248,20 @@ class ShareARouteFragment : Fragment() {
 
         shareAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
-                // clear previous path info
-                locationViewModel._clearRouteInfo.value = true
+                // contact login view model to save the route in the user object and route table
+                // in Firebase database
+                // check if there is a route
+                if (locationViewModel.routeToShare.value != null) {
+                    loginViewModel._routeToShare.value = locationViewModel.routeToShare.value!!
+                    val newRoute = Route(points = locationViewModel._routeToShare.value!!)
+
+                    loginViewModel.saveRoute(newRoute)
+                    // clear previous path info
+                    locationViewModel._clearRouteInfo.value = true
+                } else {
+                    Log.i("error", "there is no route from map fragment")
+                }
+
             })
 
         shareAlert.setNegativeButton(getString(R.string.cancel_button),
@@ -249,5 +272,4 @@ class ShareARouteFragment : Fragment() {
         shareAlert.show()
     }
 
-    //private fun
 }
