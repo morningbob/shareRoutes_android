@@ -3,14 +3,21 @@ package com.bitpunchlab.android.shareroutes.models
 import android.util.Log
 import java.util.*
 
-class User(var userName : String, var userEmail : String, var userPassword : String) {
+class User  {
 
     val userID = UUID.randomUUID().toString()
+    var userName : String = ""
+    var userEmail : String = ""
+    var userPassword : String = ""
     var routesCreated : List<Route> = emptyList()
 
-    fun printUser() {
-        Log.i("User", "username: $userName")
-        Log.i("User", "useremail: $userEmail")
-        Log.i("User", "userpassword: $userPassword")
-    }
+    constructor()
+
+    constructor(name : String, email : String,
+                password : String, routes : List<Route>) : this() {
+                    userName = name
+                    userEmail = email
+                    userPassword = password
+                    routesCreated = routes
+                }
 }

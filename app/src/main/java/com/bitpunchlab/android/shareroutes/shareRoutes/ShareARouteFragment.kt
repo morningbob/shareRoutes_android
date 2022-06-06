@@ -253,9 +253,8 @@ class ShareARouteFragment : Fragment() {
                 // check if there is a route
                 if (locationViewModel.routeToShare.value != null) {
                     loginViewModel._routeToShare.value = locationViewModel.routeToShare.value!!
-                    val newRoute = Route(points = locationViewModel._routeToShare.value!!)
-
-                    loginViewModel.saveRoute(newRoute)
+                    //val newRoute = Route(pts = locationViewModel._routeToShare.value!!)
+                    loginViewModel.saveRoute(loginViewModel.routeToShare.value!!)
                     // clear previous path info
                     locationViewModel._clearRouteInfo.value = true
                 } else {

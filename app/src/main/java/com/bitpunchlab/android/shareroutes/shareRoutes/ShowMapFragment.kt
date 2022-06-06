@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bitpunchlab.android.shareroutes.BuildConfig.MAPS_API_KEY
 import com.bitpunchlab.android.shareroutes.R
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
+import com.bitpunchlab.android.shareroutes.models.Route
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.maps.DirectionsApi
@@ -353,14 +354,24 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
             val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
                 PATH_LINE_WIDTH)
             routeLine = map.addPolyline(opts)
-            // share the route points with share a route fragment
-            locationInfoViewModel._routeToShare.value = path.value
+            // create the Route object and share it
+            locationInfoViewModel._routeToShare.value = Route(pts = transformLatLngToList(path.value!!))
         }
         // we move the camera only after we got all the points of the polyline
         // and we should construct the line only once.
         val destinationMarker = locationInfoViewModel.markerList.value!!.last()
         map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(destinationMarker.position.latitude,
             destinationMarker.position.longitude)))
+    }
+
+    private fun transformLatLngToList(routePoints: List<LatLng>) : List<List<String>> {
+        val transformedPoints = routePoints.map { routePoint ->
+            val list = emptyList<String>().toMutableList()
+            list.add(routePoint.latitude.toString())
+            list.add(routePoint.longitude.toString())
+            list
+        }
+        return transformedPoints
     }
 
     private fun clearPath() {

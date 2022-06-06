@@ -16,8 +16,10 @@ import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import org.json.JSONArray
+import org.json.JSONObject
 import java.util.regex.Pattern
-import kotlin.collections.ArrayList
+
 
 private const val TAG = "LoginViewModel"
 
@@ -29,9 +31,11 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     // login.  So, it is null, not false.
     // so, whenever it is false, it only means there is error logging in (maybe on the server side)
     // when it is null, don't trigger error.
+    // I use loggedInUser to decide whether to navigate to main fragment or not
+    // but beware that I also need the user object to save routes in the database
+    // I actually need to wait for the user object to be ready too
     var loggedInUser = MutableLiveData<Boolean?>()
-    var loggedOutUser = MutableLiveData<Boolean>(false)
-    //var currentUser = MutableLiveData<FirebaseUser>()
+    //var loggedOutUser = MutableLiveData<Boolean>(false)
     val userName = MutableLiveData<String>("")
     val userEmail = MutableLiveData<String>("")
     val userPassword = MutableLiveData<String>("")
@@ -53,7 +57,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     var userRoutes : List<Route> = emptyList()
     private var retrievedUserObject = MutableLiveData<Boolean>(false)
 
-    var _routeToShare = MutableLiveData<List<LatLng>>(emptyList())
+    var _routeToShare = MutableLiveData<Route>()
     val routeToShare get() = _routeToShare
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
@@ -229,6 +233,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     }
 
     private fun retrieveUserObject() {
+        Log.i("retrieving user, email", userEmail.value!!)
         database
             .child("users")
             .orderByChild("userEmail")
@@ -243,7 +248,8 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     }
 
     private fun createUser(name: String, email: String, password: String) : User {
-        return User(userName = name, userEmail = email, userPassword = password)
+        return User(name = name, email = email, password = password,
+            routes = listOf(Route(pts = listOf(listOf("43.6532", "79.3832")))))
     }
 
     private fun saveUserInDatabase(user: User)  {
@@ -297,7 +303,24 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             Log.i("retrieving user", "result back")
             if (snapshot.children.count() > 0) {
                 Log.i("retrieving user", "found the user")
-                userObject.postValue(snapshot.children.first().getValue<User>())
+                val resultString = snapshot.children.first().getValue().toString()
+                Log.i("retrieve routes", resultString)
+                //userObject.postValue(snapshot.children.first().getValue<User>())
+                // here I parse json string from the result we got back
+                val result = JSONObject(resultString)
+                //val result = Gson().toJson(resultString)
+                Log.i("json", result.toString())
+                //val userFromJson = Gson().fromJson(result, User::class.java)
+                //Log.i("routes: ", userFromJson.routesCreated.toString())
+                val routes = result.optJSONArray("routesCreated")
+                Log.i("routes json array: ", routes.toString())
+                val firstJSON : JSONObject = routes[0] as JSONObject
+                val pointsArray = firstJSON.optJSONArray("points")
+                Log.i("points string: ", pointsArray.toString())
+                val firstPoint = pointsArray[0] as JSONArray
+                Log.i("first point: ", firstPoint[0].toString())
+                Log.i("to float: ", (firstPoint[0] as Double).toString())
+
             } else {
                 Log.i("retrieving user", "user not found")
             }
@@ -379,12 +402,15 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         // first, we get the routesCreated from the user object
         // then, we add the route in the routesCreated
         // then, we update the routesCreated property by the new list
+
         var newRoutes : MutableList<Route> = emptyList<Route>().toMutableList()
         if (userObject.value != null) {
-            newRoutes = userObject.value!!.routesCreated.toMutableList()
-            Log.i("routes: ", "got old routes ${newRoutes.size}")
+            userObject.value!!.routesCreated?.toMutableList()?.let {
+                newRoutes = it
+                    Log.i("routes: ", "got old routes ${newRoutes.size}")
 
-            newRoutes.add(newRoute)
+                newRoutes.add(newRoute)
+            }
         } else {
             Log.i("routes: ", "no route")
             newRoutes.add(newRoute)
@@ -405,6 +431,8 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                     Log.i(TAG, "successfully saved routes in user")
                 }
             }
+
+
     }
 /*
     private fun getUserRoutes() {
