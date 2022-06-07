@@ -354,14 +354,44 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
             val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
                 PATH_LINE_WIDTH)
             routeLine = map.addPolyline(opts)
+            val transformedPoints = transformPointsToMap(path.value!!)
             // create the Route object and share it
-            locationInfoViewModel._routeToShare.value = Route(pts = transformLatLngToList(path.value!!))
+            //val route = Route(transformedPoints)
+            //val map = HashMap<String, Route>()
+            //map.put(route.id, route)
+            locationInfoViewModel._routeToShare.value = Route(transformedPoints)
         }
         // we move the camera only after we got all the points of the polyline
         // and we should construct the line only once.
         val destinationMarker = locationInfoViewModel.markerList.value!!.last()
         map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(destinationMarker.position.latitude,
             destinationMarker.position.longitude)))
+    }
+
+    // transform list of lan lng to list of map with letter key and map of lan lng object
+    private fun transformLatLngToMap(point: LatLng) : HashMap<String, Double> {
+        //var pointMap = HashMap<String, HashMap<String, Double>>()
+        var latlngMap = HashMap<String, Double>()
+        latlngMap.put("lat", point.latitude)
+        latlngMap.put("lng", point.longitude)
+        return latlngMap
+    }
+
+    private fun transformPointToMap(point: LatLng, key: String) : HashMap<String, HashMap<String, Double>> {
+        var pointMap = HashMap<String, HashMap<String, Double>>()
+        pointMap.put(key, transformLatLngToMap(point))
+        return pointMap
+    }
+
+    private fun transformPointsToMap(points: List<LatLng>) : HashMap<String, HashMap<String, HashMap<String, Double>>> {
+        var pointsMap = HashMap<String, HashMap<String, HashMap<String, Double>>>()
+        for (i in 0 until points.size) {
+            // generate letter key
+            var key = "${i}A"
+
+            pointsMap.put(key, transformPointToMap(points[i], key))
+        }
+        return pointsMap
     }
 
     private fun transformLatLngToList(routePoints: List<LatLng>) : List<List<String>> {

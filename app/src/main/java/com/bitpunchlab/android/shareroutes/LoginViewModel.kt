@@ -249,7 +249,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
 
     private fun createUser(name: String, email: String, password: String) : User {
         return User(name = name, email = email, password = password,
-            routes = listOf(Route(pts = listOf(listOf("43.6532", "79.3832")))))
+            routes = HashMap<String, Route>())
     }
 
     private fun saveUserInDatabase(user: User)  {
@@ -276,16 +276,9 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             Log.i("snapshot: ", snapshot.value.toString())
             if (snapshot.children.count() > 0) {
                 verifyEmailError.postValue(true)
-                /*
-                for (user in snapshot.children) {
-                    Log.i("user email: ", user.child("userEmail").toString())
-                    //val routes = user.child("routesCreated")
-                    if (user.child("routesCreated") != null) {
-                        userRoutes = user.child("routesCreated").getValue<List<Route>>()!!
-                    }
-                }
-                 */
                 // we store the user object in the app
+                Log.i("email event listener", "saving userObject")
+                Log.i("userObject: ", snapshot.children.first().getValue<User>().toString())
                 userObject.postValue(snapshot.children.first().getValue<User>())
 
             } else {
@@ -304,6 +297,8 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
             if (snapshot.children.count() > 0) {
                 Log.i("retrieving user", "found the user")
                 val resultString = snapshot.children.first().getValue().toString()
+                userObject.postValue(snapshot.children.first().getValue<User>())
+                /*
                 Log.i("retrieve routes", resultString)
                 //userObject.postValue(snapshot.children.first().getValue<User>())
                 // here I parse json string from the result we got back
@@ -320,7 +315,7 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                 val firstPoint = pointsArray[0] as JSONArray
                 Log.i("first point: ", firstPoint[0].toString())
                 Log.i("to float: ", (firstPoint[0] as Double).toString())
-
+*/
             } else {
                 Log.i("retrieving user", "user not found")
             }
@@ -403,24 +398,22 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         // then, we add the route in the routesCreated
         // then, we update the routesCreated property by the new list
 
-        var newRoutes : MutableList<Route> = emptyList<Route>().toMutableList()
+        var newRoutes = HashMap<String, Route>()
         if (userObject.value != null) {
-            userObject.value!!.routesCreated?.toMutableList()?.let {
+            userObject.value!!.routesCreated.let {
                 newRoutes = it
-                    Log.i("routes: ", "got old routes ${newRoutes.size}")
-
-                newRoutes.add(newRoute)
+                Log.i("routes: ", "got old routes ${newRoutes.size}")
+                newRoutes.put(newRoute.id, newRoute)
             }
         } else {
             Log.i("routes: ", "no route")
-            newRoutes.add(newRoute)
+            newRoutes.put(newRoute.id, newRoute)
         }
+
         // save in the user object for the user
         // first we find the user
         // then update the child of the user
-        //database.child("users").child(userObject!!.userID)
-        //    .addListenerForSingleValueEvent(userValueEventListener)
-        // need to handle the case where the user doesn't have any route created!!
+
         database.child("users").child(userObject.value!!.userID)
             .child("routesCreated").setValue(newRoutes){
                     error: DatabaseError?, ref: DatabaseReference ->
@@ -431,21 +424,8 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                     Log.i(TAG, "successfully saved routes in user")
                 }
             }
-
-
     }
-/*
-    private fun getUserRoutes() {
-        database
-            .child("users")
-            .orderByChild("userID")
-            .equalTo(email)
-            .addListenerForSingleValueEvent(userValueEventListener)
-    }
-
- */
 }
-
 
 class LoginViewModelFactory(private val activity: Activity)
     : ViewModelProvider.Factory {
@@ -456,4 +436,36 @@ class LoginViewModelFactory(private val activity: Activity)
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
+/*
+    private fun getUserRoutes() {
+        database
+            .child("users")
+            .orderByChild("userID")
+            .equalTo(email)
+            .addListenerForSingleValueEvent(userValueEventListener)
+    }
+
+private fun getNewRouteKey(routes: HashMap<String, Route>) : String {
+        if (routes.isNotEmpty()) {
+            // get all keys
+            val keys = routes.keys
+            // sort keys
+            val sortedKeys = keys.sortedBy { it }
+            Log.i("sorted keys: ", sortedKeys.toString())
+            val lastKey = sortedKeys.last()
+            // get the numeric index
+            val lastIndex = lastKey.substring(0, lastKey.length - 1).toInt()
+            val newKey = "${lastIndex}A"
+            Log.i("newKey: ", newKey)
+            return newKey
+        } else {
+            return "0A"
+        }
+    }
+ */
+
+
+
+
 
