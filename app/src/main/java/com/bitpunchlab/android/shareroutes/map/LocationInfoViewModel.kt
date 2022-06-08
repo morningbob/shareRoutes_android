@@ -7,6 +7,7 @@ import com.bitpunchlab.android.shareroutes.models.Route
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.libraries.places.api.model.PlaceLikelihood
 
 class LocationInfoViewModel : ViewModel() {
@@ -32,9 +33,6 @@ class LocationInfoViewModel : ViewModel() {
     var _clearRouteInfo = MutableLiveData<Boolean>(false)
     val clearRouteInfo get() = _clearRouteInfo
 
-    var _removeAMarker = MutableLiveData<Boolean>(false)
-    val removeAMarker get() = _removeAMarker
-
     var _shouldClearPath = MutableLiveData<Boolean>(false)
     val shouldClearPath get() = _shouldClearPath
 
@@ -43,6 +41,9 @@ class LocationInfoViewModel : ViewModel() {
 
     var _routeToShare = MutableLiveData<Route>()
     val routeToShare get() = _routeToShare
+
+    var _routeLine = MutableLiveData<Polyline?>()
+    val routeLine get() = _routeLine
 
 
     fun addToMarkerList(marker: Marker) {

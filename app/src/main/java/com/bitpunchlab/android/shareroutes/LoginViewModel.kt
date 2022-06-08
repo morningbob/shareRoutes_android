@@ -54,8 +54,8 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
     val verifyEmailError = MutableLiveData<Boolean?>()
     // we will get the user from the database if we successfully authenticate the user
     var userObject = MutableLiveData<User>()
-    var userRoutes : List<Route> = emptyList()
-    private var retrievedUserObject = MutableLiveData<Boolean>(false)
+    //var userRoutes : List<Route> = emptyList()
+    //private var retrievedUserObject = MutableLiveData<Boolean>(false)
 
     var _routeToShare = MutableLiveData<Route>()
     val routeToShare get() = _routeToShare
@@ -70,6 +70,8 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
         } else if (auth.currentUser == null) {
             Log.i("auth listener", "auth state is changed to null")
         } else if (auth.currentUser != null) {
+            Log.i("auth listener", "auth is not null")
+            userEmail.value = auth.currentUser!!.email
             // this is the case when user logged in before, and close and then start the app
             // again, it should be logged in
             retrieveUserObject()

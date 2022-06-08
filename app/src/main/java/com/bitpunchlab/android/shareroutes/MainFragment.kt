@@ -6,16 +6,16 @@ import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.NavigationUI
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMainBinding
 
 private const val TAG = "MainFragment"
@@ -43,11 +43,15 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
+        setHasOptionsMenu(true)
+
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
             .get(LoginViewModel::class.java)
 
         binding.lifecycleOwner = viewLifecycleOwner
+
+        checkLocationPermission()
 
         binding.buttonLogout.setOnClickListener {
             Log.i(TAG, "logging out")
@@ -61,21 +65,20 @@ class MainFragment : Fragment() {
             }
         })
 
+        // navigate to share a route fragment once we got location permission
         enabledLocation.observe(viewLifecycleOwner, Observer { enabled ->
             if (enabled) {
-                //findCurrentLocation()
                 // navigate to share a route page
-                findNavController().navigate(R.id.action_MainFragment_to_shareARouteFragment)
+                //findNavController().navigate(R.id.action_MainFragment_to_shareARouteFragment)
             }
         })
 
         binding.buttonShareRoutes.setOnClickListener {
-            //findNavController().navigate(R.id.action_MainFragment_to_shareARouteFragment)
-            checkLocationPermission()
+            //checkLocationPermission()
+            findNavController().navigate(R.id.action_MainFragment_to_shareARouteFragment)
         }
 
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -88,7 +91,18 @@ class MainFragment : Fragment() {
         _binding = null
     }
 
-    private fun checkLocationPermission() {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_main, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return NavigationUI.onNavDestinationSelected(item,
+            requireView().findNavController())
+                || super.onOptionsItemSelected(item)
+    }
+
+        private fun checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Location Permission is granted")

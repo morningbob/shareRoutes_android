@@ -42,7 +42,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
     private lateinit var locationInfoViewModel: LocationInfoViewModel
     private lateinit var mapFragment: SupportMapFragment
     private var path = MutableLiveData<ArrayList<LatLng>>(ArrayList())
-    private var routeLine : Polyline? = null
+    //private var routeLine : Polyline? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -160,7 +160,8 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
             var markerOptions = MarkerOptions().position(position).title(title).icon(bitmapDescriptor)
             var marker = map.addMarker(markerOptions)
             // we save the marker in the view model
-            marker.let {
+            marker?.let {
+                Log.i("add marker", "adding to market list")
                 locationInfoViewModel.addToMarkerList(it!!)
             }
         } else {
@@ -353,7 +354,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
         if (path.value!!.isNotEmpty()) {
             val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
                 PATH_LINE_WIDTH)
-            routeLine = map.addPolyline(opts)
+            locationInfoViewModel._routeLine.value = map.addPolyline(opts)
             val transformedPoints = transformPointsToMap(path.value!!)
             // create the Route object and share it
             //val route = Route(transformedPoints)
@@ -394,18 +395,10 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
         return pointsMap
     }
 
-    private fun transformLatLngToList(routePoints: List<LatLng>) : List<List<String>> {
-        val transformedPoints = routePoints.map { routePoint ->
-            val list = emptyList<String>().toMutableList()
-            list.add(routePoint.latitude.toString())
-            list.add(routePoint.longitude.toString())
-            list
-        }
-        return transformedPoints
-    }
+
 
     private fun clearPath() {
-        routeLine?.remove()
+        locationInfoViewModel._routeLine.value?.remove()
     }
 
     private fun cleanRouteInfo() {
@@ -414,7 +407,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
         path.value = ArrayList()
         // clear the markers on the map
         // clear the path on the map
-        routeLine?.remove()
+        locationInfoViewModel._routeLine.value?.remove()
     }
 
     private fun maxNumMarkersAlert() {
@@ -486,3 +479,15 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
         removeAlert.show()
     }
 }
+/*
+private fun transformLatLngToList(routePoints: List<LatLng>) : List<List<String>> {
+    val transformedPoints = routePoints.map { routePoint ->
+        val list = emptyList<String>().toMutableList()
+        list.add(routePoint.latitude.toString())
+        list.add(routePoint.longitude.toString())
+        list
+    }
+    return transformedPoints
+}
+
+ */

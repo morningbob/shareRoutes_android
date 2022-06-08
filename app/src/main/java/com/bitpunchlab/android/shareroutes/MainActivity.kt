@@ -26,6 +26,15 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        // here, we told the nav controller we don't want the back button
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.shareARouteFragment ||
+                    destination.id == R.id.LoginFragment ||
+                    destination.id == R.id.MainFragment) {
+                // hide the back button
+                binding.toolbar.navigationIcon = null
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

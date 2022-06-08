@@ -8,15 +8,15 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
 import com.bitpunchlab.android.shareroutes.BuildConfig.MAPS_API_KEY
 import com.bitpunchlab.android.shareroutes.LoginViewModel
 import com.bitpunchlab.android.shareroutes.LoginViewModelFactory
@@ -70,6 +70,8 @@ class ShareARouteFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
+
         _binding = FragmentShareARouteBinding.inflate(layoutInflater, container, false)
         locationViewModel = ViewModelProvider(requireActivity())
             .get(LocationInfoViewModel::class.java)
@@ -112,13 +114,27 @@ class ShareARouteFragment : Fragment() {
         }
 
         binding.shareButton.setOnClickListener {
-            shareAlert()
+            // here we check if there is a route line created yet, otherwise can't share
+            if (locationViewModel.routeLine.value != null) {
+                shareAlert()
+            } else {
+                // route line is empty, not ready to share
+                notReadyShareAlert()
+            }
         }
 
         binding.restartButton.setOnClickListener {
             locationViewModel._shouldRestart.value = true
         }
-
+/*
+        locationViewModel._canBeShared.observe(viewLifecycleOwner, Observer { share ->
+            if (share) {
+                binding.shareButton.visibility = View.VISIBLE
+            } else {
+                binding.shareButton.visibility = View.INVISIBLE
+            }
+        })
+*/
         return binding.root
     }
 
@@ -155,6 +171,22 @@ class ShareARouteFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_share, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return NavigationUI.onNavDestinationSelected(item,
+            requireView().findNavController())
+                || super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     @SuppressLint("MissingPermission")
@@ -269,6 +301,21 @@ class ShareARouteFragment : Fragment() {
             })
 
         shareAlert.show()
+    }
+
+    private fun notReadyShareAlert() {
+        val notShareAlert = AlertDialog.Builder(requireContext())
+
+        notShareAlert.setCancelable(false)
+        notShareAlert.setTitle("Not ready to share")
+        notShareAlert.setMessage("Please make sure you created a route before sharing.")
+
+        notShareAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing, wait for the user to create route
+            })
+
+        notShareAlert.show()
     }
 
 }
