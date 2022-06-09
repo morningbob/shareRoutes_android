@@ -9,8 +9,12 @@
         <entry key="app/src/main/res/layout/fragment_create_user.xml" value="0.2115036231884058" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.2115036231884058" />
         <entry key="app/src/main/res/layout/fragment_main.xml" value="0.1421875" />
+        <entry key="app/src/main/res/layout/fragment_map.xml" value="0.18342391304347827" />
+        <entry key="app/src/main/res/layout/fragment_map_page.xml" value="0.18342391304347827" />
+        <entry key="app/src/main/res/layout/fragment_map_page_menu.xml" value="0.18342391304347827" />
         <entry key="app/src/main/res/layout/fragment_permission.xml" value="0.2115036231884058" />
         <entry key="app/src/main/res/layout/fragment_share_a_route.xml" value="0.18432971014492755" />
+        <entry key="app/src/main/res/layout/fragment_share_route.xml" value="0.18342391304347827" />
         <entry key="app/src/main/res/layout/fragment_share_routes.xml" value="0.1897644927536232" />
         <entry key="app/src/main/res/layout/fragment_show_map.xml" value="0.18432971014492755" />
         <entry key="app/src/main/res/layout/fragment_suggest_routes.xml" value="0.18342391304347827" />

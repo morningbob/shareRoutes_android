@@ -20,6 +20,9 @@
         <action
             android:id="@+id/action_MainFragment_to_suggestRoutesFragment"
             app:destination="@id/suggestRoutesFragment" />
+        <action
+            android:id="@+id/action_MainFragment_to_mapPageFragment"
+            app:destination="@id/mapPageFragment" />
     </fragment>
     <fragment
         android:id="@+id/LoginFragment"
@@ -69,4 +72,9 @@
         android:label="Suggested Routes"
         tools:layout="@layout/fragment_share_a_route" >
     </fragment>
+    <fragment
+        android:id="@+id/mapPageFragment"
+        android:name="com.bitpunchlab.android.shareroutes.shareRoutes.MapPageFragment"
+        android:label="fragment_map_page_menu"
+        tools:layout="@layout/fragment_map_page_menu" />
 </navigation>
