@@ -18,6 +18,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMainBinding
 
+
 private const val TAG = "MainFragment"
 
 class MainFragment : Fragment() {
@@ -43,7 +44,7 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        setHasOptionsMenu(true)
+        //setHasOptionsMenu(true)
 
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
@@ -76,6 +77,10 @@ class MainFragment : Fragment() {
         binding.buttonShareRoutes.setOnClickListener {
             //checkLocationPermission()
             findNavController().navigate(R.id.action_MainFragment_to_shareARouteFragment)
+        }
+
+        binding.buttonSuggestRoutes.setOnClickListener {
+            findNavController().navigate(R.id.action_MainFragment_to_suggestRoutesFragment)
         }
 
         return binding.root

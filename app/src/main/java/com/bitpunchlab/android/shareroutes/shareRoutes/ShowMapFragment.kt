@@ -71,6 +71,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
         // enable zoom function
         map.uiSettings.isZoomControlsEnabled = true
 
+        // we need to use other lifecycleowner here
         locationInfoViewModel.lastKnownLocation.observe(viewLifecycleOwner, Observer { location ->
             location?.let {
                 Log.i(TAG, "got last known location.")

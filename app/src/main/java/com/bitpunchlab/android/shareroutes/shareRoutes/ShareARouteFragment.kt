@@ -16,6 +16,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.bitpunchlab.android.shareroutes.BuildConfig.MAPS_API_KEY
 import com.bitpunchlab.android.shareroutes.LoginViewModel
@@ -70,7 +71,7 @@ class ShareARouteFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        setHasOptionsMenu(true)
+        //setHasOptionsMenu(true)
 
         _binding = FragmentShareARouteBinding.inflate(layoutInflater, container, false)
         locationViewModel = ViewModelProvider(requireActivity())
@@ -105,6 +106,7 @@ class ShareARouteFragment : Fragment() {
                 locationViewModel._readyToCreateRoute.value = true
             } else {
                 // alert user that there is not enough markers
+                Log.i("create route button", "marker list size < 2")
                 noMarkersAlert()
             }
         }
@@ -125,6 +127,10 @@ class ShareARouteFragment : Fragment() {
 
         binding.restartButton.setOnClickListener {
             locationViewModel._shouldRestart.value = true
+        }
+
+        binding.cancelSharingButton.setOnClickListener {
+            findNavController().popBackStack(R.id.MainFragment, false)
         }
 /*
         locationViewModel._canBeShared.observe(viewLifecycleOwner, Observer { share ->
