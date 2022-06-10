@@ -58,7 +58,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = childFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+            .findFragmentById(R.id.map2) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         return view
