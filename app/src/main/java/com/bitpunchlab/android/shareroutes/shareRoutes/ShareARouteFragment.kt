@@ -71,6 +71,7 @@ class ShareARouteFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.i("share a route fragment", "is running")
         //setHasOptionsMenu(true)
 
         _binding = FragmentShareARouteBinding.inflate(layoutInflater, container, false)

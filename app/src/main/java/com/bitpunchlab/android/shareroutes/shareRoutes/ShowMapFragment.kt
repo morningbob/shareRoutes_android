@@ -67,6 +67,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         Log.i("onMapReady", "map is ready")
+        Log.i("this is", "show map fragment")
         map = googleMap
         // enable zoom function
         map.uiSettings.isZoomControlsEnabled = true

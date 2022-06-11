@@ -45,6 +45,9 @@ class LocationInfoViewModel : ViewModel() {
     var _routeLine = MutableLiveData<Polyline?>()
     val routeLine get() = _routeLine
 
+    var _searchTerm = MutableLiveData<String?>()
+    val searchTerm get() = _searchTerm
+
 
     fun addToMarkerList(marker: Marker) {
         var list = mutableListOf<Marker>()//emptyList<MarkerOptions>()
