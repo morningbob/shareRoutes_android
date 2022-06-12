@@ -48,6 +48,18 @@ class LocationInfoViewModel : ViewModel() {
     var _searchTerm = MutableLiveData<String?>()
     val searchTerm get() = _searchTerm
 
+    var _shouldNavigateShareRoute = MutableLiveData<Boolean>(false)
+    val shouldNavigateShareRoute get() = _shouldNavigateShareRoute
+
+    var _shouldAddMarker = MutableLiveData<Boolean>(false)
+    val shouldAddMarker get() = _shouldAddMarker
+
+    var _createRouteChecking = MutableLiveData<Boolean>(false)
+    val createRouteChecking get() = _createRouteChecking
+
+    var _shouldShareRoute = MutableLiveData<Boolean>(false)
+    val shouldShareRoute get() = _shouldShareRoute
+
 
     fun addToMarkerList(marker: Marker) {
         var list = mutableListOf<Marker>()//emptyList<MarkerOptions>()

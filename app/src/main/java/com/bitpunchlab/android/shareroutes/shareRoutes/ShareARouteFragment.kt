@@ -133,15 +133,6 @@ class ShareARouteFragment : Fragment() {
         binding.cancelSharingButton.setOnClickListener {
             findNavController().popBackStack(R.id.MainFragment, false)
         }
-/*
-        locationViewModel._canBeShared.observe(viewLifecycleOwner, Observer { share ->
-            if (share) {
-                binding.shareButton.visibility = View.VISIBLE
-            } else {
-                binding.shareButton.visibility = View.INVISIBLE
-            }
-        })
-*/
         return binding.root
     }
 
@@ -173,7 +164,7 @@ class ShareARouteFragment : Fragment() {
                 }
             } else {
                 val exception = task.exception
-                if (exception is ApiException) {
+                if (exception is ApiException) {1
                     Log.e(TAG, "Place not found: ${exception.statusCode}")
                 }
             }

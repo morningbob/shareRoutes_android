@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="7dp"
+            android:layout_marginTop="4dp"
             android:gravity="center"
             android:weightSum="7">
 
@@ -50,7 +50,7 @@
             <Button
                 android:id="@+id/get_route_button"
                 android:layout_width="100dp"
-                android:layout_height="60dp"
+                android:layout_height="55dp"
                 android:layout_weight="1"
                 android:textSize="15dp"
                 android:text="Suggest Routes" />
@@ -58,7 +58,7 @@
             <Button
                 android:id="@+id/share_route_button"
                 android:layout_width="100dp"
-                android:layout_height="60dp"
+                android:layout_height="55dp"
                 android:layout_weight="1"
                 android:layout_marginLeft="20dp"
                 android:textSize="15dp"
@@ -78,7 +78,7 @@
                 <Button
                     android:id="@+id/my_location_button"
                     android:layout_width="100dp"
-                    android:layout_height="60dp"
+                    android:layout_height="55dp"
                     android:layout_weight="1"
                     android:textSize="15dp"
                     android:text="My Location" />
@@ -86,7 +86,7 @@
                 <Button
                     android:id="@+id/x_button"
                     android:layout_width="100dp"
-                    android:layout_height="60dp"
+                    android:layout_height="55dp"
                     android:layout_weight="1"
                     android:layout_marginLeft="20dp"
                     android:textSize="15dp"

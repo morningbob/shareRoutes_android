@@ -259,7 +259,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
                                             val coordsInside : List<com.google.maps.model.LatLng> = stepOfStepPoints.decodePath()
                                             coordsInside.forEach {  coord ->
                                                 Log.i("coordInside", "for each added once")
-                                                add(LatLng(coord.lat, coord.lng))
+                                                addPoint(LatLng(coord.lat, coord.lng))
                                             }
                                         }
                                     }
@@ -271,7 +271,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
                                     if (stepPoints != null) {
                                         val coordsInside : List<com.google.maps.model.LatLng> = stepPoints.decodePath()
                                         coordsInside.forEach { coord ->
-                                            add(LatLng(coord.lat, coord.lng))
+                                            addPoint(LatLng(coord.lat, coord.lng))
                                             Log.i("coordInside", "for each added once")
                                         }
 
@@ -294,7 +294,7 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
         }
     }
 
-    private fun add(point: LatLng) {
+    private fun addPoint(point: LatLng) {
         var list = mutableListOf<LatLng>()
         if (!path.value.isNullOrEmpty()) {
             list = path.value!!.toMutableList()
@@ -396,8 +396,6 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
         }
         return pointsMap
     }
-
-
 
     private fun clearPath() {
         locationInfoViewModel._routeLine.value?.remove()

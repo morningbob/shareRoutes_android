@@ -1,10 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".shareRoutes.ShareRouteFragment">
+    tools:context=".shareRoutes.MapPageFragment">
+
+    <LinearLayout
+        android:id="@+id/share_route_button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:orientation="horizontal"
+            android:weightSum="2" >
+
+            <Button
+                android:id="@+id/add_marker_button"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="15dp"
+                android:text="@string/add_marker_alert_title" />
+
+            <Button
+                android:id="@+id/create_route_button"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="20dp"
+                android:textSize="15dp"
+                android:text="Create Route" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:weightSum="2"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/share_button"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="15dp"
+                android:text="Share" />
+
+            <Button
+                android:id="@+id/clear_path_button"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
+                android:textSize="15dp"
+                android:text="Clear Path" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:weightSum="2"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/restart_button"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:text="Restart" />
+
+            <Button
+                android:id="@+id/cancel_sharing_button"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:text="Cancel" />
+
+        </LinearLayout>
+    </LinearLayout>
 
 
-
-</FrameLayout>
+</layout>

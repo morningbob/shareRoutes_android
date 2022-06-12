@@ -77,4 +77,8 @@
         android:name="com.bitpunchlab.android.shareroutes.shareRoutes.MapPageFragment"
         android:label="Map"
         tools:layout="@layout/fragment_map_page_menu" />
+    <fragment
+        android:id="@+id/shareRouteMenuFragment"
+        android:name="com.bitpunchlab.android.shareroutes.shareRoutes.ShareRouteMenuFragment"
+        android:label="ShareRouteMenuFragment" />
 </navigation>

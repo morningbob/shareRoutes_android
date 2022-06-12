@@ -1,60 +1,70 @@
 package com.bitpunchlab.android.shareroutes.shareRoutes
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.shareroutes.R
+import com.bitpunchlab.android.shareroutes.databinding.FragmentShareRouteMenuBinding
+import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ShareRouteFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class ShareRouteFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+class ShareRouteMenuFragment : Fragment() {
+
+    private var _binding : FragmentShareRouteMenuBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var locationViewModel: LocationInfoViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_share_route_menu, container, false)
+        _binding = FragmentShareRouteMenuBinding.inflate(inflater, container, false)
+        locationViewModel = ViewModelProvider(requireActivity())
+            .get(LocationInfoViewModel::class.java)
+
+        binding.addMarkerButton.setOnClickListener {
+            // notice map page fragment to display alert and pass the instruction to
+            // map fragment
+            locationViewModel._shouldAddMarker.value = true
+        }
+
+        binding.createRouteButton.setOnClickListener {
+            locationViewModel._createRouteChecking.value = true
+        }
+
+        binding.shareButton.setOnClickListener {
+            locationViewModel._shouldShareRoute.value = true
+        }
+
+        binding.clearPathButton.setOnClickListener {
+            locationViewModel._shouldClearPath.value = true
+        }
+
+        binding.restartButton.setOnClickListener {
+            locationViewModel._shouldRestart.value = true
+        }
+
+        binding.cancelSharingButton.setOnClickListener {
+            findNavController().popBackStack(R.id.MainFragment, false)
+        }
+
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ShareRouteFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ShareRouteFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
