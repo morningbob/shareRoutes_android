@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="loginViewModel"
-            type="com.bitpunchlab.android.shareroutes.LoginViewModel" />
+            name="firebaseViewModel"
+            type="com.bitpunchlab.android.shareroutes.FirebaseClientViewModel" />
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout
@@ -58,7 +58,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:textSize="17sp"
-        android:text="@={loginViewModel.userEmail}"
+        android:text="@={firebaseViewModel.userEmail}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textview_email"
@@ -70,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:textSize="14sp"
-        android:text="@={loginViewModel.emailError}"
+        android:text="@={firebaseViewModel.emailError}"
         android:textColor="@color/orange"
         android:textAlignment="viewStart"
         app:layout_constraintEnd_toEndOf="parent"
@@ -99,7 +99,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:textSize="17sp"
-        android:text="@={loginViewModel.userPassword}"
+        android:text="@={firebaseViewModel.userPassword}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textview_password"
@@ -111,7 +111,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:textSize="14sp"
-        android:text="@={loginViewModel.passwordError}"
+        android:text="@={firebaseViewModel.passwordError}"
         android:textColor="@color/orange"
         android:textAlignment="viewStart"
         app:layout_constraintEnd_toEndOf="parent"

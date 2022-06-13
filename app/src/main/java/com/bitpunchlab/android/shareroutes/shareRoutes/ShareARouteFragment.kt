@@ -18,10 +18,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
+import com.bitpunchlab.android.shareroutes.*
 import com.bitpunchlab.android.shareroutes.BuildConfig.MAPS_API_KEY
-import com.bitpunchlab.android.shareroutes.LoginViewModel
-import com.bitpunchlab.android.shareroutes.LoginViewModelFactory
-import com.bitpunchlab.android.shareroutes.R
 import com.bitpunchlab.android.shareroutes.databinding.FragmentShareARouteBinding
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 import com.bitpunchlab.android.shareroutes.models.Route
@@ -48,7 +46,7 @@ class ShareARouteFragment : Fragment() {
     private val enabledLocation = MutableLiveData<Boolean>(false)
     private lateinit var placesClient: PlacesClient
     private lateinit var locationViewModel: LocationInfoViewModel
-    private lateinit var loginViewModel: LoginViewModel
+    private lateinit var loginViewModel: FirebaseClientViewModel
     private lateinit var fusedLocationProviderClient : FusedLocationProviderClient
 
     private var requestLocationLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -77,8 +75,8 @@ class ShareARouteFragment : Fragment() {
         _binding = FragmentShareARouteBinding.inflate(layoutInflater, container, false)
         locationViewModel = ViewModelProvider(requireActivity())
             .get(LocationInfoViewModel::class.java)
-        loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
-            .get(LoginViewModel::class.java)
+        loginViewModel = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
+            .get(FirebaseClientViewModel::class.java)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         checkLocationPermission()

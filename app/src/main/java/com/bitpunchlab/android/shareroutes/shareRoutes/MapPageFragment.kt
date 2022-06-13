@@ -12,9 +12,7 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.bitpunchlab.android.shareroutes.LoginViewModel
-import com.bitpunchlab.android.shareroutes.LoginViewModelFactory
-import com.bitpunchlab.android.shareroutes.R
+import com.bitpunchlab.android.shareroutes.*
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMapPageBinding
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 
@@ -24,7 +22,7 @@ class MapPageFragment : Fragment() {
     private var _binding : FragmentMapPageBinding? = null
     private val binding get() = _binding!!
     private lateinit var locationViewModel: LocationInfoViewModel
-    private lateinit var loginViewModel: LoginViewModel
+    private lateinit var firebaseViewModel: FirebaseClientViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +36,8 @@ class MapPageFragment : Fragment() {
         _binding = FragmentMapPageBinding.inflate(inflater, container, false)
         locationViewModel = ViewModelProvider(requireActivity())
             .get(LocationInfoViewModel::class.java)
-        loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
-            .get(LoginViewModel::class.java)
+        firebaseViewModel = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
+            .get(FirebaseClientViewModel::class.java)
 
         locationViewModel._shouldNavigateShareRoute.observe(viewLifecycleOwner, Observer { share ->
             if (share) {
@@ -83,6 +81,12 @@ class MapPageFragment : Fragment() {
                 // besides changing back to map menu, we also need to clean all routes related info
                 insertMenuFragment()
                 locationViewModel._shouldRestart.value = true
+            }
+        })
+
+        locationViewModel.runSuggestRoutesFragment.observe(viewLifecycleOwner, Observer { run ->
+            if (run) {
+                findNavController().navigate(R.id.action_mapPageFragment_to_suggestRoutesFragment)
             }
         })
 
@@ -159,9 +163,9 @@ class MapPageFragment : Fragment() {
                 // in Firebase database
                 // check if there is a route
                 if (locationViewModel.routeToShare.value != null) {
-                    loginViewModel._routeToShare.value = locationViewModel.routeToShare.value!!
+                    firebaseViewModel._routeToShare.value = locationViewModel.routeToShare.value!!
                     //val newRoute = Route(pts = locationViewModel._routeToShare.value!!)
-                    loginViewModel.saveRoute(loginViewModel.routeToShare.value!!)
+                    firebaseViewModel.saveRoute(firebaseViewModel.routeToShare.value!!)
                     // clear previous path info
                     locationViewModel._clearRouteInfo.value = true
                 } else {
@@ -205,5 +209,6 @@ class MapPageFragment : Fragment() {
 
         notShareAlert.show()
     }
+
 
 }

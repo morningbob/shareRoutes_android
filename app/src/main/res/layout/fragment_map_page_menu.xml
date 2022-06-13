@@ -20,7 +20,7 @@
             android:weightSum="2" >
 
             <Button
-                android:id="@+id/get_route_button"
+                android:id="@+id/suggest_routes_button"
                 android:layout_width="100dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"

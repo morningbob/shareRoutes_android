@@ -1,11 +1,9 @@
 package com.bitpunchlab.android.shareroutes.authentication
 
-import android.Manifest
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
-import android.util.Patterns
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,9 +11,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.bitpunchlab.android.shareroutes.LoginViewModel
-import com.bitpunchlab.android.shareroutes.LoginViewModelFactory
-import com.bitpunchlab.android.shareroutes.R
+import com.bitpunchlab.android.shareroutes.*
 import com.bitpunchlab.android.shareroutes.databinding.FragmentCreateUserBinding
 
 private const val TAG = "CreateUserFragment"
@@ -24,7 +20,7 @@ class CreateUserFragment : Fragment() {
 
     private var _binding : FragmentCreateUserBinding? = null
     private val binding get() = _binding!!
-    private lateinit var loginViewModel: LoginViewModel
+    private lateinit var firebaseViewModel: FirebaseClientViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,47 +32,47 @@ class CreateUserFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentCreateUserBinding.inflate(inflater, container, false)
-        loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
-            .get(LoginViewModel::class.java)
+        firebaseViewModel = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
+            .get(FirebaseClientViewModel::class.java)
 
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.loginViewModel = loginViewModel
+        binding.firebaseViewModel = firebaseViewModel
 
         binding.buttonSend.setOnClickListener {
             // check all the fields are not empty
             // need to confirm passwords are the same and with some length
-            Log.i("registering user? ", loginViewModel.registerUserLiveData.value.toString())
-            loginViewModel.checkIfEmailUsed(loginViewModel.userEmail.value!!)
+            Log.i("registering user? ", firebaseViewModel.registerUserLiveData.value.toString())
+            firebaseViewModel.checkIfEmailUsed(firebaseViewModel.userEmail.value!!)
             //loginViewModel.registerNewUser()
         }
 
-        loginViewModel.registerUserLiveData.observe(viewLifecycleOwner, Observer { value ->
+        firebaseViewModel.registerUserLiveData.observe(viewLifecycleOwner, Observer { value ->
             value?.let {
                 Log.i("ready to register user: ", value.toString())
                 binding.buttonSend.visibility = View.VISIBLE
             }
         })
 
-        loginViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
+        firebaseViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
             if (loggedIn == true) {
                 Log.i(TAG, "navigate to main fragment")
                 //loginViewModel.resetLoginState()
                 findNavController().navigate(R.id.action_createUserFragment_to_MainFragment)
             } else if (loggedIn != null && loggedIn == false) {
                 Log.i(TAG, "alert user failure")
-                loginViewModel.resetLoginState()
+                firebaseViewModel.resetLoginState()
                 registrationFailureAlert()
             }
             // when it is null, do nothing
         })
 
-        loginViewModel.verifyEmailError.observe(viewLifecycleOwner, Observer { error ->
+        firebaseViewModel.verifyEmailError.observe(viewLifecycleOwner, Observer { error ->
             if (error == true) {
                 // show alert of error
                 emailExistsAlert()
-                loginViewModel.resetLoginState()
+                firebaseViewModel.resetLoginState()
             } else if (error == false){
-                loginViewModel.registerNewUser()
+                firebaseViewModel.registerNewUser()
             }
         })
 

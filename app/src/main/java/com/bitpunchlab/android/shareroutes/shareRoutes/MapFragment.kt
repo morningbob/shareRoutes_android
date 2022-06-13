@@ -50,6 +50,8 @@ private const val MAX_NUMBER_MARKERS = 10
 // this include posting request to Directions API
 // and placing markers in the map
 // it also responsible for constructing the path of the route
+// to calculate the distance between the marker and the suggested routes first marker,
+// I convert the latlng to Location objects and use .distanceTo method
 class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var map : GoogleMap
@@ -90,12 +92,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             }
         })
 
-        locationViewModel.searchTerm.observe(viewLifecycleOwner, Observer { term ->
-            term?.let {
-
-            }
-        })
-
         locationViewModel.shouldAddMarker.observe(viewLifecycleOwner, Observer { start ->
             if (start) {
                 // set up onTap listener
@@ -123,6 +119,18 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         locationViewModel.shouldRestart.observe(viewLifecycleOwner, Observer { restart ->
             if (restart) {
                 cleanRouteInfo()
+            }
+        })
+
+        locationViewModel.shouldSuggestRoutes.observe(viewLifecycleOwner, Observer { suggest ->
+            if (suggest) {
+                // enable map click listener
+                map.setOnMapClickListener { clickedLocation ->
+                    Log.i("user tapped the map: ", "location $clickedLocation")
+                    //addMarkerAlert(clickedLocation)
+                    searchLocationAlert(clickedLocation)
+                }
+                pickLocationAlert()
             }
         })
 
@@ -569,5 +577,48 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 // do nothing, wait for user's event
             })
         navAlert.show()
+    }
+
+    private fun pickLocationAlert() {
+        val pickAlert = AlertDialog.Builder(requireContext())
+
+        pickAlert.setCancelable(false)
+        pickAlert.setTitle("Pick Location")
+        pickAlert.setMessage("Please pick a location by tapping the map.")
+
+        pickAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // wait for user to pick a location
+                // enable click listener, for one marker only
+            })
+        pickAlert.setNegativeButton(getString(R.string.cancel_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing, wait for the next event
+            })
+
+        pickAlert.show()
+    }
+
+
+    private fun searchLocationAlert(clickedLocation: LatLng) {
+        val searchAlert = AlertDialog.Builder(requireContext())
+
+        searchAlert.setCancelable(false)
+        searchAlert.setTitle("Confirm Location")
+        searchAlert.setMessage("Get suggested routes around this location, ${clickedLocation} ?")
+
+        searchAlert.setPositiveButton(getString(R.string.confirm_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // run the suggest routes fragment and do the search
+                //findNavController()
+                // notice map page fragment to navigate to suggest routes fragment
+                locationViewModel._runSuggestRoutesFragment.value = true
+                locationViewModel.chosenSearchLocation.value = clickedLocation
+            })
+        searchAlert.setNegativeButton(getString(R.string.cancel_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing
+            })
+        searchAlert.show()
     }
 }

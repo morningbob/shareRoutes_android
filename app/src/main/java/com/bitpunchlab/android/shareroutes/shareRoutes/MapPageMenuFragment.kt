@@ -33,20 +33,17 @@ class MapPageMenuFragment : Fragment() {
         locationViewModel = ViewModelProvider(requireActivity())
             .get(LocationInfoViewModel::class.java)
 
-        binding.searchLocationButton.setOnClickListener {
-            if (binding.searchMapEditText.text.toString() != null ||
-                binding.searchMapEditText.text != null) {
-                locationViewModel._searchTerm.value = binding.searchMapEditText.text.toString()
-                Log.i("search button", "got search term ${binding.searchMapEditText.text.toString()}")
-            }
-        }
-
         binding.shareRouteButton.setOnClickListener {
             //findNavController().navigate(R.id.a)
             locationViewModel._shouldNavigateShareRoute.value = true
         }
 
-
+        // this button starts the flow of suggesting routes
+        // first, it let user pick a location
+        // then run the suggest routes fragment and search through the database
+        binding.suggestRoutesButton.setOnClickListener {
+            locationViewModel._shouldSuggestRoutes.value = true
+        }
 
         return binding.root
     }

@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.bitpunchlab.android.shareroutes.*
 import com.bitpunchlab.android.shareroutes.databinding.FragmentLoginBinding
 
 private const val TAG = "LoginFragment"
@@ -19,7 +20,7 @@ class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private lateinit var loginViewModel: LoginViewModel
+    private lateinit var firebaseViewModel: FirebaseClientViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,26 +28,26 @@ class LoginFragment : Fragment() {
     ): View? {
 
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
-        loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
-            .get(LoginViewModel::class.java)
+        firebaseViewModel = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
+            .get(FirebaseClientViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.loginViewModel = loginViewModel
+        binding.firebaseViewModel = firebaseViewModel
 
-        loginViewModel.readyLoginLiveData.observe(viewLifecycleOwner, Observer { value ->
+        firebaseViewModel.readyLoginLiveData.observe(viewLifecycleOwner, Observer { value ->
             if (value) {
                 binding.buttonLogin.visibility = View.VISIBLE
             }
         })
 
         binding.buttonLogin.setOnClickListener {
-            loginViewModel.authenticateUser()
+            firebaseViewModel.authenticateUser()
         }
 
         binding.buttonCreateAccount.setOnClickListener {
             findNavController().navigate(R.id.action_LoginFragment_to_createUserFragment)
         }
 
-        loginViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
+        firebaseViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
             if (loggedIn == true) {
                 Log.i(TAG, "logged in user")
                 //loginViewModel.resetLoginState()
@@ -54,14 +55,14 @@ class LoginFragment : Fragment() {
 
             } else if (loggedIn != null && loggedIn == false){
                 Log.i(TAG, "failed to login user")
-                loginViewModel.resetLoginState()
+                firebaseViewModel.resetLoginState()
 
             }
             // if loggedIn == null, that's the case when user just see the login page without
             // doing anything, so we'll do nothing because nothing is wrong.
         })
 
-        loginViewModel.loginError.observe(viewLifecycleOwner, Observer { error ->
+        firebaseViewModel.loginError.observe(viewLifecycleOwner, Observer { error ->
             if (error) {
                 loginFailureAlert()
             }

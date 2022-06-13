@@ -30,7 +30,8 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.shareARouteFragment ||
                     destination.id == R.id.LoginFragment ||
-                    destination.id == R.id.MainFragment) {
+                    destination.id == R.id.MainFragment ||
+                    destination.id == R.id.suggestRoutesFragment) {
                 // hide the back button
                 binding.toolbar.navigationIcon = null
             }

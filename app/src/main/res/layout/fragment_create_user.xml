@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="loginViewModel"
-            type="com.bitpunchlab.android.shareroutes.LoginViewModel" />
+            name="firebaseViewModel"
+            type="com.bitpunchlab.android.shareroutes.FirebaseClientViewModel" />
     </data>
 
 <LinearLayout
@@ -48,7 +48,7 @@
         android:layout_marginTop="0dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:text="@={loginViewModel.userName}"
+        android:text="@={firebaseViewModel.userName}"
         android:textSize="17sp"
         />
 
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:textSize="14sp"
-        android:text="@={loginViewModel.nameError}"
+        android:text="@={firebaseViewModel.nameError}"
         android:textColor="@color/orange"/>
 
     <TextView
@@ -79,7 +79,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:textSize="17sp"
-        android:text="@={loginViewModel.userEmail}"/>
+        android:text="@={firebaseViewModel.userEmail}"/>
 
     <TextView
         android:id="@+id/email_error"
@@ -87,7 +87,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:textSize="14sp"
-        android:text="@={loginViewModel.emailError}"
+        android:text="@={firebaseViewModel.emailError}"
         android:textColor="@color/orange"/>
 
     <TextView
@@ -108,7 +108,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:textSize="17sp"
-        android:text="@={loginViewModel.userPassword}"/>
+        android:text="@={firebaseViewModel.userPassword}"/>
 
     <TextView
         android:id="@+id/password_error"
@@ -116,7 +116,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:textSize="14sp"
-        android:text="@={loginViewModel.passwordError}"
+        android:text="@={firebaseViewModel.passwordError}"
         android:textColor="@color/orange"/>
 
     <TextView
@@ -137,7 +137,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:textSize="17sp"
-        android:text="@={loginViewModel.userConfirmPassword}"/>
+        android:text="@={firebaseViewModel.userConfirmPassword}"/>
 
     <TextView
         android:id="@+id/confirm_error"
@@ -145,7 +145,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50dp"
         android:textSize="14sp"
-        android:text="@={loginViewModel.confirmPasswordError}"
+        android:text="@={firebaseViewModel.confirmPasswordError}"
         android:textColor="@color/orange"/>
 
     <Button

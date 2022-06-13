@@ -25,7 +25,7 @@ class MainFragment : Fragment() {
 
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
-    private lateinit var loginViewModel: LoginViewModel
+    private lateinit var firebaseViewModel: FirebaseClientViewModel
     private val enabledLocation = MutableLiveData<Boolean>(false)
 
     private var requestLocationLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -47,8 +47,8 @@ class MainFragment : Fragment() {
         //setHasOptionsMenu(true)
 
         _binding = FragmentMainBinding.inflate(inflater, container, false)
-        loginViewModel = ViewModelProvider(requireActivity(), LoginViewModelFactory(requireActivity()))
-            .get(LoginViewModel::class.java)
+        firebaseViewModel = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
+            .get(FirebaseClientViewModel::class.java)
 
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -56,11 +56,11 @@ class MainFragment : Fragment() {
 
         binding.buttonLogout.setOnClickListener {
             Log.i(TAG, "logging out")
-            loginViewModel.logoutUser()
+            firebaseViewModel.logoutUser()
             //findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
         }
 
-        loginViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
+        firebaseViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
             if (loggedIn == null) {
                 findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
             }
@@ -78,10 +78,6 @@ class MainFragment : Fragment() {
             //checkLocationPermission()
             //findNavController().navigate(R.id.action_MainFragment_to_shareARouteFragment)
             findNavController().navigate(R.id.action_MainFragment_to_mapPageFragment)
-        }
-
-        binding.buttonSuggestRoutes.setOnClickListener {
-            findNavController().navigate(R.id.action_MainFragment_to_suggestRoutesFragment)
         }
 
         return binding.root

@@ -23,7 +23,7 @@ import java.util.regex.Pattern
 
 private const val TAG = "LoginViewModel"
 
-class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : ViewModel() {
+class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : ViewModel() {
 
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
     // I define the loggedInUser as nullable that null represents the original non-login state
@@ -59,6 +59,9 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
 
     var _routeToShare = MutableLiveData<Route>()
     val routeToShare get() = _routeToShare
+
+    var _routesResult = MutableLiveData<List<Route>>()
+    val routesResult get() = _routesResult
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         // this is when user is in the logout process, it is not completed yet,
@@ -300,28 +303,34 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                 Log.i("retrieving user", "found the user")
                 val resultString = snapshot.children.first().getValue().toString()
                 userObject.postValue(snapshot.children.first().getValue<User>())
-                /*
-                Log.i("retrieve routes", resultString)
-                //userObject.postValue(snapshot.children.first().getValue<User>())
-                // here I parse json string from the result we got back
-                val result = JSONObject(resultString)
-                //val result = Gson().toJson(resultString)
-                Log.i("json", result.toString())
-                //val userFromJson = Gson().fromJson(result, User::class.java)
-                //Log.i("routes: ", userFromJson.routesCreated.toString())
-                val routes = result.optJSONArray("routesCreated")
-                Log.i("routes json array: ", routes.toString())
-                val firstJSON : JSONObject = routes[0] as JSONObject
-                val pointsArray = firstJSON.optJSONArray("points")
-                Log.i("points string: ", pointsArray.toString())
-                val firstPoint = pointsArray[0] as JSONArray
-                Log.i("first point: ", firstPoint[0].toString())
-                Log.i("to float: ", (firstPoint[0] as Double).toString())
-*/
             } else {
                 Log.i("retrieving user", "user not found")
             }
         }
+        override fun onCancelled(error: DatabaseError) {
+            Log.i("error: ", error.message)
+        }
+    }
+
+    private var routesValueEventListener = object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            Log.i("routes search result", "got back")
+            if (snapshot.children.count() > 0) {
+                Log.i("routes search result", "there is at least 1 route.")
+                val resultListRoute : MutableList<Route> = mutableListOf()
+                snapshot.children.map { routeSnapshot ->
+                    val route = routeSnapshot.getValue<Route>()
+                    route?.let {
+                        resultListRoute.add(route)
+                    }
+                }
+                Log.i("routes search result, routes size: ", resultListRoute.size.toString())
+                routesResult.postValue(resultListRoute)
+            } else {
+                Log.i("routes search result", "there is no route found.")
+            }
+        }
+
         override fun onCancelled(error: DatabaseError) {
             Log.i("error: ", error.message)
         }
@@ -427,13 +436,21 @@ class LoginViewModel(@SuppressLint("StaticFieldLeak") val activity: Activity) : 
                 }
             }
     }
+
+    fun searchRoutes(clickedLocation: LatLng) {
+        database
+            .child("routes")
+            .orderByChild("timeCreated")
+            //.equalTo(email)
+            .addListenerForSingleValueEvent(routesValueEventListener)
+    }
 }
 
-class LoginViewModelFactory(private val activity: Activity)
+class FirebaseClientViewModelFactory(private val activity: Activity)
     : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            return LoginViewModel(activity) as T
+        if (modelClass.isAssignableFrom(FirebaseClientViewModel::class.java)) {
+            return FirebaseClientViewModel(activity) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
