@@ -16,9 +16,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.shareroutes.BuildConfig
+import com.bitpunchlab.android.shareroutes.BuildConfig.MAPS_API_KEY
 import com.bitpunchlab.android.shareroutes.R
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 import com.bitpunchlab.android.shareroutes.models.Route
+import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,11 +28,19 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.maps.DirectionsApi
 import com.google.maps.GeoApiContext
 import com.google.maps.model.TravelMode
 import java.lang.Exception
+import javax.net.ssl.SSLEngineResult
 
+private const val TAG = "MapFragment"
 private const val MAX_DISTANCE = 5000
 private const val PATH_LINE_WIDTH = 10F
 private const val MAX_NUMBER_MARKERS = 10
@@ -47,6 +57,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private lateinit var locationViewModel: LocationInfoViewModel
     private lateinit var fusedLocationProviderClient : FusedLocationProviderClient
     private var path = MutableLiveData<ArrayList<LatLng>>(ArrayList())
+    private lateinit var autocompleteFragment: AutocompleteSupportFragment
+    private lateinit var placeClient: PlacesClient
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,12 +80,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         supportMapFragment.getMapAsync(this)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        setupAutoCompleteFragment()
 
         locationViewModel.lastKnownLocation.observe(viewLifecycleOwner, Observer { location ->
             location?.let {
                 Log.i("last know locate observing", "got last known location.")
-
-                showUserLocation()
+                var newLocation : LatLng = LatLng(location.latitude, location.longitude)
+                showUserLocation(newLocation)
             }
         })
 
@@ -145,6 +158,33 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
  */
     }
 
+    private fun setupAutoCompleteFragment() {
+        // need to initialize Place
+        Places.initialize(requireContext(), MAPS_API_KEY)
+        placeClient = Places.createClient(requireContext())
+        // Initialize the AutocompleteSupportFragment.
+        autocompleteFragment =
+            parentFragmentManager.findFragmentById(R.id.autocomplete_fragment)
+                    as AutocompleteSupportFragment
+
+        // Specify the types of place data to return.
+        autocompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG))
+
+        // Set up a PlaceSelectionListener to handle the response.
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onPlaceSelected(place: Place) {
+                Log.i(TAG, "Place: ${place.name}, ${place.id}")
+                // alert user
+                navigateAlert(place)
+                // navigate to the place
+            }
+
+            override fun onError(status: Status) {
+                Log.i(TAG, "An error occurred: $status")
+            }
+        })
+    }
+
     // when user clicks a marker, we show an alert if the user wants to remove
     // the marker.
     override fun onMarkerClick(marker: Marker): Boolean {
@@ -153,12 +193,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         return true
     }
 
-    private fun showUserLocation() {
+    private fun showUserLocation(location: LatLng) {
 
-        if (locationViewModel.lastKnownLocation.value != null &&
-            locationViewModel.lastKnownLocation.value != null) {
-            var location = LatLng(locationViewModel.lastKnownLocation.value!!.latitude,
-                locationViewModel.lastKnownLocation.value!!.longitude)
+        //if (locationViewModel.lastKnownLocation.value != null &&
+        //    locationViewModel.lastKnownLocation.value != null) {
+        if (location != null) {
+            //var location = LatLng(locationViewModel.lastKnownLocation.value!!.latitude,
+            //    locationViewModel.lastKnownLocation.value!!.longitude)
             var marker = map.addMarker(MarkerOptions().position(
                 location).title("Current location"))
             map.moveCamera(CameraUpdateFactory.newLatLng(location))
@@ -508,5 +549,25 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         //locationInfoViewModel._markerList.value = emptyList()
         //Log.i("remove all markers, now marker list size",
         //    locationInfoViewModel.markerList.value!!.size.toString())
+    }
+
+    private fun navigateAlert(place: Place) {
+        Log.i("navigate", "running alert")
+        val navAlert = AlertDialog.Builder(requireContext())
+
+        navAlert.setCancelable(false)
+        navAlert.setTitle("Navigation")
+        navAlert.setMessage("Do you want to navigate to ${place.name}?")
+
+        navAlert.setPositiveButton("Navigate",
+            DialogInterface.OnClickListener { dialog, button ->
+                // navigate to the place
+                showUserLocation(place.latLng)
+            })
+        navAlert.setNegativeButton(getString(R.string.cancel_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing, wait for user's event
+            })
+        navAlert.show()
     }
 }

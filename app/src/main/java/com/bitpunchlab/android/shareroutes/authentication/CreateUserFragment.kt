@@ -1,4 +1,4 @@
-package com.bitpunchlab.android.shareroutes
+package com.bitpunchlab.android.shareroutes.authentication
 
 import android.Manifest
 import android.app.AlertDialog
@@ -13,6 +13,9 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.bitpunchlab.android.shareroutes.LoginViewModel
+import com.bitpunchlab.android.shareroutes.LoginViewModelFactory
+import com.bitpunchlab.android.shareroutes.R
 import com.bitpunchlab.android.shareroutes.databinding.FragmentCreateUserBinding
 
 private const val TAG = "CreateUserFragment"

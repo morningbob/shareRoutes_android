@@ -78,6 +78,14 @@ class MapPageFragment : Fragment() {
             }
         })
 
+        locationViewModel.shouldCancelSharing.observe(viewLifecycleOwner, Observer { cancel ->
+            if (cancel) {
+                // besides changing back to map menu, we also need to clean all routes related info
+                insertMenuFragment()
+                locationViewModel._shouldRestart.value = true
+            }
+        })
+
         return binding.root
     }
 

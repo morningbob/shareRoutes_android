@@ -60,6 +60,9 @@ class LocationInfoViewModel : ViewModel() {
     var _shouldShareRoute = MutableLiveData<Boolean>(false)
     val shouldShareRoute get() = _shouldShareRoute
 
+    var _shouldCancelSharing = MutableLiveData<Boolean>(false)
+    val shouldCancelSharing get() = _shouldCancelSharing
+
 
     fun addToMarkerList(marker: Marker) {
         var list = mutableListOf<Marker>()//emptyList<MarkerOptions>()

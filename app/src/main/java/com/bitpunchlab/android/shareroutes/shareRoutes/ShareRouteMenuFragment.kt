@@ -57,7 +57,9 @@ class ShareRouteMenuFragment : Fragment() {
         }
 
         binding.cancelSharingButton.setOnClickListener {
-            findNavController().popBackStack(R.id.MainFragment, false)
+            //findNavController().popBackStack(R.id.MainFragment, false)
+            //childFragmentManager.popBackStack()
+            locationViewModel._shouldCancelSharing.value = true
         }
 
         return binding.root

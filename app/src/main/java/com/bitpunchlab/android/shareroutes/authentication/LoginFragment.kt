@@ -1,4 +1,4 @@
-package com.bitpunchlab.android.shareroutes
+package com.bitpunchlab.android.shareroutes.authentication
 
 import android.app.AlertDialog
 import android.content.DialogInterface

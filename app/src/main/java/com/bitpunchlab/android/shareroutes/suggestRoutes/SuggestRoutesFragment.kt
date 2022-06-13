@@ -23,9 +23,7 @@ class SuggestRoutesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentSuggestRoutesBinding.inflate(inflater, container, false)
-
-
-
+        
         return binding.root
     }
 
