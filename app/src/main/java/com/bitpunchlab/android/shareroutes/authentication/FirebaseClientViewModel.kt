@@ -54,14 +54,19 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
     val verifyEmailError = MutableLiveData<Boolean?>()
     // we will get the user from the database if we successfully authenticate the user
     var userObject = MutableLiveData<User>()
-    //var userRoutes : List<Route> = emptyList()
-    //private var retrievedUserObject = MutableLiveData<Boolean>(false)
 
     var _routeToShare = MutableLiveData<Route>()
     val routeToShare get() = _routeToShare
 
     var _routesResult = MutableLiveData<List<Route>>()
     val routesResult get() = _routesResult
+
+    // I need to find out the city of the route is in.
+    // This info is for the user to search suggested routes in a city.
+    // So, all the routes in the city will be shown to the user.
+    // This info also help identifying the route from the other routes.
+    // I use Places API to get these info from a LatLng point in the route.
+    // Route class will store all these info.
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         // this is when user is in the logout process, it is not completed yet,

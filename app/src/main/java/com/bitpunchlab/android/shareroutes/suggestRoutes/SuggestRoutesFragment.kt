@@ -8,8 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.shareroutes.FirebaseClientViewModel
 import com.bitpunchlab.android.shareroutes.FirebaseClientViewModelFactory
+import com.bitpunchlab.android.shareroutes.R
 import com.bitpunchlab.android.shareroutes.databinding.FragmentSuggestRoutesBinding
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 
@@ -25,6 +27,7 @@ class SuggestRoutesFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var locationViewModel: LocationInfoViewModel
     private lateinit var firebaseViewModel: FirebaseClientViewModel
+    private lateinit var routeAdapter: RouteListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +42,34 @@ class SuggestRoutesFragment : Fragment() {
             .get(LocationInfoViewModel::class.java)
         firebaseViewModel = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
             .get(FirebaseClientViewModel::class.java)
+        routeAdapter = RouteListAdapter( RouteOnClickListener { route ->
+            locationViewModel.onRouteClicked(route)
+        })
+        binding.routesRecycler.adapter = routeAdapter
 
+        firebaseViewModel.routesResult.observe(viewLifecycleOwner, Observer { routeList ->
+            if (!routeList.isNullOrEmpty()) {
+                Log.i("suggest fragment", "got routes: ${routeList.size}")
+                routeAdapter.submitList(routeList)
+                routeAdapter.notifyDataSetChanged()
+            }
+        })
+
+        locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
+            route?.let {
+                // go back to the map page fragment
+                // construct the route in the map
+                findNavController().navigate(R.id.action_suggestRoutesFragment_to_mapPageFragment)
+            }
+        })
+        binding.closeTextview.setOnClickListener {
+            locationViewModel._closeSuggestion.value = true
+        }
+/*
+        binding.closeButton.setOnClickListener {
+            locationViewModel._closeSuggestion.value = true
+        }
+*/
         // retrieve the search location latlng.
         // calculate the distance
         // query firebase database

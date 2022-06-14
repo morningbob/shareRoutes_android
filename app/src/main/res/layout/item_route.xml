@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <data>
+        <variable
+            name="route"
+            type="com.bitpunchlab.android.shareroutes.models.Route" />
+        <variable
+            name="clickListener"
+            type="com.bitpunchlab.android.shareroutes.suggestRoutes.RouteOnClickListener" />
+    </data>
+    
+<LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:weightSum="4"
+    android:onClick="@{()-> clickListener.onClick(route)}">
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@{route.id}"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@{route.timeCreated.toString()"
+        android:layout_weight="3" />
+
+</LinearLayout>
+
+</layout>

@@ -8,6 +8,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import androidx.core.view.isVisible
 import androidx.fragment.app.commit
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -15,6 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.shareroutes.*
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMapPageBinding
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
+import com.bitpunchlab.android.shareroutes.suggestRoutes.SuggestRoutesFragment
 
 
 class MapPageFragment : Fragment() {
@@ -86,7 +90,13 @@ class MapPageFragment : Fragment() {
 
         locationViewModel.runSuggestRoutesFragment.observe(viewLifecycleOwner, Observer { run ->
             if (run) {
-                findNavController().navigate(R.id.action_mapPageFragment_to_suggestRoutesFragment)
+                prepareLayoutForSuggestion()
+            }
+        })
+
+        locationViewModel.closeSuggestion.observe(viewLifecycleOwner, Observer { close ->
+            if (close) {
+                prepareLayoutBackToNormal()
             }
         })
 
@@ -127,6 +137,12 @@ class MapPageFragment : Fragment() {
             addToBackStack("replacement")
             replace(R.id.map_menu_fragment_container, shareMenuFragment)
         }
+    }
+
+    private fun insertSuggestRoutesFragment() {
+        val suggestFragment = SuggestRoutesFragment()
+        val transaction = childFragmentManager.beginTransaction()
+        transaction.replace(R.id.map_menu_fragment_container, suggestFragment).commit()
     }
 
     private fun createMarkerAlert() {
@@ -210,5 +226,37 @@ class MapPageFragment : Fragment() {
         notShareAlert.show()
     }
 
+    private fun prepareLayoutForSuggestion() {
+        binding.autoCompleteFragmentLayout.isVisible = false
+        // change layout properties
+        // for map fragment
+        var paramsMap = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 0) as LinearLayout.LayoutParams
+        paramsMap.weight = 5.0f
+        binding.mapFragmentContainer.layoutParams = paramsMap
+        // for map menu fragment
+        var paramsMapMenu = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 0) as LinearLayout.LayoutParams
+        paramsMapMenu.weight = 5.0f
+        binding.mapMenuFragmentContainer.layoutParams = paramsMapMenu
 
+        insertSuggestRoutesFragment()
+    }
+
+    private fun prepareLayoutBackToNormal() {
+        binding.autoCompleteFragmentLayout.isVisible = true
+        // change layout properties back to normal
+        // for map fragment
+        var paramsMap = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 0) as LinearLayout.LayoutParams
+        paramsMap.weight = 7.0f
+        binding.mapFragmentContainer.layoutParams = paramsMap
+        // for map menu fragment
+        var paramsMapMenu = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 0) as LinearLayout.LayoutParams
+        paramsMapMenu.weight = 2.0f
+        binding.mapMenuFragmentContainer.layoutParams = paramsMapMenu
+
+        insertMenuFragment()
+    }
 }

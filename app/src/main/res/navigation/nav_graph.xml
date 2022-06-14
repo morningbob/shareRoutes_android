@@ -23,7 +23,7 @@
     </fragment>
     <fragment
         android:id="@+id/LoginFragment"
-        android:name="com.bitpunchlab.android.shareroutes.LoginFragment"
+        android:name="com.bitpunchlab.android.shareroutes.authentication.LoginFragment"
         android:label="@string/login_fragment"
         tools:layout="@layout/fragment_login">
 
@@ -48,7 +48,7 @@
     </fragment>
     <fragment
         android:id="@+id/createUserFragment"
-        android:name="com.bitpunchlab.android.shareroutes.CreateUserFragment"
+        android:name="com.bitpunchlab.android.shareroutes.authentication.CreateUserFragment"
         android:label="@string/create_account" >
         <action
             android:id="@+id/action_createUserFragment_to_MainFragment"
@@ -68,6 +68,9 @@
         android:name="com.bitpunchlab.android.shareroutes.suggestRoutes.SuggestRoutesFragment"
         android:label="Suggested Routes"
         tools:layout="@layout/fragment_share_a_route" >
+        <action
+            android:id="@+id/action_suggestRoutesFragment_to_mapPageFragment"
+            app:destination="@id/mapPageFragment" />
     </fragment>
     <fragment
         android:id="@+id/mapPageFragment"

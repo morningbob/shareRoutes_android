@@ -61,7 +61,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private var path = MutableLiveData<ArrayList<LatLng>>(ArrayList())
     private lateinit var autocompleteFragment: AutocompleteSupportFragment
     private lateinit var placeClient: PlacesClient
-
+    private var routeToBeDrawn : Route? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,6 +131,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     searchLocationAlert(clickedLocation)
                 }
                 pickLocationAlert()
+            }
+        })
+
+        locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
+            route?.let {
+                // draw the route
+                locationViewModel.finishedNavigatingRoute()
             }
         })
 
@@ -226,6 +233,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             marker.let {
                 locationViewModel.addToMarkerList(it!!)
             }
+            // clear last known location here
+            locationViewModel._lastKnownLocation.value = null
 
         } else {
             Log.i("show user location", "can't get location")
@@ -474,7 +483,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             }
             // assume this is the end of parsing the result
             Log.i("parsing result completed", "we construct path here")
-            constructPath()
+            createAndDrawRoute(path.value!!)
+            displayRouteLine()
             // there used to be 0 result exception
             // so need to consider and handle when no direction result is found.
         } catch (e: Exception) {
@@ -501,11 +511,24 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             // create the Route object and share it
             locationViewModel._routeToShare.value = Route(transformedPoints)
         }
+    }
+
+    private fun displayRouteLine() {
         // we move the camera only after we got all the points of the polyline
         // and we should construct the line only once.
         val destinationMarker = locationViewModel.markerList.value!!.last()
         map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(destinationMarker.position.latitude,
             destinationMarker.position.longitude)))
+    }
+
+    private fun createAndDrawRoute(points: List<LatLng>) {
+        if (!points.isNullOrEmpty()) {
+            val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
+                PATH_LINE_WIDTH)
+            locationViewModel._routeLine.value = map.addPolyline(opts)
+            val transformedPoints = transformPointsToMap(points)
+            locationViewModel._routeToShare.value = Route(transformedPoints)
+        }
     }
 
     // transform list of lan lng to list of map with letter key and map of lan lng object

@@ -1,6 +1,7 @@
 package com.bitpunchlab.android.shareroutes.map
 
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bitpunchlab.android.shareroutes.models.Route
@@ -72,6 +73,15 @@ class LocationInfoViewModel : ViewModel() {
     var _chosenSearchLocation = MutableLiveData<LatLng>()
     val chosenSearchLocation get() = _chosenSearchLocation
 
+    var _chosenRoute = MutableLiveData<Route?>()
+    val chosenRoute get() = _chosenRoute
+
+    var _routesResult = MutableLiveData<List<Route>>()
+    val routesResult get() = _routesResult
+
+    var _closeSuggestion = MutableLiveData<Boolean>(false)
+    val closeSuggestion get() = _closeSuggestion
+
 
     fun addToMarkerList(marker: Marker) {
         var list = mutableListOf<Marker>()//emptyList<MarkerOptions>()
@@ -80,5 +90,15 @@ class LocationInfoViewModel : ViewModel() {
         }
         list.add(marker)
         markerList.value = list
+    }
+
+    fun onRouteClicked(route: Route) {
+        Log.i("on route clicked", "a route is chosen")
+        _chosenRoute.value = route
+    }
+
+    fun finishedNavigatingRoute() {
+        Log.i("finished", "set null")
+        _chosenRoute.value = null
     }
 }
