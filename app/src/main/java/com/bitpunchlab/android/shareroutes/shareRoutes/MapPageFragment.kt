@@ -19,14 +19,27 @@ import com.bitpunchlab.android.shareroutes.*
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMapPageBinding
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 import com.bitpunchlab.android.shareroutes.suggestRoutes.SuggestRoutesFragment
+import com.google.android.libraries.places.api.net.PlacesClient
 
+// this class responsible for displaying the share routes interface
+// the map view, the controls of sharing.
+// it's layout include a fragment container to host the supportMapFragment
+// it communicates with show map fragment by using the location view model
+// it also deals with the database for sharing routes and getting routes suggestions
 
+// I need to find out the city of the route is in.
+// This info is for the user to search suggested routes in a city.
+// So, all the routes in the city will be shown to the user.
+// This info also help identifying the route from the other routes.
+// I use Geocoding API to get these info from a LatLng point in the route.
+// Route class will store all these info.
 class MapPageFragment : Fragment() {
 
     private var _binding : FragmentMapPageBinding? = null
     private val binding get() = _binding!!
     private lateinit var locationViewModel: LocationInfoViewModel
     private lateinit var firebaseViewModel: FirebaseClientViewModel
+    //private lateinit var placeClient: PlacesClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
