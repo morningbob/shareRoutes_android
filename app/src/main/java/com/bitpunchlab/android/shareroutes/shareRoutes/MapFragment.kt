@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.graphics.Color
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -38,7 +40,10 @@ import com.google.maps.DirectionsApi
 import com.google.maps.GeoApiContext
 import com.google.maps.model.TravelMode
 import java.lang.Exception
+import java.util.*
 import javax.net.ssl.SSLEngineResult
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 private const val TAG = "MapFragment"
 private const val MAX_DISTANCE = 5000
@@ -62,6 +67,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private lateinit var autocompleteFragment: AutocompleteSupportFragment
     private lateinit var placeClient: PlacesClient
     private var routeToBeDrawn : Route? = null
+    private lateinit var geoCoder : Geocoder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -138,6 +144,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             route?.let {
                 // draw the route
                 locationViewModel.finishedNavigatingRoute()
+            }
+        })
+
+        locationViewModel.shouldShowRoute.observe(viewLifecycleOwner, Observer { show ->
+            if (show) {
+                // construct the route
+                //drawRoute(locationViewModel.chosenRoute.value!!.pointsMap)
+                // convert pointsMap to LatLng list
+                drawRoute(transformPointsMapToLatLngList(locationViewModel.chosenRoute.value!!.pointsMap))
             }
         })
 
@@ -483,7 +498,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             }
             // assume this is the end of parsing the result
             Log.i("parsing result completed", "we construct path here")
-            createAndDrawRoute(path.value!!)
+            drawRoute(path.value!!)
+            createRoute(path.value!!)
             displayRouteLine()
             // there used to be 0 result exception
             // so need to consider and handle when no direction result is found.
@@ -502,17 +518,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         path.value = list as ArrayList<LatLng>
     }
 
-    private fun constructPath() {
-        if (path.value!!.isNotEmpty()) {
-            val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
-                PATH_LINE_WIDTH)
-            locationViewModel._routeLine.value = map.addPolyline(opts)
-            val transformedPoints = transformPointsToMap(path.value!!)
-            // create the Route object and share it
-            locationViewModel._routeToShare.value = Route(transformedPoints)
-        }
-    }
-
     private fun displayRouteLine() {
         // we move the camera only after we got all the points of the polyline
         // and we should construct the line only once.
@@ -521,14 +526,17 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             destinationMarker.position.longitude)))
     }
 
-    private fun createAndDrawRoute(points: List<LatLng>) {
+    private fun drawRoute(points: List<LatLng>) {
         if (!points.isNullOrEmpty()) {
-            val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
+            val opts = PolylineOptions().addAll(points).color(Color.BLUE).width(
                 PATH_LINE_WIDTH)
             locationViewModel._routeLine.value = map.addPolyline(opts)
-            val transformedPoints = transformPointsToMap(points)
-            locationViewModel._routeToShare.value = Route(transformedPoints)
+            //val pointsMap = transformPointsToMap(points)
         }
+    }
+
+    private fun createRoute(points: List<LatLng>) {
+        locationViewModel._routeToShare.value = createRouteObject(points)
     }
 
     // transform list of lan lng to list of map with letter key and map of lan lng object
@@ -555,6 +563,43 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         }
         return pointsMap
     }
+
+    // we need to transform the hashmap route data back into a list of LatLng
+    // notice we don't need to convert a whole route list, just a route
+    // that we need to consider, when we get back the map from the database
+    // the keys are not in order, so, we need to sort the keys before we do transformation
+    // so, I first sort the key and put it into a list, then transform the list
+    private fun transformPointsMapToLatLngList(pointsMap: HashMap<String, HashMap<String, HashMap<String, Double>>>) :
+            List<LatLng> {
+        val latLngList = mutableListOf<LatLng>()
+        // sort the LatLngMaps
+        val listOfLatLngHashmaps = mutableListOf<HashMap<String, HashMap<String, Double>>>()
+        pointsMap
+        pointsMap.forEach { (key, value) ->
+            val list = transformLatLngMapsToList(value)
+            list.map { hashMap ->
+                latLngList.add(transformLatLngMapToPoint(hashMap))
+            }
+        }
+        return latLngList
+    }
+
+    private fun transformLatLngMapToPoint(latLngMap: HashMap<String, Double>) : LatLng {
+        return LatLng(latLngMap.get("lat")!!, latLngMap.get("lng")!!)
+    }
+
+    private fun transformLatLngMapsToList(mapOfLatLngMap: HashMap<String, HashMap<String, Double>>) :
+            List<HashMap<String, Double>> {
+        val latLngMapList = mutableListOf<HashMap<String, Double>>()
+        mapOfLatLngMap.forEach { (key, value) ->
+            latLngMapList.add(value)
+        }
+        return latLngMapList
+    }
+
+    //private fun orderLatLngPointsToList(HashMap<String, HashMap<, >>) {
+
+    //}
 
     private fun clearPath() {
         locationViewModel._routeLine.value?.remove()
@@ -633,7 +678,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         searchAlert.setPositiveButton(getString(R.string.confirm_button),
             DialogInterface.OnClickListener { dialog, button ->
                 // run the suggest routes fragment and do the search
-                //findNavController()
                 // notice map page fragment to navigate to suggest routes fragment
                 locationViewModel._runSuggestRoutesFragment.value = true
                 locationViewModel.chosenSearchLocation.value = clickedLocation
@@ -644,4 +688,48 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             })
         searchAlert.show()
     }
+
+    private fun getRouteInfo(point: LatLng) : Address {
+        // the result comes back as a list of address objects.
+        // we only need the first one, and I restrict the result to be 1 only too
+
+        //val infoMap = HashMap<String, String>()
+        geoCoder = Geocoder(requireContext(), Locale.getDefault())
+        var addressList: List<Address> = geoCoder.getFromLocation(point.latitude, point.longitude, 1)
+
+        return addressList.first()
+        //infoMap.put("address", resultAddress.getAddressLine(0))
+    }
+
+    private fun createRouteObject(points: List<LatLng>) : Route {
+        val origin = points.first()
+        val pointsMap = transformPointsToMap(points)
+
+        val addressObject = getRouteInfo(origin)
+        val address = addressObject.getAddressLine(0)
+        val city = addressObject.locality
+        val state = addressObject.adminArea
+        val country = addressObject.countryName
+        var name = ""
+        addressObject.featureName?.let { knownName ->
+            name = knownName
+        }
+
+        val newRoute = Route(map = pointsMap, placeName = name, placeAddress = address,
+        placeCity = city, placeState = state, placeCountry = country)
+        return newRoute
+    }
 }
+
+/*
+    private fun constructPath() {
+        if (path.value!!.isNotEmpty()) {
+            val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
+                PATH_LINE_WIDTH)
+            locationViewModel._routeLine.value = map.addPolyline(opts)
+            val transformedPoints = transformPointsToMap(path.value!!)
+            // create the Route object and share it
+            locationViewModel._routeToShare.value = Route(transformedPoints)
+        }
+    }
+*/

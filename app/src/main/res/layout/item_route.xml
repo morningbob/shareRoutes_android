@@ -15,21 +15,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:weightSum="4"
+
     android:onClick="@{()-> clickListener.onClick(route)}">
     
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@{route.id}"
-        android:layout_weight="1"/>
-
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:text="@{route.address}"
+        android:textSize="14sp" />
+<!--
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@{route.timeCreated.toString()"
-        android:layout_weight="3" />
-
+        android:layout_marginLeft="20dp"
+        android:text="@{route.address}"
+        android:textSize="14sp" />
+-->
 </LinearLayout>
 
 </layout>

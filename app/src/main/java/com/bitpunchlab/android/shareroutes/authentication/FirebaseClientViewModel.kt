@@ -212,13 +212,15 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully created user")
                     loggedInUser.postValue(true)
+                    // this part is to register user in my database
+                    saveUser(userName.value!!, userEmail.value!!, userPassword.value!!)
                     //currentUser.postValue(auth.currentUser)
                 } else {
                     Log.i(TAG, "error in creating user")
+                    // alert user system problem
                 }
             }
-        // this part is to register user in my database
-        saveUser(userName.value!!, userEmail.value!!, userPassword.value!!)
+
     }
 
     // when we log in user, we also get the user object from the database as a

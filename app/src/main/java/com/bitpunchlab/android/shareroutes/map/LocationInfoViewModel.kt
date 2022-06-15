@@ -82,6 +82,9 @@ class LocationInfoViewModel : ViewModel() {
     var _closeSuggestion = MutableLiveData<Boolean>(false)
     val closeSuggestion get() = _closeSuggestion
 
+    var _shouldShowRoute = MutableLiveData<Boolean>(false)
+    val shouldShowRoute get() = _shouldShowRoute
+
 
     fun addToMarkerList(marker: Marker) {
         var list = mutableListOf<Marker>()//emptyList<MarkerOptions>()

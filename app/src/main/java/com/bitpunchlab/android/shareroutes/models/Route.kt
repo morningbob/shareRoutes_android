@@ -9,17 +9,23 @@ class Route  {
     val timeCreated = Calendar.getInstance().time
     lateinit var pointsMap : HashMap<String, HashMap<String, HashMap<String, Double>>>
     var name = ""
-    var city = ""
     var address = ""
+    var city = ""
+    var state = ""
+    var country = ""
+
 
     constructor()
 
     constructor(map: HashMap<String, HashMap<String, HashMap<String, Double>>>,
-                placeName: String, placeCity: String, placeAddress: String) : this() {
+                placeName: String, placeCity: String, placeAddress: String,
+                placeState: String, placeCountry: String) : this() {
         pointsMap = map
         name = placeName
         city = placeCity
         address = placeAddress
+        state = placeState
+        country = placeCountry
     }
 }
 

@@ -57,9 +57,8 @@ class SuggestRoutesFragment : Fragment() {
 
         locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
             route?.let {
-                // go back to the map page fragment
                 // construct the route in the map
-                findNavController().navigate(R.id.action_suggestRoutesFragment_to_mapPageFragment)
+                //findNavController().navigate(R.id.action_suggestRoutesFragment_to_mapPageFragment)
             }
         })
         binding.closeTextview.setOnClickListener {
