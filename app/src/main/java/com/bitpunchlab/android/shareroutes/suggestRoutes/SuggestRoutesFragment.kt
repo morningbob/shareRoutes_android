@@ -59,6 +59,7 @@ class SuggestRoutesFragment : Fragment() {
             route?.let {
                 // construct the route in the map
                 //findNavController().navigate(R.id.action_suggestRoutesFragment_to_mapPageFragment)
+                locationViewModel._shouldShowRoute.value = true
             }
         })
         binding.closeTextview.setOnClickListener {

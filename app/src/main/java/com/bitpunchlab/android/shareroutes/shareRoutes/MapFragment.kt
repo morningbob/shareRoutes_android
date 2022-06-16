@@ -133,7 +133,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 // enable map click listener
                 map.setOnMapClickListener { clickedLocation ->
                     Log.i("user tapped the map: ", "location $clickedLocation")
-                    //addMarkerAlert(clickedLocation)
                     searchLocationAlert(clickedLocation)
                 }
                 pickLocationAlert()
@@ -144,6 +143,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             route?.let {
                 // draw the route
                 locationViewModel.finishedNavigatingRoute()
+                drawRoute(transformPointsMapToLatLngList(route.pointsMap))
             }
         })
 
@@ -152,7 +152,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 // construct the route
                 //drawRoute(locationViewModel.chosenRoute.value!!.pointsMap)
                 // convert pointsMap to LatLng list
-                drawRoute(transformPointsMapToLatLngList(locationViewModel.chosenRoute.value!!.pointsMap))
+
             }
         })
 
@@ -572,19 +572,47 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private fun transformPointsMapToLatLngList(pointsMap: HashMap<String, HashMap<String, HashMap<String, Double>>>) :
             List<LatLng> {
         val latLngList = mutableListOf<LatLng>()
-        // sort the LatLngMaps
-        val listOfLatLngHashmaps = mutableListOf<HashMap<String, HashMap<String, Double>>>()
-        pointsMap
-        pointsMap.forEach { (key, value) ->
-            val list = transformLatLngMapsToList(value)
-            list.map { hashMap ->
-                latLngList.add(transformLatLngMapToPoint(hashMap))
+
+        val listOfLatLngHashmaps = mutableListOf<kotlin.collections.HashMap<String, Double>>()
+        // remove the key, get the list of hashmaps of hashmaps of latlng
+        val listOfHashmapOfHashmapOfLatLng = mutableListOf<HashMap<String, HashMap<String, Double>>>()
+        for ((key, value) in pointsMap) {
+            listOfHashmapOfHashmapOfLatLng.add(value)
+        }
+        // sort the LatLngMaps by creating a sorted list
+        val listOfHashmapOfLatLng = mutableListOf<HashMap<String, Double>>()
+        val sortedListOfLatLngMaps = mutableListOf<HashMap<String, Double>>()
+        for (hashmap in listOfHashmapOfHashmapOfLatLng) {
+            val keysOfHashmapsOfLatLng: List<String> = hashmap.keys.sortedBy { it }
+            keysOfHashmapsOfLatLng.map { mapKey ->
+                Log.i("mapKey: ", mapKey)
+                sortedListOfLatLngMaps.add(hashmap[mapKey] as kotlin.collections.HashMap)
             }
+        }
+            //for ((key, value) in map) {
+                //listOfHashmapOfLatLng.add()
+            //}
+            //listOfHashmapOfLatLng.add(value)
+
+        //listOfHashmapOfHashmapOfLatLng.map { hashmapOfLatLng ->
+            //hashmapOfLatLng.keys.sortedBy { it }
+            //val key = hashmapOfLatLng.
+        //}
+
+        //var sortedListOfKeys = pointsMap.keys.sortedBy { it }
+        //Log.i("transforming, sorted keys", sortedListOfKeys.toString())
+        //for (key in sortedListOfKeys) {
+        //    listOfLatLngHashmaps.add(listOfHashmapOfHashmapOfLatLng[key] as kotlin.collections.HashMap<String, Double>)
+        //}
+        // now the list of LatLng maps are sorted
+        sortedListOfLatLngMaps.forEach { map ->
+            latLngList.add(transformLatLngMapToPoint(map))
         }
         return latLngList
     }
 
     private fun transformLatLngMapToPoint(latLngMap: HashMap<String, Double>) : LatLng {
+        Log.i("lat lng to point method", latLngMap.toString())
         return LatLng(latLngMap.get("lat")!!, latLngMap.get("lng")!!)
     }
 
@@ -596,10 +624,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         }
         return latLngMapList
     }
-
-    //private fun orderLatLngPointsToList(HashMap<String, HashMap<, >>) {
-
-    //}
 
     private fun clearPath() {
         locationViewModel._routeLine.value?.remove()

@@ -127,6 +127,12 @@ class ShowMapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickL
             }
         })
 
+        locationInfoViewModel.shouldShowRoute.observe(viewLifecycleOwner, Observer { show ->
+            if (show) {
+
+            }
+        })
+
     }
 
     private fun showUserLocation() {
