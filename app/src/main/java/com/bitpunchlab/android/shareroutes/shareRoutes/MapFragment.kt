@@ -531,7 +531,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             val opts = PolylineOptions().addAll(points).color(Color.BLUE).width(
                 PATH_LINE_WIDTH)
             locationViewModel._routeLine.value = map.addPolyline(opts)
-            //val pointsMap = transformPointsToMap(points)
         }
     }
 
@@ -580,20 +579,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         }
 
         // sort the LatLngMaps by creating a sorted list
-        //val sortedListOfLatLngMaps = mutableListOf<HashMap<String, Double>>()
-        for (hashmap in listOfHashmapOfHashmapOfLatLng) {
-
-            sortedListOfHashmaps = sortLatLngMapKeys(hashmap).toMutableList()
-            // the sorting here is not working
-            /*
-            val keysOfHashmapsOfLatLng: List<String> = hashmap.keys.sortedBy { it }
-            keysOfHashmapsOfLatLng.map { mapKey ->
-                Log.i("mapKey: ", mapKey)
-                sortedListOfLatLngMaps.add(hashmap[mapKey] as kotlin.collections.HashMap)
-            }
-
-             */
-        }
+        sortedListOfHashmaps = sortLatLngMapKeys(listOfHashmapOfHashmapOfLatLng).toMutableList()
 
         // now the list of LatLng maps are sorted
         sortedListOfHashmaps.forEach { map ->
@@ -607,37 +593,24 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         return LatLng(latLngMap.get("lat")!!, latLngMap.get("lng")!!)
     }
 
-    private fun transformLatLngMapsToList(mapOfLatLngMap: HashMap<String, HashMap<String, Double>>) :
-            List<HashMap<String, Double>> {
-        val latLngMapList = mutableListOf<HashMap<String, Double>>()
-        mapOfLatLngMap.forEach { (key, value) ->
-            latLngMapList.add(value)
-        }
-        return latLngMapList
-    }
-
-    private fun sortLatLngMapKeys(latLngMaps: HashMap<String, HashMap<String, Double>>) :
+    private fun sortLatLngMapKeys(listOflatLngMaps: List<HashMap<String, HashMap<String, Double>>>) :
             List<HashMap<String, Double>> {
         // cut last character and turn the rest into number
         // create a hashmap with the number we got as key
         // with the value as the lat lng hashmap
         val hashmap = HashMap<Int, HashMap<String, Double>>()
         val sortedListOfLatLngHashmap = mutableListOf<HashMap<String, Double>>()
-        latLngMaps.map { hashmapOfLatLngHashmap ->
-            val numKey = hashmapOfLatLngHashmap.key.substring(0, hashmapOfLatLngHashmap.key.length - 1).toInt()
-            hashmap.put(numKey, hashmapOfLatLngHashmap.value)
+        listOflatLngMaps.map { hashmapOfLatLngHashmap ->
+            hashmapOfLatLngHashmap.keys.map { key ->
+                // should have only 1 key in the whole map
+                val numKey = key.substring(0, key.length - 1).toInt()
+                hashmap.put(numKey, hashmapOfLatLngHashmap[key] as kotlin.collections.HashMap)
+            }
+
         }
-        //hashmap.map { key ->
-            //Log.i("hashmap key", key.toString())
-        //}
 
         val listOfKeys = hashmap.keys.sorted()
 
-        listOfKeys.map { key ->
-            Log.i("list of keys: key", key.toString())
-        }
-        //Log.i("sorting: listOfKeys", listOfKeys)
-        //sortedMapOf(hashmap)
         listOfKeys.map { key ->
             Log.i("sorting: key", key.toString())
             hashmap[key]?.let {
