@@ -28,10 +28,10 @@ class MainActivity : AppCompatActivity() {
 
         // here, we told the nav controller we don't want the back button
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == R.id.shareARouteFragment ||
+            if (destination.id == R.id.mapPageFragment ||
                     destination.id == R.id.LoginFragment ||
-                    destination.id == R.id.MainFragment ||
-                    destination.id == R.id.suggestRoutesFragment) {
+                    destination.id == R.id.MainFragment
+                    ) {
                 // hide the back button
                 binding.toolbar.navigationIcon = null
             }

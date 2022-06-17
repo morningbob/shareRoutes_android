@@ -130,6 +130,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
         locationViewModel.shouldSuggestRoutes.observe(viewLifecycleOwner, Observer { suggest ->
             if (suggest) {
+
+                // reset this variable, so, it is set to true only when a location is picked
+                locationViewModel._clearSuggestRoutesInfo.value = false
                 // enable map click listener
                 map.setOnMapClickListener { clickedLocation ->
                     Log.i("user tapped the map: ", "location $clickedLocation")
@@ -139,20 +142,21 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             }
         })
 
+        locationViewModel.clearSuggestRoutesInfo.observe(viewLifecycleOwner, Observer { clear ->
+            if (clear) {
+                map.setOnMapClickListener {
+                    Log.i("if closed suggest route panel", "set onMapClick null")
+                }
+            }
+        })
+
         locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
             route?.let {
                 // draw the route
                 locationViewModel.finishedNavigatingRoute()
-                drawRoute(transformPointsMapToLatLngList(route.pointsMap))
-            }
-        })
-
-        locationViewModel.shouldShowRoute.observe(viewLifecycleOwner, Observer { show ->
-            if (show) {
-                // construct the route
-                //drawRoute(locationViewModel.chosenRoute.value!!.pointsMap)
-                // convert pointsMap to LatLng list
-
+                val routeLatLngPoints = transformPointsMapToLatLngList(route.pointsMap)
+                drawRoute(routeLatLngPoints)
+                displayRouteLine(routeLatLngPoints[0])
             }
         })
 
@@ -431,7 +435,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             it.position.longitude) }
 
         Log.i("waypoint list", waypointLatLng.toString())
-        Log.i("waypoint", waypointLatLng[0].toString())
+        //Log.i("waypoint", waypointLatLng[0].toString())
 
         val geoContext = GeoApiContext.Builder()
             .apiKey(BuildConfig.MAPS_API_KEY)
@@ -445,7 +449,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             .waypoints(*waypointLatLng.toTypedArray())
             .optimizeWaypoints(true)
         // here, we optimize to true because we want google to ignore the orders of the markers.
-
 
         try {
             val directionResult = directionRequest.await()
@@ -500,7 +503,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             Log.i("parsing result completed", "we construct path here")
             drawRoute(path.value!!)
             createRoute(path.value!!)
-            displayRouteLine()
+            displayRouteLine(path.value!!.last())
             // there used to be 0 result exception
             // so need to consider and handle when no direction result is found.
         } catch (e: Exception) {
@@ -518,12 +521,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         path.value = list as ArrayList<LatLng>
     }
 
-    private fun displayRouteLine() {
+    private fun displayRouteLine(destination: LatLng) {
         // we move the camera only after we got all the points of the polyline
         // and we should construct the line only once.
-        val destinationMarker = locationViewModel.markerList.value!!.last()
-        map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(destinationMarker.position.latitude,
-            destinationMarker.position.longitude)))
+        //val destinationMarker = locationViewModel.markerList.value!!.last()
+        map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(destination.latitude,
+            destination.longitude)))
     }
 
     private fun drawRoute(points: List<LatLng>) {
@@ -606,7 +609,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 val numKey = key.substring(0, key.length - 1).toInt()
                 hashmap.put(numKey, hashmapOfLatLngHashmap[key] as kotlin.collections.HashMap)
             }
-
         }
 
         val listOfKeys = hashmap.keys.sorted()
@@ -643,9 +645,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             marker.remove()
         }
         // reset marker list by clearing set the list to null
-        //locationInfoViewModel._markerList.value = emptyList()
-        //Log.i("remove all markers, now marker list size",
-        //    locationInfoViewModel.markerList.value!!.size.toString())
     }
 
     private fun navigateAlert(place: Place) {
@@ -658,6 +657,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
         navAlert.setPositiveButton("Navigate",
             DialogInterface.OnClickListener { dialog, button ->
+                // clear route info and starts fresh
+                cleanRouteInfo()
                 // navigate to the place
                 showUserLocation(place.latLng)
             })
@@ -678,7 +679,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         pickAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
                 // wait for user to pick a location
-                // enable click listener, for one marker only
+
             })
         pickAlert.setNegativeButton(getString(R.string.cancel_button),
             DialogInterface.OnClickListener { dialog, button ->
@@ -687,7 +688,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
         pickAlert.show()
     }
-
 
     private fun searchLocationAlert(clickedLocation: LatLng) {
         val searchAlert = AlertDialog.Builder(requireContext())
@@ -698,6 +698,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
         searchAlert.setPositiveButton(getString(R.string.confirm_button),
             DialogInterface.OnClickListener { dialog, button ->
+                // clean routes info, so when user come back, starts fresh
+                cleanRouteInfo()
+                // if user choosed this location, then we cancel the alert to set place
+                locationViewModel._clearSuggestRoutesInfo.value = true
+                locationViewModel._shouldSuggestRoutes.value = false
                 // run the suggest routes fragment and do the search
                 // notice map page fragment to navigate to suggest routes fragment
                 locationViewModel._runSuggestRoutesFragment.value = true
@@ -714,12 +719,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         // the result comes back as a list of address objects.
         // we only need the first one, and I restrict the result to be 1 only too
 
-        //val infoMap = HashMap<String, String>()
         geoCoder = Geocoder(requireContext(), Locale.getDefault())
         var addressList: List<Address> = geoCoder.getFromLocation(point.latitude, point.longitude, 1)
 
         return addressList.first()
-        //infoMap.put("address", resultAddress.getAddressLine(0))
     }
 
     private fun createRouteObject(points: List<LatLng>) : Route {
@@ -739,6 +742,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         val newRoute = Route(map = pointsMap, placeName = name, placeAddress = address,
         placeCity = city, placeState = state, placeCountry = country)
         return newRoute
+    }
+
+    private fun moveCameraToLocation() {
+
     }
 }
 

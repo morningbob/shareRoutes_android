@@ -8,25 +8,58 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="right">
+        >
 <!--
         <Button
             android:id="@+id/close_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Close suggestions" />
+
+
 -->
-        <TextView
-            android:id="@+id/close_textview"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:text="Close suggestions"
-            android:textColor="@color/blue"
-            android:clickable="true" />
+            android:orientation="horizontal"
+            android:gravity="right">
+
+<!--
+            <TextView
+                android:id="@+id/new_search_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:text="New Search"
+                android:textColor="@color/blue"
+                android:clickable="true" />
+-->
+            <TextView
+                android:id="@+id/clear_route_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:text="Clear route"
+                android:textColor="@color/blue"
+                android:clickable="true" />
+
+            <TextView
+                android:id="@+id/close_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:text="Close suggestions"
+                android:textColor="@color/blue"
+                android:clickable="true" />
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/routes_recycler"

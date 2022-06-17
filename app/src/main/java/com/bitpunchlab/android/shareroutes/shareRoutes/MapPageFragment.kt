@@ -98,6 +98,9 @@ class MapPageFragment : Fragment() {
                 // besides changing back to map menu, we also need to clean all routes related info
                 insertMenuFragment()
                 locationViewModel._shouldRestart.value = true
+                // also clean suggest routes related info.
+                locationViewModel._shouldSuggestRoutes.value = false
+                //locationViewModel._clearSuggestRoutesInfo.value = true
             }
         })
 

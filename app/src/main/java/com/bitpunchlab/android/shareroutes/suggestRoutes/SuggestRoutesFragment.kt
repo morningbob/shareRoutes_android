@@ -54,6 +54,8 @@ class SuggestRoutesFragment : Fragment() {
                 routeAdapter.notifyDataSetChanged()
             }
         })
+        // reset
+        locationViewModel._clearSuggestRoutesInfo.value = false
 
         locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
             route?.let {
@@ -65,11 +67,10 @@ class SuggestRoutesFragment : Fragment() {
         binding.closeTextview.setOnClickListener {
             locationViewModel._closeSuggestion.value = true
         }
-/*
-        binding.closeButton.setOnClickListener {
-            locationViewModel._closeSuggestion.value = true
+
+        binding.clearRouteTextview.setOnClickListener {
+            locationViewModel._shouldClearPath.value = true
         }
-*/
         // retrieve the search location latlng.
         // calculate the distance
         // query firebase database
