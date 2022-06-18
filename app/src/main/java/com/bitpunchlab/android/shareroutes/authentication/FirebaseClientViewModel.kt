@@ -61,6 +61,9 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
     var _routesResult = MutableLiveData<List<Route>>()
     val routesResult get() = _routesResult
 
+    var _shareSuccess = MutableLiveData<Boolean>(false)
+    val shareSuccess get() = _shareSuccess
+
 
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
@@ -435,6 +438,8 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
 
                 } else {
                     Log.i(TAG, "successfully saved routes in user")
+                    // here we decided the share route task succeeded
+                    _shareSuccess.postValue(true)
                 }
             }
     }

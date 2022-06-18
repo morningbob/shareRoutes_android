@@ -4,6 +4,8 @@ import android.location.Location
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.bitpunchlab.android.shareroutes.ShareRouteState
+import com.bitpunchlab.android.shareroutes.SuggestRoutesState
 import com.bitpunchlab.android.shareroutes.models.Route
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
@@ -87,6 +89,16 @@ class LocationInfoViewModel : ViewModel() {
 
     var _clearSuggestRoutesInfo = MutableLiveData<Boolean>(false)
     val clearSuggestRoutesInfo get() = _clearSuggestRoutesInfo
+
+    var _showMyLocation = MutableLiveData<Boolean>(false)
+    val showMyLocation get() = _showMyLocation
+
+    var _shareRouteAppState = MutableLiveData<ShareRouteState>(ShareRouteState.NORMAL)
+    val shareRouteAppState get() = _shareRouteAppState
+
+    var _suggestRoutesAppState = MutableLiveData<SuggestRoutesState>(SuggestRoutesState.NORMAL)
+    val suggestRoutesAppState get() = _suggestRoutesAppState
+
 
 
     fun addToMarkerList(marker: Marker) {

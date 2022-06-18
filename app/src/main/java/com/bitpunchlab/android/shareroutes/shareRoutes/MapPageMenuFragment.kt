@@ -34,7 +34,6 @@ class MapPageMenuFragment : Fragment() {
             .get(LocationInfoViewModel::class.java)
 
         binding.shareRouteButton.setOnClickListener {
-            //findNavController().navigate(R.id.a)
             locationViewModel._shouldNavigateShareRoute.value = true
         }
 
@@ -43,6 +42,10 @@ class MapPageMenuFragment : Fragment() {
         // then run the suggest routes fragment and search through the database
         binding.suggestRoutesButton.setOnClickListener {
             locationViewModel._shouldSuggestRoutes.value = true
+        }
+
+        binding.myLocationButton.setOnClickListener {
+            locationViewModel._showMyLocation.value = true
         }
 
         return binding.root

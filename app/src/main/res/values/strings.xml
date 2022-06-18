@@ -50,7 +50,10 @@
     <string name="max_markers_alert_desc">You can only add up to 10 markers.</string>
     <string name="app_title">Sharing Routes</string>
     <string name="home">Home Screen</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="clean_route_line_alert_title">Clean route line</string>
+    <string name="clean_route_line_alert_desc">Do you want to clean the previous route created, and create a new one?</string>
+    <string name="clean_route_button">Clean</string>
+    <string name="share_success_alert_title">Successfully shared route.</string>
+    <string name="share_success_alert_desc">The route has been successfully shared!</string>
 
 </resources>

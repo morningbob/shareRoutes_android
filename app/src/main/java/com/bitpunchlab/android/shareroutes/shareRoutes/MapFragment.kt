@@ -20,6 +20,8 @@ import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.shareroutes.BuildConfig
 import com.bitpunchlab.android.shareroutes.BuildConfig.MAPS_API_KEY
 import com.bitpunchlab.android.shareroutes.R
+import com.bitpunchlab.android.shareroutes.ShareRouteState
+import com.bitpunchlab.android.shareroutes.SuggestRoutesState
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 import com.bitpunchlab.android.shareroutes.models.Route
 import com.google.android.gms.common.api.Status
@@ -83,6 +85,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         locationViewModel = ViewModelProvider(requireActivity())
             .get(LocationInfoViewModel::class.java)
 
+        observeAppState()
+
         supportMapFragment = childFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         supportMapFragment.getMapAsync(this)
@@ -100,6 +104,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
         locationViewModel.shouldAddMarker.observe(viewLifecycleOwner, Observer { start ->
             if (start) {
+                // here we clean the first marker that we put on my location, the red one
+                // so, there is less confusion
+                cleanRouteInfo()
                 // set up onTap listener
                 map.setOnMapClickListener { clickedLocation ->
                     Log.i("user tapped the map: ", "location $clickedLocation")
@@ -111,8 +118,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
         locationViewModel.readyToCreateRoute.observe(viewLifecycleOwner, Observer { ready ->
             if (ready) {
-                getARoute()
-                // clean the marker list, markers on the map, path after the route was created.
+                // check if there is already a route line presented, if so, alert user and
+                // remove it.
+                if (locationViewModel.routeLine.value != null) {
+                    clearRouteAlert()
+                } else {
+                    getARoute()
+                }
             }
         })
 
@@ -160,6 +172,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             }
         })
 
+        locationViewModel.showMyLocation.observe(viewLifecycleOwner, Observer { show ->
+            if (show) {
+
+            }
+        })
+
         return view
     }
 
@@ -171,25 +189,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         map.uiSettings.isZoomControlsEnabled = true
 
         findDeviceLocation()
-        val myLocation = LatLng(43.6532, 79.3832)
-/*
-        var marker = map.addMarker(
-            MarkerOptions().position(
-            myLocation
-            ).title("Current location"))
 
-        map.moveCamera(CameraUpdateFactory.newLatLng(myLocation))
-
-        val cameraPosition = CameraPosition.Builder()
-            .target(myLocation)
-            .zoom(18f)
-            .bearing(90f)
-            .tilt(30f)
-            .build()
-
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-
- */
     }
 
     private fun setupAutoCompleteFragment() {
@@ -229,11 +229,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     private fun showUserLocation(location: LatLng) {
 
-        //if (locationViewModel.lastKnownLocation.value != null &&
-        //    locationViewModel.lastKnownLocation.value != null) {
         if (location != null) {
-            //var location = LatLng(locationViewModel.lastKnownLocation.value!!.latitude,
-            //    locationViewModel.lastKnownLocation.value!!.longitude)
+
             var marker = map.addMarker(MarkerOptions().position(
                 location).title("Current location"))
             map.moveCamera(CameraUpdateFactory.newLatLng(location))
@@ -249,11 +246,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             Log.i("showed location", "location: lat ${location.latitude} long ${location.longitude}")
             // temporary, add the current position as the first marker
 
-            marker.let {
-                locationViewModel.addToMarkerList(it!!)
-            }
+            //marker.let {
+            //    locationViewModel.addToMarkerList(it!!)
+            //}
             // clear last known location here
-            locationViewModel._lastKnownLocation.value = null
+            //locationViewModel._lastKnownLocation.value = null
 
         } else {
             Log.i("show user location", "can't get location")
@@ -744,8 +741,75 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         return newRoute
     }
 
-    private fun moveCameraToLocation() {
+    private fun clearRouteAlert() {
+        val clearAlert = AlertDialog.Builder(requireContext())
 
+        clearAlert.setCancelable(false)
+        clearAlert.setTitle(getString(R.string.clean_route_line_alert_title))
+        clearAlert.setMessage(getString(R.string.clean_route_line_alert_desc))
+
+        clearAlert.setPositiveButton(getString(R.string.clean_route_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // proceed to clean the route and create a new route
+                locationViewModel.routeLine.value?.remove()
+                locationViewModel.routeLine.value = null
+                getARoute()
+            })
+        clearAlert.show()
+    }
+
+    private fun observeAppState() {
+        locationViewModel.shareRouteAppState.observe(viewLifecycleOwner, Observer { appState ->
+            when (appState) {
+                ShareRouteState.NORMAL -> 0
+
+                ShareRouteState.ADD_MARKER -> 1
+                // setup on map click
+
+                //
+                // check if there is at least 2 markers
+                // check if there is a route line
+
+                ShareRouteState.CREATED_ROUTE -> {
+                    // after the route is created, keep track of if it is shared
+                    2
+                }
+
+                ShareRouteState.SHARED -> {
+                    // don't let user share it again
+                    3
+                }
+                ShareRouteState.RESTART -> {
+                    // clean all info and route line
+                    4
+                }
+            }
+        })
+
+        locationViewModel.suggestRoutesAppState.observe(viewLifecycleOwner, Observer { appState ->
+            when (appState) {
+                SuggestRoutesState.NORMAL -> 0
+
+                SuggestRoutesState.SEARCHING -> {
+
+                    1
+                }
+
+                SuggestRoutesState.DISPLAY_ROUTES -> {
+
+                    2
+                }
+
+                SuggestRoutesState.DISPLAY_CHOSEN -> {
+                    3
+                }
+
+                SuggestRoutesState.RESTART -> {
+                    // clean route line
+                    4
+                }
+            }
+        })
     }
 }
 
