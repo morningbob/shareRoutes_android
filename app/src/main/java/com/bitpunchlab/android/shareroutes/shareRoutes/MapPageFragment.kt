@@ -64,13 +64,7 @@ class MapPageFragment : Fragment() {
                 insertShareMenuFragment()
             }
         })
-
-        locationViewModel.shouldAddMarker.observe(viewLifecycleOwner, Observer { addMarker ->
-            if (addMarker) {
-                createMarkerAlert()
-            }
-        })
-
+/*
         locationViewModel.createRouteChecking.observe(viewLifecycleOwner, Observer { check ->
             if (check) {
                 // check if there are at least 2 markers in the marker list before calling the function
@@ -84,6 +78,8 @@ class MapPageFragment : Fragment() {
             }
         })
 
+
+
         locationViewModel.shouldShareRoute.observe(viewLifecycleOwner, Observer { share ->
             if (share) {
                 // here we check if there is a route line created yet, otherwise can't share
@@ -95,7 +91,7 @@ class MapPageFragment : Fragment() {
                 }
             }
         })
-
+*/
         locationViewModel.shouldCancelSharing.observe(viewLifecycleOwner, Observer { cancel ->
             if (cancel) {
                 // besides changing back to map menu, we also need to clean all routes related info
@@ -121,12 +117,8 @@ class MapPageFragment : Fragment() {
         firebaseViewModel.shareSuccess.observe(viewLifecycleOwner, Observer { share ->
             if (share) {
                 locationViewModel._shareRouteAppState.value = ShareRouteState.SHARED
-
             }
         })
-
-
-
         return binding.root
     }
 
@@ -301,19 +293,42 @@ class MapPageFragment : Fragment() {
             when (appState) {
                 ShareRouteState.NORMAL -> 0
 
-                ShareRouteState.ADD_MARKER -> 1
+                ShareRouteState.ADD_MARKER -> {
                     // check if there is at least 2 markers
                     // check if there is a route line
+                    createMarkerAlert()
+                }
 
-                ShareRouteState.CREATED_ROUTE -> {
+                ShareRouteState.ROUTE_TO_BE_CREATED -> {
                     // after the route is created, keep track of if it is shared
-                    2
+                    if (locationViewModel.markerList.value!!.size >= 2) {
+                        //locationViewModel._readyToCreateRoute.value = true
+                        locationViewModel.shareRouteAppState.value = ShareRouteState.CREATING_ROUTE
+                    } else {
+                        // alert user that there is not enough markers
+                        Log.i("create route button", "marker list size < 2")
+                        noMarkersAlert()
+                    }
+
+                }
+
+                ShareRouteState.ROUTE_CREATED -> 0
+
+                ShareRouteState.TO_BE_SHARED -> {
+                    // here we check if there is a route line created yet, otherwise can't share
+                    if (locationViewModel.routeLine.value != null) {
+                        shareAlert()
+                    } else {
+                        // route line is empty, not ready to share
+                        notReadyShareAlert()
+                    }
                 }
 
                 ShareRouteState.SHARED -> {
                     // don't let user share it again
                     // do cleaning, show alert
                     shareSuccessAlert()
+                    //locationViewModel._shareRouteAppState.value = ShareRouteState.SHARED
                     // clear previous path info
                     locationViewModel._clearRouteInfo.value = true
                     // reset after saving

@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.location.LocationRequest
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -68,7 +69,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private var path = MutableLiveData<ArrayList<LatLng>>(ArrayList())
     private lateinit var autocompleteFragment: AutocompleteSupportFragment
     private lateinit var placeClient: PlacesClient
-    private var routeToBeDrawn : Route? = null
     private lateinit var geoCoder : Geocoder
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,7 +101,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 showUserLocation(newLocation)
             }
         })
-
+/*
         locationViewModel.shouldAddMarker.observe(viewLifecycleOwner, Observer { start ->
             if (start) {
                 // here we clean the first marker that we put on my location, the red one
@@ -127,6 +127,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 }
             }
         })
+        0
+ */
 
         locationViewModel.shouldClearPath.observe(viewLifecycleOwner, Observer { clear ->
             if (clear) {
@@ -174,7 +176,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
         locationViewModel.showMyLocation.observe(viewLifecycleOwner, Observer { show ->
             if (show) {
-
+                findDeviceLocation()
+                //var newLocation : LatLng = LatLng(locationViewModel.lastKnownLocation.value!!.latitude,
+                //    locationViewModel.lastKnownLocation.value!!.longitude)
+                //showUserLocation(newLocation)
             }
         })
 
@@ -189,7 +194,23 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         map.uiSettings.isZoomControlsEnabled = true
 
         findDeviceLocation()
+        /*
+        var location = LatLng(43.6532, 79.3832)
 
+        var marker = map.addMarker(MarkerOptions().position(
+            location).title("Current location"))
+        map.moveCamera(CameraUpdateFactory.newLatLng(location))
+
+        val cameraPosition = CameraPosition.Builder()
+            .target(location)
+            .zoom(18f)
+            .bearing(90f)
+            .tilt(30f)
+            .build()
+
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+
+         */
     }
 
     private fun setupAutoCompleteFragment() {
@@ -264,10 +285,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         locationResult.addOnCompleteListener(requireActivity()) { task ->
             if (task.isSuccessful) {
                 locationViewModel._lastKnownLocation.postValue(task.result)
-
+                Log.i("found location", task.result.latitude.toString())
+            } else {
+                Log.i("error in finding location", "true")
             }
         }
     }
+
 
     private fun addMarker(position: LatLng, title: String) {
         // check if there are enough markers
@@ -763,20 +787,38 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             when (appState) {
                 ShareRouteState.NORMAL -> 0
 
-                ShareRouteState.ADD_MARKER -> 1
-                // setup on map click
+                ShareRouteState.ADD_MARKER -> {
+                    cleanRouteInfo()
+                    // set up onTap listener
+                    map.setOnMapClickListener { clickedLocation ->
+                        Log.i("user tapped the map: ", "location $clickedLocation")
+                        addMarkerAlert(clickedLocation)
+                    }
+                    map.setOnMarkerClickListener(this)
+                }
 
-                //
                 // check if there is at least 2 markers
                 // check if there is a route line
 
-                ShareRouteState.CREATED_ROUTE -> {
+                ShareRouteState.ROUTE_TO_BE_CREATED -> {
                     // after the route is created, keep track of if it is shared
+
                     2
+                }
+
+                ShareRouteState.CREATING_ROUTE -> {
+                    // check if there is already a route line presented, if so, alert user and
+                    // remove it.
+                    if (locationViewModel.routeLine.value != null) {
+                        clearRouteAlert()
+                    } else {
+                        getARoute()
+                    }
                 }
 
                 ShareRouteState.SHARED -> {
                     // don't let user share it again
+
                     3
                 }
                 ShareRouteState.RESTART -> {

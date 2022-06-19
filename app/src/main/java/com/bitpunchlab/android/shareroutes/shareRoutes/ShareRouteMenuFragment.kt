@@ -47,11 +47,13 @@ class ShareRouteMenuFragment : Fragment() {
         }
 
         binding.createRouteButton.setOnClickListener {
-            locationViewModel._createRouteChecking.value = true
+            //locationViewModel._createRouteChecking.value = true
+            locationViewModel._shareRouteAppState.value = ShareRouteState.ROUTE_TO_BE_CREATED
         }
 
         binding.shareButton.setOnClickListener {
-            locationViewModel._shouldShareRoute.value = true
+            //locationViewModel._shouldShareRoute.value = true
+            locationViewModel._shareRouteAppState.value = ShareRouteState.TO_BE_SHARED
         }
 
         binding.clearPathButton.setOnClickListener {
@@ -63,8 +65,6 @@ class ShareRouteMenuFragment : Fragment() {
         }
 
         binding.cancelSharingButton.setOnClickListener {
-            //findNavController().popBackStack(R.id.MainFragment, false)
-            //childFragmentManager.popBackStack()
             locationViewModel._shouldCancelSharing.value = true
         }
 
@@ -87,7 +87,7 @@ class ShareRouteMenuFragment : Fragment() {
                 // check if there is at least 2 markers
                 // check if there is a route line
 
-                ShareRouteState.CREATED_ROUTE -> {
+                ShareRouteState.ROUTE_TO_BE_CREATED -> {
                     // after the route is created, keep track of if it is shared
                     2
                 }
