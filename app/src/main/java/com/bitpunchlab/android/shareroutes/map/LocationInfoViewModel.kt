@@ -87,8 +87,8 @@ class LocationInfoViewModel : ViewModel() {
     var _shouldShowRoute = MutableLiveData<Boolean>(false)
     val shouldShowRoute get() = _shouldShowRoute
 
-    var _clearSuggestRoutesInfo = MutableLiveData<Boolean>(false)
-    val clearSuggestRoutesInfo get() = _clearSuggestRoutesInfo
+    var _clearSuggestRoutesListener = MutableLiveData<Boolean>(false)
+    val clearSuggestRoutesListener get() = _clearSuggestRoutesListener
 
     var _showMyLocation = MutableLiveData<Boolean>(false)
     val showMyLocation get() = _showMyLocation

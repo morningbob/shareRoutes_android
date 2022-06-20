@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.shareroutes.R
+import com.bitpunchlab.android.shareroutes.ShareRouteState
+import com.bitpunchlab.android.shareroutes.SuggestRoutesState
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMapPageBinding
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMapPageMenuBinding
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
@@ -34,14 +36,14 @@ class MapPageMenuFragment : Fragment() {
             .get(LocationInfoViewModel::class.java)
 
         binding.shareRouteButton.setOnClickListener {
-            locationViewModel._shouldNavigateShareRoute.value = true
+            locationViewModel._shareRouteAppState.value = ShareRouteState.START
         }
 
         // this button starts the flow of suggesting routes
         // first, it let user pick a location
         // then run the suggest routes fragment and search through the database
         binding.suggestRoutesButton.setOnClickListener {
-            locationViewModel._shouldSuggestRoutes.value = true
+            locationViewModel._suggestRoutesAppState.value = SuggestRoutesState.PICK_LOCATION
         }
 
         binding.myLocationButton.setOnClickListener {

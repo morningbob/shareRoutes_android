@@ -102,67 +102,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             }
         })
 /*
-        locationViewModel.shouldAddMarker.observe(viewLifecycleOwner, Observer { start ->
-            if (start) {
-                // here we clean the first marker that we put on my location, the red one
-                // so, there is less confusion
-                cleanRouteInfo()
-                // set up onTap listener
-                map.setOnMapClickListener { clickedLocation ->
-                    Log.i("user tapped the map: ", "location $clickedLocation")
-                    addMarkerAlert(clickedLocation)
-                }
-                map.setOnMarkerClickListener(this)
-            }
-        })
-
-        locationViewModel.readyToCreateRoute.observe(viewLifecycleOwner, Observer { ready ->
-            if (ready) {
-                // check if there is already a route line presented, if so, alert user and
-                // remove it.
-                if (locationViewModel.routeLine.value != null) {
-                    clearRouteAlert()
-                } else {
-                    getARoute()
-                }
-            }
-        })
-        0
- */
-
-        locationViewModel.shouldClearPath.observe(viewLifecycleOwner, Observer { clear ->
-            if (clear) {
-                clearPath()
-            }
-        })
-
         locationViewModel.shouldRestart.observe(viewLifecycleOwner, Observer { restart ->
             if (restart) {
                 cleanRouteInfo()
             }
         })
-
-        locationViewModel.shouldSuggestRoutes.observe(viewLifecycleOwner, Observer { suggest ->
-            if (suggest) {
-
-                // reset this variable, so, it is set to true only when a location is picked
-                locationViewModel._clearSuggestRoutesInfo.value = false
-                // enable map click listener
-                map.setOnMapClickListener { clickedLocation ->
-                    Log.i("user tapped the map: ", "location $clickedLocation")
-                    searchLocationAlert(clickedLocation)
-                }
-                pickLocationAlert()
-            }
-        })
-
-        locationViewModel.clearSuggestRoutesInfo.observe(viewLifecycleOwner, Observer { clear ->
-            if (clear) {
-                map.setOnMapClickListener {
-                    Log.i("if closed suggest route panel", "set onMapClick null")
-                }
-            }
-        })
+*/
 
         locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
             route?.let {
@@ -171,15 +116,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 val routeLatLngPoints = transformPointsMapToLatLngList(route.pointsMap)
                 drawRoute(routeLatLngPoints)
                 displayRouteLine(routeLatLngPoints[0])
+                locationViewModel._suggestRoutesAppState.value = SuggestRoutesState.DISPLAY_CHOSEN
             }
         })
 
         locationViewModel.showMyLocation.observe(viewLifecycleOwner, Observer { show ->
             if (show) {
                 findDeviceLocation()
-                //var newLocation : LatLng = LatLng(locationViewModel.lastKnownLocation.value!!.latitude,
-                //    locationViewModel.lastKnownLocation.value!!.longitude)
-                //showUserLocation(newLocation)
             }
         })
 
@@ -194,23 +137,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         map.uiSettings.isZoomControlsEnabled = true
 
         findDeviceLocation()
-        /*
-        var location = LatLng(43.6532, 79.3832)
 
-        var marker = map.addMarker(MarkerOptions().position(
-            location).title("Current location"))
-        map.moveCamera(CameraUpdateFactory.newLatLng(location))
-
-        val cameraPosition = CameraPosition.Builder()
-            .target(location)
-            .zoom(18f)
-            .bearing(90f)
-            .tilt(30f)
-            .build()
-
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-
-         */
     }
 
     private fun setupAutoCompleteFragment() {
@@ -285,7 +212,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         locationResult.addOnCompleteListener(requireActivity()) { task ->
             if (task.isSuccessful) {
                 locationViewModel._lastKnownLocation.postValue(task.result)
-                Log.i("found location", task.result.latitude.toString())
+                //Log.i("found location", task.result.latitude.toString())
             } else {
                 Log.i("error in finding location", "true")
             }
@@ -710,7 +637,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         pickAlert.show()
     }
 
-    private fun searchLocationAlert(clickedLocation: LatLng) {
+    private fun confirmLocationAlert(clickedLocation: LatLng) {
         val searchAlert = AlertDialog.Builder(requireContext())
 
         searchAlert.setCancelable(false)
@@ -721,13 +648,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             DialogInterface.OnClickListener { dialog, button ->
                 // clean routes info, so when user come back, starts fresh
                 cleanRouteInfo()
+
                 // if user choosed this location, then we cancel the alert to set place
-                locationViewModel._clearSuggestRoutesInfo.value = true
-                locationViewModel._shouldSuggestRoutes.value = false
+                locationViewModel._clearSuggestRoutesListener.value = true
+                //locationViewModel._shouldSuggestRoutes.value = false
                 // run the suggest routes fragment and do the search
                 // notice map page fragment to navigate to suggest routes fragment
                 locationViewModel._runSuggestRoutesFragment.value = true
                 locationViewModel.chosenSearchLocation.value = clickedLocation
+                locationViewModel._suggestRoutesAppState.value = SuggestRoutesState.CONFIRMED_LOCATION
             })
         searchAlert.setNegativeButton(getString(R.string.cancel_button),
             DialogInterface.OnClickListener { dialog, button ->
@@ -761,7 +690,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         }
 
         val newRoute = Route(map = pointsMap, placeName = name, placeAddress = address,
-        placeCity = city, placeState = state, placeCountry = country)
+        placeCity = city ?: "", placeState = state ?: "", placeCountry = country ?: "")
         return newRoute
     }
 
@@ -797,9 +726,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     map.setOnMarkerClickListener(this)
                 }
 
-                // check if there is at least 2 markers
-                // check if there is a route line
-
                 ShareRouteState.ROUTE_TO_BE_CREATED -> {
                     // after the route is created, keep track of if it is shared
 
@@ -816,6 +742,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     }
                 }
 
+                ShareRouteState.SAVE_ROUTE -> {
+
+                }
+
                 ShareRouteState.SHARED -> {
                     // don't let user share it again
 
@@ -823,7 +753,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 }
                 ShareRouteState.RESTART -> {
                     // clean all info and route line
-                    4
+                    cleanRouteInfo()
                 }
             }
         })
@@ -831,6 +761,30 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         locationViewModel.suggestRoutesAppState.observe(viewLifecycleOwner, Observer { appState ->
             when (appState) {
                 SuggestRoutesState.NORMAL -> 0
+
+                SuggestRoutesState.PICK_LOCATION -> {
+                    // reset this variable, so, it is set to true only when a location is picked
+                    locationViewModel._clearSuggestRoutesListener.value = false
+                    // enable map click listener
+                    map.setOnMapClickListener { clickedLocation ->
+                        Log.i("user tapped the map: ", "location $clickedLocation")
+                        confirmLocationAlert(clickedLocation)
+                    }
+                    pickLocationAlert()
+                }
+
+                SuggestRoutesState.CLEAN_CLICK_LISTENER -> {
+
+                }
+
+                SuggestRoutesState.CONFIRMED_LOCATION -> {
+                    // When location is confirmed, no need to listen to pick location
+                    map.setOnMapClickListener {
+                        Log.i("if closed suggest route panel", "set onMapClick null")
+                    }
+                    // should display suggest routes menu here
+                    locationViewModel._runSuggestRoutesFragment.value = true
+                }
 
                 SuggestRoutesState.SEARCHING -> {
 
@@ -844,6 +798,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
                 SuggestRoutesState.DISPLAY_CHOSEN -> {
                     3
+
+                }
+
+                SuggestRoutesState.CLEAR_ROUTE -> {
+                    clearPath()
+                }
+
+                SuggestRoutesState.END -> {
+                    clearPath()
                 }
 
                 SuggestRoutesState.RESTART -> {
@@ -866,4 +829,21 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             locationViewModel._routeToShare.value = Route(transformedPoints)
         }
     }
+
+        var location = LatLng(43.6532, 79.3832)
+
+        var marker = map.addMarker(MarkerOptions().position(
+            location).title("Current location"))
+        map.moveCamera(CameraUpdateFactory.newLatLng(location))
+
+        val cameraPosition = CameraPosition.Builder()
+            .target(location)
+            .zoom(18f)
+            .bearing(90f)
+            .tilt(30f)
+            .build()
+
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+
+
 */

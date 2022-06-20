@@ -40,8 +40,6 @@ class MapPageFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var locationViewModel: LocationInfoViewModel
     private lateinit var firebaseViewModel: FirebaseClientViewModel
-    //private var shareRouteState = MutableLiveData<ShareRouteState>(ShareRouteState.NORMAL)
-    //private var suggestRouteState = MutableLiveData<SuggestRoutesState>(SuggestRoutesState.NORMAL)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,58 +57,9 @@ class MapPageFragment : Fragment() {
             .get(FirebaseClientViewModel::class.java)
         observeAppState()
 
-        locationViewModel._shouldNavigateShareRoute.observe(viewLifecycleOwner, Observer { share ->
-            if (share) {
-                insertShareMenuFragment()
-            }
-        })
-/*
-        locationViewModel.createRouteChecking.observe(viewLifecycleOwner, Observer { check ->
-            if (check) {
-                // check if there are at least 2 markers in the marker list before calling the function
-                if (locationViewModel.markerList.value!!.size >= 2) {
-                    locationViewModel._readyToCreateRoute.value = true
-                } else {
-                    // alert user that there is not enough markers
-                    Log.i("create route button", "marker list size < 2")
-                    noMarkersAlert()
-                }
-            }
-        })
-
-
-
-        locationViewModel.shouldShareRoute.observe(viewLifecycleOwner, Observer { share ->
-            if (share) {
-                // here we check if there is a route line created yet, otherwise can't share
-                if (locationViewModel.routeLine.value != null) {
-                    shareAlert()
-                } else {
-                    // route line is empty, not ready to share
-                    notReadyShareAlert()
-                }
-            }
-        })
-*/
-        locationViewModel.shouldCancelSharing.observe(viewLifecycleOwner, Observer { cancel ->
-            if (cancel) {
-                // besides changing back to map menu, we also need to clean all routes related info
-                insertMenuFragment()
-                locationViewModel._shouldRestart.value = true
-                // also clean suggest routes related info.
-                locationViewModel._shouldSuggestRoutes.value = false
-            }
-        })
-
         locationViewModel.runSuggestRoutesFragment.observe(viewLifecycleOwner, Observer { run ->
             if (run) {
                 prepareLayoutForSuggestion()
-            }
-        })
-
-        locationViewModel.closeSuggestion.observe(viewLifecycleOwner, Observer { close ->
-            if (close) {
-                prepareLayoutBackToNormal()
             }
         })
 
@@ -184,18 +133,7 @@ class MapPageFragment : Fragment() {
 
         shareAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
-                // contact login view model to save the route in the user object and route table
-                // in Firebase database
-                // check if there is a route
-                if (locationViewModel.routeToShare.value != null) {
-                    firebaseViewModel._routeToShare.value = locationViewModel.routeToShare.value!!
-                    firebaseViewModel.saveRoute(firebaseViewModel.routeToShare.value!!)
-
-                } else {
-                    Log.i("error", "there is no route from map fragment")
-                    notReadyShareAlert()
-                }
-
+                locationViewModel._shareRouteAppState.value = ShareRouteState.SAVE_ROUTE
             })
 
         shareAlert.setNegativeButton(getString(R.string.cancel_button),
@@ -282,7 +220,7 @@ class MapPageFragment : Fragment() {
                 firebaseViewModel._shareSuccess.value = false
                 // here, we also clean the route info to prevent the user to share the same route
                 // again
-                locationViewModel._clearSuggestRoutesInfo.value = true
+                locationViewModel._clearSuggestRoutesListener.value = true
             })
 
         shareAlert.show()
@@ -292,6 +230,10 @@ class MapPageFragment : Fragment() {
         locationViewModel.shareRouteAppState.observe(viewLifecycleOwner, Observer { appState ->
             when (appState) {
                 ShareRouteState.NORMAL -> 0
+
+                ShareRouteState.START -> {
+                    insertShareMenuFragment()
+                }
 
                 ShareRouteState.ADD_MARKER -> {
                     // check if there is at least 2 markers
@@ -312,6 +254,10 @@ class MapPageFragment : Fragment() {
 
                 }
 
+                ShareRouteState.CREATING_ROUTE -> {
+                    0
+                }
+
                 ShareRouteState.ROUTE_CREATED -> 0
 
                 ShareRouteState.TO_BE_SHARED -> {
@@ -322,6 +268,28 @@ class MapPageFragment : Fragment() {
                         // route line is empty, not ready to share
                         notReadyShareAlert()
                     }
+                }
+
+                ShareRouteState.SAVE_ROUTE -> {
+                    // contact login view model to save the route in the user object and route table
+                    // in Firebase database
+                    // check if there is a route
+                    if (locationViewModel.routeToShare.value != null) {
+                        firebaseViewModel._routeToShare.value = locationViewModel.routeToShare.value!!
+                        firebaseViewModel.saveRoute(firebaseViewModel.routeToShare.value!!)
+
+                    } else {
+                        Log.i("error", "there is no route from map fragment")
+                        notReadyShareAlert()
+                    }
+                }
+
+                ShareRouteState.CANCEL_SHARING -> {
+                    // besides changing back to map menu, we also need to clean all routes related info
+                    insertMenuFragment()
+                    locationViewModel._shouldRestart.value = true
+                    // also clean suggest routes related info.
+                    //locationViewModel._shouldSuggestRoutes.value = false
                 }
 
                 ShareRouteState.SHARED -> {
@@ -348,9 +316,17 @@ class MapPageFragment : Fragment() {
             when (appState) {
                 SuggestRoutesState.NORMAL -> 0
 
+                SuggestRoutesState.START -> {
+                    prepareLayoutForSuggestion()
+                }
+
                 SuggestRoutesState.SEARCHING -> {
 
                     1
+                }
+
+                SuggestRoutesState.PICK_LOCATION -> {
+                    //prepareLayoutForSuggestion()
                 }
 
                 SuggestRoutesState.DISPLAY_ROUTES -> {
@@ -360,6 +336,10 @@ class MapPageFragment : Fragment() {
 
                 SuggestRoutesState.DISPLAY_CHOSEN -> {
                     3
+                }
+
+                SuggestRoutesState.END -> {
+                    prepareLayoutBackToNormal()
                 }
 
                 SuggestRoutesState.RESTART -> {

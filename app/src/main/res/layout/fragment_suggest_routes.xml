@@ -45,6 +45,7 @@
                 android:layout_marginRight="20dp"
                 android:text="Clear route"
                 android:textColor="@color/blue"
+                android:textSize="16dp"
                 android:clickable="true" />
 
             <TextView
@@ -56,6 +57,7 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
                 android:text="Close suggestions"
+                android:textSize="16dp"
                 android:textColor="@color/blue"
                 android:clickable="true" />
 

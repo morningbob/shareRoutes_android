@@ -61,11 +61,13 @@ class ShareRouteMenuFragment : Fragment() {
         }
 
         binding.restartButton.setOnClickListener {
-            locationViewModel._shouldRestart.value = true
+            //locationViewModel._shouldRestart.value = true
+            locationViewModel._shareRouteAppState.value = ShareRouteState.RESTART
         }
 
         binding.cancelSharingButton.setOnClickListener {
-            locationViewModel._shouldCancelSharing.value = true
+            //locationViewModel._shouldCancelSharing.value = true
+            locationViewModel._shareRouteAppState.value = ShareRouteState.CANCEL_SHARING
         }
 
         return binding.root
@@ -82,10 +84,7 @@ class ShareRouteMenuFragment : Fragment() {
                 ShareRouteState.NORMAL -> 0
 
                 ShareRouteState.ADD_MARKER -> 1
-                // setup on map click
-                //
-                // check if there is at least 2 markers
-                // check if there is a route line
+
 
                 ShareRouteState.ROUTE_TO_BE_CREATED -> {
                     // after the route is created, keep track of if it is shared
@@ -98,7 +97,7 @@ class ShareRouteMenuFragment : Fragment() {
                 }
                 ShareRouteState.RESTART -> {
                     // clean all info and route line
-                    4
+                    0
                 }
             }
         })

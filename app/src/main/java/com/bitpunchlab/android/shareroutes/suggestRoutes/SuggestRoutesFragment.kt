@@ -9,9 +9,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.bitpunchlab.android.shareroutes.FirebaseClientViewModel
-import com.bitpunchlab.android.shareroutes.FirebaseClientViewModelFactory
-import com.bitpunchlab.android.shareroutes.R
+import com.bitpunchlab.android.shareroutes.*
 import com.bitpunchlab.android.shareroutes.databinding.FragmentSuggestRoutesBinding
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 
@@ -55,30 +53,26 @@ class SuggestRoutesFragment : Fragment() {
             }
         })
         // reset
-        locationViewModel._clearSuggestRoutesInfo.value = false
+        //locationViewModel._clearSuggestRoutesListener.value = false
 
         locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
             route?.let {
                 // construct the route in the map
-                //findNavController().navigate(R.id.action_suggestRoutesFragment_to_mapPageFragment)
                 locationViewModel._shouldShowRoute.value = true
             }
         })
+
         binding.closeTextview.setOnClickListener {
-            locationViewModel._closeSuggestion.value = true
+            locationViewModel._suggestRoutesAppState.value = SuggestRoutesState.END
         }
 
         binding.clearRouteTextview.setOnClickListener {
-            locationViewModel._shouldClearPath.value = true
+            locationViewModel._suggestRoutesAppState.value = SuggestRoutesState.CLEAR_ROUTE
         }
         // retrieve the search location latlng.
         // calculate the distance
         // query firebase database
         firebaseViewModel.searchRoutes(locationViewModel.chosenSearchLocation.value!!)
-
-        firebaseViewModel.routesResult.observe(viewLifecycleOwner, Observer { result ->
-            Log.i("suggest route fragment: ", "got back routes, routes list size: ${result.size}")
-        })
 
         return binding.root
     }
@@ -86,5 +80,37 @@ class SuggestRoutesFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun observeAppState() {
+
+        locationViewModel.suggestRoutesAppState.observe(viewLifecycleOwner, Observer { appState ->
+            when (appState) {
+                SuggestRoutesState.NORMAL -> 0
+
+                SuggestRoutesState.PICK_LOCATION -> {
+                    0
+                }
+
+                SuggestRoutesState.SEARCHING -> {
+
+                    1
+                }
+
+                SuggestRoutesState.DISPLAY_ROUTES -> {
+
+                    2
+                }
+
+                SuggestRoutesState.DISPLAY_CHOSEN -> {
+                    3
+                }
+
+                SuggestRoutesState.RESTART -> {
+                    // clean route line
+                    4
+                }
+            }
+        })
     }
 }
