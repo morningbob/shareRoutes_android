@@ -43,4 +43,9 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
     }
+
+    // I want to disable the back button in the device
+    override fun onBackPressed() {
+        return
+    }
 }

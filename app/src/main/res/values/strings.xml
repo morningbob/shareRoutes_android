@@ -55,5 +55,6 @@
     <string name="clean_route_button">Clean</string>
     <string name="share_success_alert_title">Successfully shared route.</string>
     <string name="share_success_alert_desc">The route has been successfully shared!</string>
+    <string name="map_button">Map</string>
 
 </resources>

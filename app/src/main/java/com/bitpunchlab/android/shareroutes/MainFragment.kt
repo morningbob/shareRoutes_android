@@ -74,7 +74,7 @@ class MainFragment : Fragment() {
             }
         })
 
-        binding.buttonShareRoutes.setOnClickListener {
+        binding.buttonMap.setOnClickListener {
             //checkLocationPermission()
             //findNavController().navigate(R.id.action_MainFragment_to_shareARouteFragment)
             findNavController().navigate(R.id.action_MainFragment_to_mapPageFragment)

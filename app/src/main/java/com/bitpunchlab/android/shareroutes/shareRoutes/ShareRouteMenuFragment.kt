@@ -57,7 +57,8 @@ class ShareRouteMenuFragment : Fragment() {
         }
 
         binding.clearPathButton.setOnClickListener {
-            locationViewModel._shouldClearPath.value = true
+            //locationViewModel._shouldClearPath.value = true
+            locationViewModel._shareRouteAppState.value = ShareRouteState.CLEAN_ROUTE
         }
 
         binding.restartButton.setOnClickListener {

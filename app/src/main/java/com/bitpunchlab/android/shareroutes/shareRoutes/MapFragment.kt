@@ -101,18 +101,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 showUserLocation(newLocation)
             }
         })
-/*
-        locationViewModel.shouldRestart.observe(viewLifecycleOwner, Observer { restart ->
-            if (restart) {
-                cleanRouteInfo()
-            }
-        })
-*/
 
         locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
             route?.let {
                 // draw the route
                 locationViewModel.finishedNavigatingRoute()
+                // clean previous route
+                clearPath()
                 val routeLatLngPoints = transformPointsMapToLatLngList(route.pointsMap)
                 drawRoute(routeLatLngPoints)
                 displayRouteLine(routeLatLngPoints[0])
@@ -540,7 +535,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     }
 
     private fun transformLatLngMapToPoint(latLngMap: HashMap<String, Double>) : LatLng {
-        Log.i("lat lng to point method", latLngMap.toString())
+        //Log.i("lat lng to point method", latLngMap.toString())
         return LatLng(latLngMap.get("lat")!!, latLngMap.get("lng")!!)
     }
 
@@ -562,10 +557,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         val listOfKeys = hashmap.keys.sorted()
 
         listOfKeys.map { key ->
-            Log.i("sorting: key", key.toString())
+            //Log.i("sorting: key", key.toString())
             hashmap[key]?.let {
                 sortedListOfLatLngHashmap.add(it)
-                Log.i("got a map for key", key.toString())
+                //Log.i("got a map for key", key.toString())
             }
         }
 
@@ -574,6 +569,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     private fun clearPath() {
         locationViewModel._routeLine.value?.remove()
+        locationViewModel._routeLine.value = null
     }
 
     private fun cleanRouteInfo() {
@@ -583,6 +579,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         // clear the markers on the map
         // clear the path on the map
         locationViewModel._routeLine.value?.remove()
+        locationViewModel._routeLine.value = null
     }
 
     // loop through all markers to remove it
@@ -742,14 +739,18 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     }
                 }
 
+                ShareRouteState.CLEAN_ROUTE -> {
+                    clearPath()
+                }
+
                 ShareRouteState.SAVE_ROUTE -> {
 
                 }
 
                 ShareRouteState.SHARED -> {
                     // don't let user share it again
+                    cleanRouteInfo()
 
-                    3
                 }
                 ShareRouteState.RESTART -> {
                     // clean all info and route line
@@ -764,7 +765,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
                 SuggestRoutesState.PICK_LOCATION -> {
                     // reset this variable, so, it is set to true only when a location is picked
-                    locationViewModel._clearSuggestRoutesListener.value = false
+                    //locationViewModel._clearSuggestRoutesListener.value = false
                     // enable map click listener
                     map.setOnMapClickListener { clickedLocation ->
                         Log.i("user tapped the map: ", "location $clickedLocation")

@@ -8,6 +8,7 @@ enum class ShareRouteState {
     ROUTE_TO_BE_CREATED,
     CREATING_ROUTE,
     ROUTE_CREATED,
+    CLEAN_ROUTE,
     TO_BE_SHARED,
     SAVE_ROUTE,
     CANCEL_SHARING,

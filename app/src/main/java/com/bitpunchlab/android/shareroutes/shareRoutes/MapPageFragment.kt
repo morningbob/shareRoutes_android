@@ -300,7 +300,9 @@ class MapPageFragment : Fragment() {
                     // clear previous path info
                     locationViewModel._clearRouteInfo.value = true
                     // reset after saving
-                    locationViewModel.routeLine.value = null
+
+                    //locationViewModel._routeLine.value?.remove()
+                    //locationViewModel.routeLine.value = null
                     locationViewModel._routeToShare.value = null
                     firebaseViewModel._routeToShare.value = null
 
