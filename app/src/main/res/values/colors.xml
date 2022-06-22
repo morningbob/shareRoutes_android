@@ -10,7 +10,8 @@
     <color name="blue">#2052f5</color>
     <color name="orange">#b54402</color>
 
-    <color name="green_200">#068c25</color>
-    <color name="green_500">#07ad2d</color>
+    <color name="green_200">#078a18</color>
+    <color name="green_500">#036b11</color>
     <color name="green_700">#04c430</color>
+    <color name="blue_background">#b8d7f2</color>
 </resources>

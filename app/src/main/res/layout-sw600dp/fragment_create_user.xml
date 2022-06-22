@@ -29,36 +29,36 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="@string/create_account_title"
-        android:textSize="25sp"
+        android:textSize="35sp"
         android:textAlignment="center"/>
 
     <TextView
         android:id="@+id/textview_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"
+        android:layout_marginLeft="120dp"
+        android:layout_marginRight="120dp"
         android:layout_marginTop="10dp"
         android:text="@string/name"
-        android:textSize="20sp" />
+        android:textSize="25sp" />
 
     <EditText
         android:id="@+id/edittext_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginLeft="100dp"
+        android:layout_marginRight="100dp"
         android:text="@={firebaseViewModel.userName}"
-        android:textSize="17sp"
+        android:textSize="25sp"
         />
 
     <TextView
         android:id="@+id/name_error"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:textSize="14sp"
+        android:layout_marginLeft="120dp"
+        android:textSize="22sp"
         android:text="@={firebaseViewModel.nameError}"
         android:textColor="@color/orange"/>
 
@@ -66,28 +66,28 @@
         android:id="@+id/textview_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"
+        android:layout_marginLeft="120dp"
+        android:layout_marginRight="120dp"
         android:layout_marginTop="10dp"
         android:text="@string/email"
-        android:textSize="20sp" />
+        android:textSize="25sp" />
 
     <EditText
         android:id="@+id/edittext_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:textSize="17sp"
+        android:layout_marginLeft="100dp"
+        android:layout_marginRight="100dp"
+        android:textSize="25sp"
         android:text="@={firebaseViewModel.userEmail}"/>
 
     <TextView
         android:id="@+id/email_error"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:textSize="14sp"
+        android:layout_marginLeft="1200dp"
+        android:textSize="22sp"
         android:text="@={firebaseViewModel.emailError}"
         android:textColor="@color/orange"/>
 
@@ -95,29 +95,29 @@
         android:id="@+id/textview_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
+        android:layout_marginLeft="120dp"
+        android:layout_marginRight="120dp"
         android:layout_marginTop="5dp"
         android:text="@string/password"
-        android:textSize="20sp" />
+        android:textSize="25sp" />
 
     <EditText
         android:id="@+id/edittext_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginLeft="100dp"
+        android:layout_marginRight="100dp"
         android:inputType="textPassword"
-        android:textSize="17sp"
+        android:textSize="25sp"
         android:text="@={firebaseViewModel.userPassword}"/>
 
     <TextView
         android:id="@+id/password_error"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:textSize="14sp"
+        android:layout_marginLeft="120dp"
+        android:textSize="22sp"
         android:text="@={firebaseViewModel.passwordError}"
         android:textColor="@color/orange"/>
 
@@ -125,20 +125,20 @@
         android:id="@+id/textview_password_confirm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
+        android:layout_marginLeft="120dp"
+        android:layout_marginRight="120dp"
         android:layout_marginTop="10dp"
         android:text="@string/confirm_password"
-        android:textSize="20sp" />
+        android:textSize="25sp" />
 
     <EditText
         android:id="@+id/edittext_password_confirm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:textSize="17sp"
+        android:layout_marginLeft="100dp"
+        android:layout_marginRight="100dp"
+        android:textSize="25sp"
         android:inputType="textPassword"
         android:text="@={firebaseViewModel.userConfirmPassword}"/>
 
@@ -146,8 +146,8 @@
         android:id="@+id/confirm_error"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:textSize="14sp"
+        android:layout_marginLeft="120dp"
+        android:textSize="22sp"
         android:text="@={firebaseViewModel.confirmPasswordError}"
         android:textColor="@color/orange"/>
 
@@ -157,6 +157,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="@string/button_send"
+        android:textSize="23sp"
         android:visibility="gone"
         android:layout_gravity="center"/>
 

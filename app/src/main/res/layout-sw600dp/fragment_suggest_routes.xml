@@ -10,43 +10,23 @@
         android:layout_height="match_parent"
         android:background="@color/blue_background"
         >
-<!--
-        <Button
-            android:id="@+id/close_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Close suggestions" />
 
-
--->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="right">
 
-<!--
-            <TextView
-                android:id="@+id/new_search_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:text="New Search"
-                android:textColor="@color/blue"
-                android:clickable="true" />
--->
             <TextView
                 android:id="@+id/clear_route_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
                 android:text="@string/clear_route"
                 android:textColor="@color/blue"
-                android:textSize="16dp"
+                android:textSize="22dp"
                 android:clickable="true" />
 
             <TextView
@@ -55,10 +35,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
                 android:text="@string/close_suggestions"
-                android:textSize="16dp"
+                android:textSize="22dp"
                 android:textColor="@color/blue"
                 android:clickable="true" />
 

@@ -23,10 +23,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="7dp"
         android:layout_marginBottom="7dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:text="@{route.address}"
-        android:textSize="14sp" />
+        android:textSize="22sp" />
 
 </LinearLayout>
 

@@ -55,12 +55,12 @@ class SuggestRoutesFragment : Fragment() {
         // reset
         //locationViewModel._clearSuggestRoutesListener.value = false
 
-        locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
-            route?.let {
+        //locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
+        ///    route?.let {
                 // construct the route in the map
-                locationViewModel._shouldShowRoute.value = true
-            }
-        })
+                //locationViewModel._shouldShowRoute.value = true
+        //    }
+        //})
 
         binding.closeTextview.setOnClickListener {
             locationViewModel._suggestRoutesAppState.value = SuggestRoutesState.END

@@ -42,8 +42,8 @@ class CreateUserFragment : Fragment() {
             // check all the fields are not empty
             // need to confirm passwords are the same and with some length
             Log.i("registering user? ", firebaseViewModel.registerUserLiveData.value.toString())
-            firebaseViewModel.checkIfEmailUsed(firebaseViewModel.userEmail.value!!)
-            //loginViewModel.registerNewUser()
+            //firebaseViewModel.checkIfEmailUsed(firebaseViewModel.userEmail.value!!)
+            firebaseViewModel.registerNewUser()
         }
 
         firebaseViewModel.registerUserLiveData.observe(viewLifecycleOwner, Observer { value ->
@@ -56,7 +56,6 @@ class CreateUserFragment : Fragment() {
         firebaseViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
             if (loggedIn == true) {
                 Log.i(TAG, "navigate to main fragment")
-                //loginViewModel.resetLoginState()
                 findNavController().navigate(R.id.action_createUserFragment_to_MainFragment)
             } else if (loggedIn != null && loggedIn == false) {
                 Log.i(TAG, "alert user failure")
@@ -72,7 +71,7 @@ class CreateUserFragment : Fragment() {
                 emailExistsAlert()
                 firebaseViewModel.resetLoginState()
             } else if (error == false){
-                firebaseViewModel.registerNewUser()
+                //firebaseViewModel.registerNewUser()
             }
         })
 

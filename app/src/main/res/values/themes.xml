@@ -12,6 +12,11 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:textViewStyle">@style/firaTextViewStyle</item>
+    </style>
+
+    <style name="firaTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/fira_sans</item>
     </style>
 
     <style name="Theme.ShareRoutes.NoActionBar">

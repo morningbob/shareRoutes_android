@@ -209,18 +209,25 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
     }
 
     fun registerNewUser() {
+        // reset default
+        verifyEmailError.value = false
         // this part is to register user in the Firebase Auth
         auth.createUserWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully created user")
                     loggedInUser.postValue(true)
+                    Log.i("firebase client, auth.currentUser",
+                        (auth.currentUser != null).toString()
+                    )
                     // this part is to register user in my database
                     saveUser(userName.value!!, userEmail.value!!, userPassword.value!!)
-                    //currentUser.postValue(auth.currentUser)
                 } else {
                     Log.i(TAG, "error in creating user")
                     // alert user system problem
+                    // there will be error if the email already exist
+                    // or the firebase system is down.
+                    verifyEmailError.postValue(true)
                 }
             }
 
@@ -233,7 +240,6 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully logged in user")
-                    //retrieveUserObject()
                     loggedInUser.postValue(true)
                 } else {
                     Log.i(TAG, "error logging in user")

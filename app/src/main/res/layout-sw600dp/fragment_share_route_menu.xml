@@ -14,9 +14,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
             android:orientation="horizontal"
             android:weightSum="2" >
 
@@ -25,7 +25,7 @@
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="15dp"
+                android:textSize="20dp"
                 android:text="@string/add_marker_alert_title" />
 
             <Button
@@ -33,15 +33,16 @@
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginLeft="20dp"
-                android:textSize="15dp"
+                android:layout_marginLeft="30dp"
+                android:textSize="20dp"
                 android:text="@string/create_route" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="8dp"
             android:weightSum="2"
             android:orientation="horizontal" >
 
@@ -50,24 +51,25 @@
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="15dp"
+                android:textSize="20dp"
                 android:text="@string/share" />
 
             <Button
                 android:id="@+id/clear_path_button"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="30dp"
                 android:layout_weight="1"
-                android:textSize="15dp"
+                android:textSize="20dp"
                 android:text="@string/clear_path" />
 
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="8dp"
             android:weightSum="2"
             android:gravity="center"
             android:orientation="horizontal" >
@@ -77,16 +79,16 @@
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="15sp"
+                android:textSize="20sp"
                 android:text="@string/restart" />
 
             <Button
                 android:id="@+id/cancel_sharing_button"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="30dp"
                 android:layout_weight="1"
-                android:textSize="15sp"
+                android:textSize="20sp"
                 android:text="@string/cancel_button" />
 
         </LinearLayout>

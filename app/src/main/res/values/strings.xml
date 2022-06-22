@@ -18,7 +18,7 @@
     <string name="create_account">Create a New Account</string>
     <string name="create_account_title">Create Account</string>
     <string name="button_login">Login</string>
-    <string name="password">Password</string>
+    <string name="password">Password: </string>
     <string name="email">Email</string>
     <string name="name">Name</string>
     <string name="confirm_password">Confirm Password</string>
@@ -56,5 +56,16 @@
     <string name="share_success_alert_title">Successfully shared route.</string>
     <string name="share_success_alert_desc">The route has been successfully shared!</string>
     <string name="map_button">Map</string>
+    <string name="main_menu_button">Main Menu</string>
+    <string name="logout">Logout</string>
+    <string name="suggest_routes">Suggest Routes</string>
+    <string name="share_route">Share Route</string>
+    <string name="my_location">My Location</string>
+    <string name="create_route">Create Route</string>
+    <string name="share">Share</string>
+    <string name="clear_path">Clear Path</string>
+    <string name="restart">Restart</string>
+    <string name="clear_route">Clear route</string>
+    <string name="close_suggestions">Close suggestions</string>
 
 </resources>

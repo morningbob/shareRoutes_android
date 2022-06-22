@@ -647,7 +647,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 cleanRouteInfo()
 
                 // if user choosed this location, then we cancel the alert to set place
-                locationViewModel._clearSuggestRoutesListener.value = true
+                //locationViewModel._clearSuggestRoutesListener.value = true
                 //locationViewModel._shouldSuggestRoutes.value = false
                 // run the suggest routes fragment and do the search
                 // notice map page fragment to navigate to suggest routes fragment

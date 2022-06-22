@@ -68,6 +68,12 @@ class MapPageFragment : Fragment() {
                 locationViewModel._shareRouteAppState.value = ShareRouteState.SHARED
             }
         })
+
+        locationViewModel.dismissMapPage.observe(viewLifecycleOwner, Observer { dismiss ->
+            if (dismiss) {
+                findNavController().popBackStack()
+            }
+        })
         return binding.root
     }
 
@@ -220,7 +226,7 @@ class MapPageFragment : Fragment() {
                 firebaseViewModel._shareSuccess.value = false
                 // here, we also clean the route info to prevent the user to share the same route
                 // again
-                locationViewModel._clearSuggestRoutesListener.value = true
+                //locationViewModel._clearSuggestRoutesListener.value = true
             })
 
         shareAlert.show()
@@ -287,7 +293,7 @@ class MapPageFragment : Fragment() {
                 ShareRouteState.CANCEL_SHARING -> {
                     // besides changing back to map menu, we also need to clean all routes related info
                     insertMenuFragment()
-                    locationViewModel._shouldRestart.value = true
+                    //locationViewModel._shouldRestart.value = true
                     // also clean suggest routes related info.
                     //locationViewModel._shouldSuggestRoutes.value = false
                 }
@@ -298,7 +304,7 @@ class MapPageFragment : Fragment() {
                     shareSuccessAlert()
                     //locationViewModel._shareRouteAppState.value = ShareRouteState.SHARED
                     // clear previous path info
-                    locationViewModel._clearRouteInfo.value = true
+                    //locationViewModel._clearRouteInfo.value = true
                     // reset after saving
 
                     //locationViewModel._routeLine.value?.remove()

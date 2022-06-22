@@ -10,50 +10,52 @@
 
         <ImageView
             android:id="@+id/dog_image_logo"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_marginTop="50dp"
+            android:layout_width="400dp"
+            android:layout_height="400dp"
+            android:layout_marginTop="70dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/dogimagelogo"
             tools:srcCompat="@drawable/dogimagelogo" />
 
+        <TextView
+            android:id="@+id/map_intro_text"
+            android:layout_width="450dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="30dp"
+            android:textAlignment="center"
+            android:text="The app provides a place for dog owners to share dog walk routes.  The user can share routes as well as getting suggestions of routes near a chosen location.  "
+            android:textSize="25sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dog_image_logo"/>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="30dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dog_image_logo">
+            app:layout_constraintTop_toBottomOf="@+id/map_intro_text">
 
                 <Button
                     android:id="@+id/button_map"
-                    android:layout_width="200dp"
+                    android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
                     android:text="@string/map_button"
-                    android:textSize="15dp" />
-<!--
-                <Button
-                    android:id="@+id/button_suggest_routes"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:text="@string/suggest_routes_button"
-                    android:textSize="15dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/button_map" />
--->
+                    android:textSize="25dp" />
+
                 <Button
                     android:id="@+id/button_logout"
-                    android:layout_width="200dp"
+                    android:layout_width="300dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:textSize="15dp"
+                    android:layout_marginTop="8dp"
+                    android:textSize="25dp"
                     android:text="@string/logout"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

@@ -17,6 +17,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMainBinding
+import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 
 
 private const val TAG = "MainFragment"
@@ -26,13 +27,15 @@ class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
     private lateinit var firebaseViewModel: FirebaseClientViewModel
-    private val enabledLocation = MutableLiveData<Boolean>(false)
+    private lateinit var locationViewModel: LocationInfoViewModel
+    //private val enabledLocation = MutableLiveData<Boolean>(false)
+    private var enabledLocation = false
 
     private var requestLocationLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             isGranted: Boolean ->
         if (isGranted) {
             Log.i(TAG, "location permission granted")
-            enabledLocation.value = true
+            enabledLocation = true
         } else {
             // explain to user that location permission is required for the app
             locationPermissionAlert()
@@ -44,11 +47,16 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        //setHasOptionsMenu(true)
-
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         firebaseViewModel = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
             .get(FirebaseClientViewModel::class.java)
+        locationViewModel = ViewModelProvider(requireActivity())
+            .get(LocationInfoViewModel::class.java)
+
+        // we clean the last known location here.  prevent it to trigger the use of the map
+        // before initialization
+        locationViewModel._lastKnownLocation.value = null
+        locationViewModel._dismissMapPage.value = false
 
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -57,7 +65,6 @@ class MainFragment : Fragment() {
         binding.buttonLogout.setOnClickListener {
             Log.i(TAG, "logging out")
             firebaseViewModel.logoutUser()
-            //findNavController().navigate(R.id.action_MainFragment_to_LoginFragment)
         }
 
         firebaseViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
@@ -66,18 +73,14 @@ class MainFragment : Fragment() {
             }
         })
 
-        // navigate to share a route fragment once we got location permission
-        enabledLocation.observe(viewLifecycleOwner, Observer { enabled ->
-            if (enabled) {
-                // navigate to share a route page
-                //findNavController().navigate(R.id.action_MainFragment_to_shareARouteFragment)
-            }
-        })
-
         binding.buttonMap.setOnClickListener {
-            //checkLocationPermission()
-            //findNavController().navigate(R.id.action_MainFragment_to_shareARouteFragment)
-            findNavController().navigate(R.id.action_MainFragment_to_mapPageFragment)
+            // before navigating to the map fragment, we check again if location
+            // permission is granted.
+            if (enabledLocation) {
+                findNavController().navigate(R.id.action_MainFragment_to_mapPageFragment)
+            } else {
+                locationPermissionAlert()
+            }
         }
 
         return binding.root
@@ -86,6 +89,16 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // we clean the last known location here.  prevent it to trigger the use of the map
+        // before initialization
+        // that's the case when user go back from map to main fragment
+        locationViewModel._lastKnownLocation.value = null
+        // reset dismiss map variable
+        locationViewModel._dismissMapPage.value = false
     }
 
     override fun onDestroyView() {
@@ -108,7 +121,7 @@ class MainFragment : Fragment() {
         if (ContextCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Location Permission is granted")
-            enabledLocation.value = true
+            enabledLocation = true
         } else {
             getLocationPermission()
         }

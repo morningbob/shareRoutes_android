@@ -15,9 +15,6 @@ import com.google.android.libraries.places.api.model.PlaceLikelihood
 
 class LocationInfoViewModel : ViewModel() {
 
-    var _currentListLocation = MutableLiveData<List<PlaceLikelihood>>()
-    val currentListLocation get() = _currentLocation
-
     var _currentLocation = MutableLiveData<PlaceLikelihood?>()
     val currentLocation get() = _currentLocation
 
@@ -27,47 +24,11 @@ class LocationInfoViewModel : ViewModel() {
     var _markerList = MutableLiveData<List<Marker>>(emptyList())
     val markerList get() = _markerList
 
-    var _startCreatingRoute = MutableLiveData<Boolean>(false)
-    val startCreatingRoute get() = _startCreatingRoute
-
-    var _readyToCreateRoute = MutableLiveData<Boolean>(false)
-    val readyToCreateRoute get() = _readyToCreateRoute
-
-    var _clearRouteInfo = MutableLiveData<Boolean>(false)
-    val clearRouteInfo get() = _clearRouteInfo
-
-    var _shouldClearPath = MutableLiveData<Boolean>(false)
-    val shouldClearPath get() = _shouldClearPath
-
-    var _shouldRestart = MutableLiveData<Boolean>(false)
-    val shouldRestart get() = _shouldRestart
-
     var _routeToShare = MutableLiveData<Route>()
     val routeToShare get() = _routeToShare
 
     var _routeLine = MutableLiveData<Polyline?>()
     val routeLine get() = _routeLine
-
-    var _searchTerm = MutableLiveData<String?>()
-    val searchTerm get() = _searchTerm
-
-    var _shouldNavigateShareRoute = MutableLiveData<Boolean>(false)
-    val shouldNavigateShareRoute get() = _shouldNavigateShareRoute
-
-    var _shouldAddMarker = MutableLiveData<Boolean>(false)
-    val shouldAddMarker get() = _shouldAddMarker
-
-    var _createRouteChecking = MutableLiveData<Boolean>(false)
-    val createRouteChecking get() = _createRouteChecking
-
-    var _shouldShareRoute = MutableLiveData<Boolean>(false)
-    val shouldShareRoute get() = _shouldShareRoute
-
-    var _shouldCancelSharing = MutableLiveData<Boolean>(false)
-    val shouldCancelSharing get() = _shouldCancelSharing
-
-    var _shouldSuggestRoutes = MutableLiveData<Boolean>(false)
-    val shouldSuggestRoutes get() = _shouldSuggestRoutes
 
     var _runSuggestRoutesFragment = MutableLiveData<Boolean>(false)
     val runSuggestRoutesFragment get() = _runSuggestRoutesFragment
@@ -78,18 +39,6 @@ class LocationInfoViewModel : ViewModel() {
     var _chosenRoute = MutableLiveData<Route?>()
     val chosenRoute get() = _chosenRoute
 
-    var _routesResult = MutableLiveData<List<Route>>()
-    val routesResult get() = _routesResult
-
-    var _closeSuggestion = MutableLiveData<Boolean>(false)
-    val closeSuggestion get() = _closeSuggestion
-
-    var _shouldShowRoute = MutableLiveData<Boolean>(false)
-    val shouldShowRoute get() = _shouldShowRoute
-
-    var _clearSuggestRoutesListener = MutableLiveData<Boolean>(false)
-    val clearSuggestRoutesListener get() = _clearSuggestRoutesListener
-
     var _showMyLocation = MutableLiveData<Boolean>(false)
     val showMyLocation get() = _showMyLocation
 
@@ -99,7 +48,8 @@ class LocationInfoViewModel : ViewModel() {
     var _suggestRoutesAppState = MutableLiveData<SuggestRoutesState>(SuggestRoutesState.NORMAL)
     val suggestRoutesAppState get() = _suggestRoutesAppState
 
-
+    var _dismissMapPage = MutableLiveData(false)
+    val dismissMapPage get() = _dismissMapPage
 
     fun addToMarkerList(marker: Marker) {
         var list = mutableListOf<Marker>()//emptyList<MarkerOptions>()

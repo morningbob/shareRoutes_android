@@ -50,6 +50,14 @@ class MapPageMenuFragment : Fragment() {
             locationViewModel._showMyLocation.value = true
         }
 
+        binding.mainMenuButton.setOnClickListener {
+            // clean last know location, other it doesn't wait for map to initialize
+            // and use the map
+            locationViewModel._lastKnownLocation.value = null
+            // dismiss map page fragment
+            locationViewModel._dismissMapPage.value = true
+        }
+
         return binding.root
     }
 
