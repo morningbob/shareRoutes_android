@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainFragment"
-        android:background="@color/blue_background">
+        android:background="@color/green_background">
 
         <ImageView
             android:id="@+id/dog_image_logo"
@@ -19,15 +19,27 @@
             app:srcCompat="@drawable/dogimagelogo"
             tools:srcCompat="@drawable/dogimagelogo" />
 
+        <TextView
+            android:id="@+id/map_intro_text"
+            android:layout_width="300dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="30dp"
+            android:textAlignment="center"
+            android:text="The app provides a place for dog owners to share dog walk routes.  The user can share routes as well as getting suggestions of routes near a chosen location.  "
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dog_image_logo"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dog_image_logo">
+            app:layout_constraintTop_toBottomOf="@+id/map_intro_text">
 
                 <Button
                     android:id="@+id/button_map"

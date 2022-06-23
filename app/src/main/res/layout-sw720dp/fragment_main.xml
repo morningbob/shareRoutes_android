@@ -12,21 +12,22 @@
             android:id="@+id/dog_image_logo"
             android:layout_width="400dp"
             android:layout_height="400dp"
-            android:layout_marginTop="70dp"
+            android:layout_marginTop="120dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/dogimagelogo"
             tools:srcCompat="@drawable/dogimagelogo" />
 
+
         <TextView
             android:id="@+id/map_intro_text"
-            android:layout_width="450dp"
-            android:layout_height="150dp"
-            android:layout_marginTop="30dp"
+            android:layout_width="550dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="100dp"
             android:textAlignment="center"
-            android:text="The app provides a place for dog owners to share dog walk routes.  The user can share routes as well as getting suggestions of routes near a chosen location.  "
-            android:textSize="25sp"
+            android:text="@string/map_intro_message"
+            android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/dog_image_logo"/>
@@ -37,7 +38,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="80dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/map_intro_text">

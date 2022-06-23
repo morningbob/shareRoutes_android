@@ -13,23 +13,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".LoginFragment"
-    android:background="@color/blue_background">
+    android:background="@color/green_background">
 
     <ImageView
         android:id="@+id/login_logo"
-        android:layout_width="0dp"
-        android:layout_height="10dp"
-        android:layout_marginTop="30dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="60dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="?android:attr/fingerprintAuthDrawable" />
+        app:srcCompat="@drawable/laughing"
+        tools:srcCompat="@mipmap/share_icon" />
 
     <TextView
         android:id="@+id/textview_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="25dp"
         android:text="@string/button_login"
         android:textAlignment="center"
         android:textSize="30sp"
@@ -43,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="30dp"
         android:text="@string/login_email"
         android:textSize="20sp"
         android:textAlignment="viewStart"
@@ -55,7 +56,7 @@
         android:id="@+id/edittext_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="30dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:textSize="17sp"
@@ -124,13 +125,12 @@
         android:id="@+id/button_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_login"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="30dp"
+        android:text="@string/button_login"
         android:textSize="15sp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edittext_password" />

@@ -12,6 +12,7 @@
         <entry key="app/src/main/res/layout-sw600dp/fragment_share_route_menu.xml" value="0.13831967213114754" />
         <entry key="app/src/main/res/layout-sw600dp/fragment_suggest_routes.xml" value="0.13831967213114754" />
         <entry key="app/src/main/res/layout-sw600dp/item_route.xml" value="0.13831967213114754" />
+        <entry key="app/src/main/res/layout-sw720dp/fragment_main.xml" value="0.13831967213114754" />
         <entry key="app/src/main/res/layout-sw720dp/fragment_permission.xml" value="0.13831967213114754" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2115036231884058" />
         <entry key="app/src/main/res/layout/activity_maps.xml" value="0.2115036231884058" />
