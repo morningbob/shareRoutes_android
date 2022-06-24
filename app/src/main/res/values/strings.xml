@@ -68,5 +68,7 @@
     <string name="clear_route">Clear route</string>
     <string name="close_suggestions">Close suggestions</string>
     <string name="map_intro_message">The app provides a place for dog owners to share dog walk routes. The user can share routes as well as getting suggestions of routes near a chosen location.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

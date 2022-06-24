@@ -47,6 +47,8 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
+        setHasOptionsMenu(true)
+
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         firebaseViewModel = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
             .get(FirebaseClientViewModel::class.java)
