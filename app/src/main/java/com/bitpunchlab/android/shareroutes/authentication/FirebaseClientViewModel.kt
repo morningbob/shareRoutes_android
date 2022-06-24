@@ -52,6 +52,7 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
     // true: email already exists in database
     // false: email doesn't exists in database, it is after checking
     val verifyEmailError = MutableLiveData<Boolean?>()
+    val databaseError = MutableLiveData<Boolean>(false)
     // we will get the user from the database if we successfully authenticate the user
     var userObject = MutableLiveData<User>()
 
@@ -80,7 +81,9 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
             userEmail.value = auth.currentUser!!.email
             // this is the case when user logged in before, and close and then start the app
             // again, it should be logged in
-            retrieveUserObject()
+            //retrieveUserObject()
+            getUserObject()
+            Log.i("auth.uid", auth.uid!!)
             loggedInUser.postValue(true)
 
             // need to get the user from the database for reference
@@ -221,7 +224,7 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
                         (auth.currentUser != null).toString()
                     )
                     // this part is to register user in my database
-                    saveUser(userName.value!!, userEmail.value!!, userPassword.value!!)
+                    saveUser(auth.uid!!, userName.value!!, userEmail.value!!, userPassword.value!!)
                 } else {
                     Log.i(TAG, "error in creating user")
                     // alert user system problem
@@ -257,14 +260,22 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
             .addListenerForSingleValueEvent(userValueEventListener)
     }
 
-    private fun saveUser(name: String, email: String, password: String) {
-        user = createUser(name, email, password)
+    private fun getUserObject() {
+        database
+            .child("users")
+            .orderByChild("userID")
+            .equalTo(auth.uid!!)
+            .addListenerForSingleValueEvent(userValueEventListener)
+    }
+
+    private fun saveUser(id: String, name: String, email: String, password: String) {
+        user = createUser(id, name, email, password)
         saveUserInDatabase(user!!)
 
     }
 
-    private fun createUser(name: String, email: String, password: String) : User {
-        return User(name = name, email = email, password = password,
+    private fun createUser(id: String, name: String, email: String, password: String) : User {
+        return User(id = id, name = name, email = email, password = password,
             routes = HashMap<String, Route>())
     }
 
@@ -419,7 +430,8 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
         // first, we get the routesCreated from the user object
         // then, we add the route in the routesCreated
         // then, we update the routesCreated property by the new list
-
+        // reset here
+        databaseError.value = false
         var newRoutes = HashMap<String, Route>()
         if (userObject.value != null) {
             userObject.value!!.routesCreated.let {
@@ -428,26 +440,32 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
                 newRoutes.put(newRoute.id, newRoute)
             }
         } else {
-            Log.i("routes: ", "no route")
-            newRoutes.put(newRoute.id, newRoute)
+            // notice user couldn't write to database, hence sharing failed
+            Log.i("userObject: ", "not found when sharing")
+            databaseError.value = true
+            //newRoutes.put(newRoute.id, newRoute)
         }
 
         // save in the user object for the user
         // first we find the user
         // then update the child of the user
 
-        database.child("users").child(userObject.value!!.userID)
-            .child("routesCreated").setValue(newRoutes){
-                    error: DatabaseError?, ref: DatabaseReference ->
-                if (error != null) {
-                    Log.i(TAG, "there is error writing to database: ${error.message}")
+        // we update the userObject we got earlier, the routesCreated
+        userObject.value?.let {
+            database.child("users").child(userObject.value!!.userID)
+                //.setValue({ routesCreated: newRoutes})
+                .child("routesCreated")
+                .setValue(newRoutes) { error: DatabaseError?, ref: DatabaseReference ->
+                    if (error != null) {
+                        Log.i(TAG, "there is error writing to database: ${error.message}")
 
-                } else {
-                    Log.i(TAG, "successfully saved routes in user")
-                    // here we decided the share route task succeeded
-                    _shareSuccess.postValue(true)
+                    } else {
+                        Log.i(TAG, "successfully saved routes in user")
+                        // here we decided the share route task succeeded
+                        _shareSuccess.postValue(true)
+                    }
                 }
-            }
+        }
     }
 
     fun searchRoutes(clickedLocation: LatLng) {

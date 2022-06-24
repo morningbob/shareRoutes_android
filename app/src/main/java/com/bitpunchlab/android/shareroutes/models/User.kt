@@ -6,7 +6,7 @@ import kotlin.collections.HashMap
 
 class User  {
 
-    val userID = UUID.randomUUID().toString()
+    var userID : String = ""//UUID.randomUUID().toString()
     var userName : String = ""
     var userEmail : String = ""
     var userPassword : String = ""
@@ -14,8 +14,9 @@ class User  {
 
     constructor()
 
-    constructor(name : String, email : String,
+    constructor(id: String, name : String, email : String,
                 password : String, routes : HashMap<String, Route>) : this() {
+                    userID = id
                     userName = name
                     userEmail = email
                     userPassword = password

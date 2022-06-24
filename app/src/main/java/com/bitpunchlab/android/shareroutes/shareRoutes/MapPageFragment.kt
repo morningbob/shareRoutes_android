@@ -74,6 +74,12 @@ class MapPageFragment : Fragment() {
                 findNavController().popBackStack()
             }
         })
+
+        firebaseViewModel.databaseError.observe(viewLifecycleOwner, Observer { error ->
+            if (error) {
+                userDataErrorAlert()
+            }
+        })
         return binding.root
     }
 
@@ -230,6 +236,21 @@ class MapPageFragment : Fragment() {
             })
 
         shareAlert.show()
+    }
+
+    private fun userDataErrorAlert() {
+        val dataErrorAlert = AlertDialog.Builder(requireContext())
+
+        dataErrorAlert.setCancelable(false)
+        dataErrorAlert.setTitle("User Data Error")
+        dataErrorAlert.setMessage("There is error in getting user data.  Please logout and login again to try.  Thank you very much.")
+
+        dataErrorAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing, user need to do it themselves
+            })
+
+        dataErrorAlert.show()
     }
 
     private fun observeAppState() {
