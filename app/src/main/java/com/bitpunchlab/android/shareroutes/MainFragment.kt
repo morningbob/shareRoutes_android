@@ -79,6 +79,7 @@ class MainFragment : Fragment() {
             // before navigating to the map fragment, we check again if location
             // permission is granted.
             if (enabledLocation) {
+                Log.i("main fragment to Map page fragment", "true")
                 findNavController().navigate(R.id.action_MainFragment_to_mapPageFragment)
             } else {
                 locationPermissionAlert()

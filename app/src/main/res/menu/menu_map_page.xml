@@ -6,6 +6,7 @@
         android:id="@+id/userAccountFragment"
         android:orderInCategory="100"
         android:title="User Account"
-        app:showAsAction="never" />
+        android:icon="@drawable/pawprint"
+        app:showAsAction="ifRoom|withText" />
 
 </menu>

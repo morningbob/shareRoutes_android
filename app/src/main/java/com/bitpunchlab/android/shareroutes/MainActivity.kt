@@ -34,8 +34,11 @@ class MainActivity : AppCompatActivity() {
                     ) {
                 // hide the back button
                 binding.toolbar.navigationIcon = null
+
             }
         }
+
+        //navController.on
     }
 
     override fun onSupportNavigateUp(): Boolean {

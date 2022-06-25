@@ -13,6 +13,10 @@
             type="com.bitpunchlab.android.shareroutes.models.User" />
     </data>
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -32,32 +36,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="User Account"
+            android:text="@{@string/user_account_title(user.userName)}"
             android:textSize="25sp"
             android:textAlignment="center"/>
 
-        <TextView
-            android:id="@+id/textview_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
-            android:layout_marginTop="20dp"
-            android:textAlignment="center"
-            android:text="@{user.userName}"
-            android:textSize="20sp" />
-<!--
-        <EditText
-            android:id="@+id/edittext_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:text="@={firebaseViewModel.userName}"
-            android:textSize="17sp"
-            />
--->
         <TextView
             android:id="@+id/name_error"
             android:layout_width="match_parent"
@@ -74,18 +56,34 @@
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
             android:textSize="20sp"
-            android:text="Please fill in the field you want to update and click submit button.  Notice that if you are changing your password, you need to enter both password field and confirm password field."/>
+            android:text="@string/update_account_message"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="5">
 
         <TextView
             android:id="@+id/textview_email"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp"
-            android:layout_marginTop="10dp"
-            android:text="Update Email"
+            android:layout_marginTop="30dp"
+            android:layout_weight="3"
+            android:text="@string/update_email"
             android:textSize="20sp" />
 
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:layout_weight="2"
+                android:text="Update" />
+
+
+        </LinearLayout>
         <EditText
             android:id="@+id/edittext_email"
             android:layout_width="match_parent"
@@ -93,8 +91,14 @@
             android:layout_marginTop="0dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
+
             android:textSize="17sp"
             android:text="@={firebaseViewModel.userEmail}"/>
+
+
+
+
+
 
         <TextView
             android:id="@+id/email_error"
@@ -112,7 +116,7 @@
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
             android:layout_marginTop="5dp"
-            android:text="Update Password"
+            android:text="@string/update_password"
             android:textSize="20sp" />
 
         <EditText
@@ -159,7 +163,7 @@
         <TextView
             android:id="@+id/confirm_error"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="50dp"
             android:textSize="14sp"
             android:text="@={firebaseViewModel.confirmPasswordError}"
@@ -168,11 +172,12 @@
         <Button
             android:id="@+id/button_send"
             android:layout_width="wrap_content"
-            android:layout_height="70dp"
-            android:layout_marginTop="10dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
             android:text="@string/button_send"
             android:visibility="gone"
             android:layout_gravity="center"/>
 
     </LinearLayout>
+    </ScrollView>
 </layout>

@@ -50,7 +50,6 @@ class LoginFragment : Fragment() {
         firebaseViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
             if (loggedIn == true) {
                 Log.i(TAG, "logged in user")
-                //loginViewModel.resetLoginState()
                 findNavController().navigate(R.id.action_LoginFragment_to_MainFragment)
 
             } else if (loggedIn != null && loggedIn == false){

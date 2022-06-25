@@ -4,10 +4,8 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.view.isVisible
@@ -15,7 +13,10 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
+import androidx.navigation.ui.NavigationUI
 import com.bitpunchlab.android.shareroutes.*
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMapPageBinding
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
@@ -50,6 +51,7 @@ class MapPageFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
         _binding = FragmentMapPageBinding.inflate(inflater, container, false)
         locationViewModel = ViewModelProvider(requireActivity())
             .get(LocationInfoViewModel::class.java)
@@ -71,6 +73,11 @@ class MapPageFragment : Fragment() {
 
         locationViewModel.dismissMapPage.observe(viewLifecycleOwner, Observer { dismiss ->
             if (dismiss) {
+                // we set the suggest state to normal, so there won't be listeners attach
+                // to the map before it is initialized again when navigating from main
+                // fragment to map page fragment the second time.  Everything needs to
+                // start fresh
+                locationViewModel.suggestRoutesAppState.value = SuggestRoutesState.NORMAL
                 findNavController().popBackStack()
             }
         })
@@ -92,6 +99,17 @@ class MapPageFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_map_page, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return NavigationUI.onNavDestinationSelected(item,
+            requireView().findNavController())
+                || super.onOptionsItemSelected(item)
     }
 
     private fun insertMapFragment() {

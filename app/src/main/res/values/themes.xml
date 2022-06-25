@@ -11,9 +11,11 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+
         <item name="android:textViewStyle">@style/firaTextViewStyle</item>
         <item name="android:toolbarStyle">@style/toolBarTitleStyle</item>
+        <item name="android:actionMenuTextAppearance">@color/green_500</item>
+
     </style>
 
     <style name="toolBarTitleStyle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
@@ -27,6 +29,10 @@
     <style name="Theme.ShareRoutes.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:textColor">@color/green_500</item>
+        <item name="android:itemBackground">@color/green_background</item>
+        <item name="popupMenuBackground">@color/green_background</item>
+
     </style>
 
     <style name="Theme.ShareRoutes.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

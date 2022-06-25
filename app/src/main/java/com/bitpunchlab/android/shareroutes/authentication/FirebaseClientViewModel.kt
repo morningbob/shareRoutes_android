@@ -79,6 +79,8 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
         } else if (auth.currentUser != null) {
             Log.i("auth listener", "auth is not null")
             userEmail.value = auth.currentUser!!.email
+            // clear the error fields here
+            resetErrors()
             // this is the case when user logged in before, and close and then start the app
             // again, it should be logged in
             //retrieveUserObject()
@@ -103,7 +105,10 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
         }
     }
 
-    private val emailValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+    // we use this email valid also in user account fragment.
+    // we observe it in the fragment to see if it is ready to be updated
+    // and only by observing it will it triggers the email error to be shown
+    val emailValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(userEmail) { email ->
             if (!email.isNullOrEmpty()) {
                 if (!isEmailValid(email)) {
@@ -160,8 +165,13 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
         }
     }
 
+    // for create user fragment
     var registerUserLiveData = MediatorLiveData<Boolean>()
+    // for login fragment
     var readyLoginLiveData = MediatorLiveData<Boolean>()
+    // for user account fragment
+    var readyUpdatePasswordLiveData = MediatorLiveData<Boolean>()
+    //var readyChangeEmailLiveData = MutableLiveData<Boolean>(emailValid.value)
 
     init {
         auth.addAuthStateListener(authStateListener)
@@ -209,6 +219,21 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
                 readyLoginLiveData.value = false
             }
         }
+
+        readyUpdatePasswordLiveData.addSource(passwordValid) { valid ->
+            if (valid) {
+                readyUpdatePasswordLiveData.value = isReadyUpdatePassword()
+            } else {
+                readyUpdatePasswordLiveData.value = false
+            }
+        }
+        readyUpdatePasswordLiveData.addSource(confirmPasswordValid) { valid ->
+            if (valid) {
+                readyUpdatePasswordLiveData.value = isReadyUpdatePassword()
+            } else {
+                readyUpdatePasswordLiveData.value = false
+            }
+        }
     }
 
     fun registerNewUser() {
@@ -249,6 +274,13 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
                     loginError.postValue(true)
                 }
             }
+    }
+
+    private fun resetErrors() {
+        nameError.value = ""
+        emailError.value = ""
+        passwordError.value = ""
+        confirmPasswordError.value = ""
     }
 
     private fun retrieveUserObject() {
@@ -398,8 +430,6 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
     }
 
     private fun isEnableRegistration() : Boolean {
-        //return (emailValid.value!! && passwordValid.value!! && confirmPasswordValid.value!!)
-        //var result = false
         // this is to prevent crash if the values are null at the beginning
         return (emailValid.value != null || passwordValid.value != null
                 || confirmPasswordValid.value != null) &&
@@ -408,6 +438,10 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
 
     private fun isReadyLogin() : Boolean {
         return (emailValid.value!! && passwordValid.value!!)
+    }
+
+    private fun isReadyUpdatePassword() : Boolean {
+        return (passwordValid.value!! && confirmPasswordValid.value!!)
     }
 
     // this method save the route in Firebase database

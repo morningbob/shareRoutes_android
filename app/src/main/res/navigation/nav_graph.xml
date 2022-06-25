@@ -9,7 +9,8 @@
         android:id="@+id/MainFragment"
         android:name="com.bitpunchlab.android.shareroutes.MainFragment"
         android:label="@string/main_fragment"
-        tools:layout="@layout/fragment_main">
+        tools:layout="@layout/fragment_main"
+        >
 
         <action
             android:id="@+id/action_MainFragment_to_LoginFragment"
@@ -64,10 +65,12 @@
         android:id="@+id/mapPageFragment"
         android:name="com.bitpunchlab.android.shareroutes.shareRoutes.MapPageFragment"
         android:label="Map"
-        tools:layout="@layout/fragment_map_page_menu" >
+        tools:layout="@layout/fragment_map_page_menu"
+        >
         <action
             android:id="@+id/action_mapPageFragment_to_suggestRoutesFragment"
-            app:destination="@id/suggestRoutesFragment" />
+            app:destination="@id/suggestRoutesFragment"
+            />
     </fragment>
     <fragment
         android:id="@+id/shareRouteMenuFragment"
@@ -76,5 +79,5 @@
     <fragment
         android:id="@+id/userAccountFragment"
         android:name="com.bitpunchlab.android.shareroutes.userAccount.UserAccountFragment"
-        android:label="UserAccountFragment" />
+        android:label="User Account" />
 </navigation>
