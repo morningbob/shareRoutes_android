@@ -17,167 +17,167 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/green_background"
-
-        android:orientation="vertical">
-
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="30dp"
-            app:srcCompat="@drawable/pawprint"
-            tools:srcCompat="@drawable/pawprint" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@{@string/user_account_title(user.userName)}"
-            android:textSize="25sp"
-            android:textAlignment="center"/>
-
-        <TextView
-            android:id="@+id/name_error"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:textSize="14sp"
-            android:text="@={firebaseViewModel.nameError}"
-            android:textColor="@color/orange"/>
-
-        <TextView
-            android:id="@+id/change_info_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            android:textSize="20sp"
-            android:text="@string/update_account_message"/>
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="5">
+            android:layout_height="match_parent"
+            android:background="@color/green_background"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textview_email"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
-            android:layout_marginTop="30dp"
-            android:layout_weight="3"
-            android:text="@string/update_email"
-            android:textSize="20sp" />
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                app:srcCompat="@drawable/pawprint"
+                tools:srcCompat="@drawable/pawprint" />
 
-            <Button
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@{@string/user_account_title(user.userName)}"
+                android:textSize="25sp"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:id="@+id/change_info_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:textSize="20sp"
+                android:text="@string/update_account_message"/>
+
+            <TextView
+                android:id="@+id/textview_email"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="50dp"
-                android:layout_weight="2"
-                android:text="Update" />
+                android:layout_marginRight="50dp"
+                android:layout_marginTop="30dp"
+                android:text="@string/update_email"
+                android:textSize="20sp" />
+
+
+            <EditText
+                android:id="@+id/edittext_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+
+                android:textSize="17sp"
+                android:text="@={firebaseViewModel.userEmail}"/>
+
+            <TextView
+                android:id="@+id/email_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:textSize="14sp"
+                android:text="@={firebaseViewModel.emailError}"
+                android:textColor="@color/orange"/>
+
+            <Button
+                android:id="@+id/update_email_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:text="Update Email" />
+
+            <TextView
+                android:id="@+id/textview_current_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:layout_marginTop="15dp"
+                android:text="@string/current_password"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/edittext_current_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:inputType="textPassword"
+                android:textSize="17sp"
+                android:text="@={firebaseViewModel.currentPassword}"/>
+
+            <TextView
+                android:id="@+id/textview_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:layout_marginTop="15dp"
+                android:text="@string/update_password"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/edittext_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:inputType="textPassword"
+                android:textSize="17sp"
+                android:text="@={firebaseViewModel.userPassword}"/>
+
+            <TextView
+                android:id="@+id/password_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:textSize="14sp"
+                android:text="@={firebaseViewModel.passwordError}"
+                android:textColor="@color/orange"/>
+
+            <TextView
+                android:id="@+id/textview_password_confirm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/confirm_password"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/edittext_password_confirm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:textSize="17sp"
+                android:inputType="textPassword"
+                android:text="@={firebaseViewModel.userConfirmPassword}"/>
+
+            <TextView
+                android:id="@+id/confirm_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:textSize="14sp"
+                android:text="@={firebaseViewModel.confirmPasswordError}"
+                android:textColor="@color/orange"/>
+
+            <Button
+                android:id="@+id/update_password_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:text="Update Password" />
 
 
         </LinearLayout>
-        <EditText
-            android:id="@+id/edittext_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-
-            android:textSize="17sp"
-            android:text="@={firebaseViewModel.userEmail}"/>
-
-
-
-
-
-
-        <TextView
-            android:id="@+id/email_error"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:textSize="14sp"
-            android:text="@={firebaseViewModel.emailError}"
-            android:textColor="@color/orange"/>
-
-        <TextView
-            android:id="@+id/textview_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            android:layout_marginTop="5dp"
-            android:text="@string/update_password"
-            android:textSize="20sp" />
-
-        <EditText
-            android:id="@+id/edittext_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:inputType="textPassword"
-            android:textSize="17sp"
-            android:text="@={firebaseViewModel.userPassword}"/>
-
-        <TextView
-            android:id="@+id/password_error"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:textSize="14sp"
-            android:text="@={firebaseViewModel.passwordError}"
-            android:textColor="@color/orange"/>
-
-        <TextView
-            android:id="@+id/textview_password_confirm"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/confirm_password"
-            android:textSize="20sp" />
-
-        <EditText
-            android:id="@+id/edittext_password_confirm"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:textSize="17sp"
-            android:inputType="textPassword"
-            android:text="@={firebaseViewModel.userConfirmPassword}"/>
-
-        <TextView
-            android:id="@+id/confirm_error"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:textSize="14sp"
-            android:text="@={firebaseViewModel.confirmPasswordError}"
-            android:textColor="@color/orange"/>
-
-        <Button
-            android:id="@+id/button_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:text="@string/button_send"
-            android:visibility="gone"
-            android:layout_gravity="center"/>
-
-    </LinearLayout>
     </ScrollView>
 </layout>

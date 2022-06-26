@@ -28,7 +28,6 @@ class MainFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var firebaseViewModel: FirebaseClientViewModel
     private lateinit var locationViewModel: LocationInfoViewModel
-    //private val enabledLocation = MutableLiveData<Boolean>(false)
     private var enabledLocation = false
 
     private var requestLocationLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {

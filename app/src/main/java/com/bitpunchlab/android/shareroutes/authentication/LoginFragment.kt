@@ -71,6 +71,12 @@ class LoginFragment : Fragment() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        // clear all errors here
+        firebaseViewModel.loginError.value = false
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
     }

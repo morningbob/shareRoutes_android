@@ -65,7 +65,17 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
     var _shareSuccess = MutableLiveData<Boolean>(false)
     val shareSuccess get() = _shareSuccess
 
+    val updateUserEmailDataError = MutableLiveData<Boolean>(false)
+    val updateUserEmailServerError = MutableLiveData<Boolean>(false)
+    val updateUserEmailPasswordError = MutableLiveData<Boolean>(false)
+    val updateEmailSuccess = MutableLiveData<Boolean>(false)
 
+    val updatePasswordDataError = MutableLiveData<Boolean>(false)
+    val updatePasswordServerError = MutableLiveData<Boolean>(false)
+    val updatePasswordSuccess = MutableLiveData<Boolean>(false)
+    val currentPassword = MutableLiveData<String?>()
+
+    val userAccountState = MutableLiveData<UserAccountState>(UserAccountState.NORMAL)
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         // this is when user is in the logout process, it is not completed yet,
@@ -250,6 +260,9 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
                     )
                     // this part is to register user in my database
                     saveUser(auth.uid!!, userName.value!!, userEmail.value!!, userPassword.value!!)
+                    // clear password field
+                    userPassword.value = ""
+                    userConfirmPassword.value = ""
                 } else {
                     Log.i(TAG, "error in creating user")
                     // alert user system problem
@@ -269,6 +282,9 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
                 if (task.isSuccessful) {
                     Log.i(TAG, "successfully logged in user")
                     loggedInUser.postValue(true)
+                    // clear password field
+                    userPassword.value = ""
+                    userConfirmPassword.value = ""
                 } else {
                     Log.i(TAG, "error logging in user")
                     loginError.postValue(true)
@@ -281,6 +297,88 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
         emailError.value = ""
         passwordError.value = ""
         confirmPasswordError.value = ""
+    }
+
+    fun updateUserEmail(newEmail: String, password: String) {
+        // we first reset update errors
+        //updateUserEmailServerError.value = false
+        //updateUserEmailDataError.value = false
+        //updateUserEmailPasswordError.value = false
+        //Log.i("update user email", "current user email: ${auth.currentUser!!.email}")
+        // here we need to signin again before updating the email.  it is sensitive info
+        if (auth.currentUser != null) {
+            auth.signInWithEmailAndPassword(auth.currentUser!!.email!!, password)
+                .addOnCompleteListener(activity) { task ->
+                    if (task.isSuccessful) {
+                        Log.i(TAG, "successfully logged in user")
+                        auth.currentUser!!.updateEmail(newEmail).addOnCompleteListener { updateTask ->
+                            if (updateTask.isSuccessful) {
+                                Log.i("update user email", "successfully updated email")
+                                // here we update the user email in the app too
+                                userEmail.value = ""
+                                // we notice user here too
+                                userAccountState.postValue(UserAccountState.UPDATE_EMAIL_SUCCESS)
+                                //updateEmailSuccess.postValue(true)
+                            } else {
+                                Log.i("update user email", "failed to update email")
+                                userAccountState.postValue(UserAccountState.UPDATE_EMAIL_SERVER_ERROR)
+                                //updateUserEmailServerError.postValue(true)
+                            }
+                        }
+                    } else {
+                        Log.i(TAG, "error logging in user")
+                        //updateUserEmailPasswordError.postValue(true)
+                        userAccountState.postValue(UserAccountState.UPDATE_EMAIL_PASSWORD_ERROR)
+                    }
+                }
+        } else {
+            Log.i("update user email", "couldn't find user in database")
+            // show alert to user, should login again
+            updateUserEmailDataError.value = true
+            userAccountState.value = UserAccountState.UPDATE_EMAIL_DATA_ERROR
+        }
+    }
+
+    fun updateUserPassword(newPassword: String, oldPassword: String) {
+        // reset update errors here
+        //updatePasswordDataError.value = false
+        //updatePasswordServerError.value = false
+        //updatePasswordSuccess.value = false
+
+        if (auth.currentUser != null) {
+            auth.signInWithEmailAndPassword(auth.currentUser!!.email!!, oldPassword)
+                .addOnCompleteListener(activity) { task ->
+                    if (task.isSuccessful) {
+                        Log.i(TAG, "successfully logged in user")
+                        auth.currentUser!!.updatePassword(newPassword).addOnCompleteListener { updateTask ->
+                            if (updateTask.isSuccessful) {
+                                Log.i("update user password", "successfully updated password")
+                                // here we reset the user password in the app too
+                                userPassword.value = ""
+                                userConfirmPassword.value = ""
+                                currentPassword.value = ""
+                                // we notice user here too
+                                //updatePasswordSuccess.postValue(true)
+                                userAccountState.postValue(UserAccountState.UPDATE_PASSWORD_SUCCESS)
+                            } else {
+                                Log.i("update user password", "failed to update password in server")
+                                //updatePasswordServerError.postValue(true)
+                                userAccountState.postValue(UserAccountState.UPDATE_PASSWORD_SERVER_ERROR)
+                            }
+                        }
+                    } else {
+                        Log.i(TAG, "error logging in user")
+                        //loginError.postValue(true)
+                        //updateUserEmailPasswordError.postValue(true)
+                        userAccountState.postValue(UserAccountState.UPDATE_PASSWORD_LOGIN_ERROR)
+                    }
+                }
+
+        } else {
+            Log.i("update user password", "can't get user's profile.")
+            //updatePasswordDataError.value = true
+            userAccountState.value = UserAccountState.UPDATE_PASSWORD_DATA_ERROR
+        }
     }
 
     private fun retrieveUserObject() {
@@ -409,6 +507,7 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
         userPassword.value = ""
         userConfirmPassword.value = ""
         verifyEmailError.value = null
+        loggedInUser.value = null
     }
 
     private fun isEmailValid(email: String) : Boolean {

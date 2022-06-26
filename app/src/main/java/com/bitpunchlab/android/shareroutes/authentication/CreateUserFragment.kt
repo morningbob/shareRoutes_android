@@ -78,6 +78,12 @@ class CreateUserFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        // clear all errors here
+        firebaseViewModel.verifyEmailError.value = false
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

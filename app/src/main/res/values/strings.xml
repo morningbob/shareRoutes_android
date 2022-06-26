@@ -69,8 +69,9 @@
     <string name="close_suggestions">Close suggestions</string>
     <string name="map_intro_message">The app provides a place for dog owners to share dog walk routes. The user can share routes as well as getting suggestions of routes near a chosen location.</string>
     <string name="user_account_title">User Account  -  %s</string>
-    <string name="update_account_message">Please fill in the field you want to update and click submit button. Notice that if you are changing your password, you need to enter both password field and confirm password field.</string>
+    <string name="update_account_message">Please fill in the field you want to update and click submit button. Notice that if you are changing your password, you need to enter current password, new password and confirm password.</string>
     <string name="update_email">Update Email</string>
     <string name="update_password">Update Password</string>
+    <string name="current_password">Current Password</string>
 
 </resources>

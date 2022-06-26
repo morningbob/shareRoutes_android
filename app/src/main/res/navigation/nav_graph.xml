@@ -79,5 +79,9 @@
     <fragment
         android:id="@+id/userAccountFragment"
         android:name="com.bitpunchlab.android.shareroutes.userAccount.UserAccountFragment"
-        android:label="User Account" />
+        android:label="User Account" >
+        <action
+            android:id="@+id/action_userAccountFragment_to_LoginFragment"
+            app:destination="@id/LoginFragment" />
+    </fragment>
 </navigation>
