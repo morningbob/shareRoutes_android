@@ -73,5 +73,25 @@
     <string name="update_email">Update Email</string>
     <string name="update_password">Update Password</string>
     <string name="current_password">Current Password</string>
+    <string name="require_password_alert_title">Password Confirmation</string>
+    <string name="require_password_alert_desc">Password is required to change the email.  We need to do re-authentication.  Thanks.</string>
+    <string name="null_password_alert_title">Empty Password</string>
+    <string name="null_password_alert_desc">Password can\'t be empty.</string>
+    <string name="update_email_server_error_alert_title">Update Email Error</string>
+    <string name="update_email_server_error_alert_desc">There is error in the server when updating the email.  Please try again later.</string>
+    <string name="update_email_data_error_alert_title">Update Email Error</string>
+    <string name="update_email_data_error_alert_desc">There is error when getting user\'s information.  Please logout and login again and try.</string>
+    <string name="update_email_password_error_alert_title">Update Email Error</string>
+    <string name="update_email_password_error_alert_desc">There is error when logging in user\'s account to change the email.  Please make sure the password is correct.  Please enter the password again.</string>
+    <string name="update_email_success_alert_title">Updated Email</string>
+    <string name="update_email_success_alert_desc">The email has been updated successfully.  But since the email is the login key, you need to login again now.  Please use the new email to login.</string>
+    <string name="update_password_data_error_alert_title">Update Password Error</string>
+    <string name="update_password_data_error_alert_desc">There is error when getting user\'s information.  Please logout and login again and try.</string>
+    <string name="update_password_server_error_alert_title">Update Password Error</string>
+    <string name="update_password_server_error_alert_desc">There is error in the server when updating the password.  Please try again later.</string>
+    <string name="update_password_login_alert_title">Update Password Error</string>
+    <string name="update_password_login_alert_desc">There is error when logging in user\'s account to change the password.  Please make sure the current password is correct.  Please enter the current password again.</string>
+    <string name="update_password_success_alert_title">Updated Password</string>
+    <string name="update_password_success_alert_desc">The password has been updated successfully.  Since you changed the password, you need to login again.</string>
 
 </resources>

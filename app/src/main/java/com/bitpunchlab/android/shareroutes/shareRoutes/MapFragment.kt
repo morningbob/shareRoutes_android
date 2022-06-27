@@ -752,6 +752,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     cleanRouteInfo()
 
                 }
+
+                ShareRouteState.CANCEL_SHARING -> {
+                    cleanRouteInfo()
+                }
                 ShareRouteState.RESTART -> {
                     // clean all info and route line
                     cleanRouteInfo()

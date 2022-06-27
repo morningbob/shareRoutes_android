@@ -17,6 +17,7 @@ import com.bitpunchlab.android.shareroutes.FirebaseClientViewModelFactory
 import com.bitpunchlab.android.shareroutes.R
 import com.bitpunchlab.android.shareroutes.UserAccountState
 import com.bitpunchlab.android.shareroutes.databinding.FragmentUserAccountBinding
+import com.bitpunchlab.android.shareroutes.models.User
 
 
 class UserAccountFragment : Fragment() {
@@ -25,6 +26,8 @@ class UserAccountFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var firebaseViewModel: FirebaseClientViewModel
     private var userNewEmail: String = ""
+    private var userCurrentPassword: String = ""
+    private var userNewPassword: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,91 +49,48 @@ class UserAccountFragment : Fragment() {
 
         observerUserAccountAppState()
 
+        firebaseViewModel.userAccountState.value = UserAccountState.NORMAL
+
         firebaseViewModel.emailValid.observe(viewLifecycleOwner, Observer { valid ->
             if (valid) {
-                Log.i("user account", "about to update email")
+                Log.i("user account", "email is valid")
                 binding.updateEmailButton.visibility = View.VISIBLE
             }
         })
 
         firebaseViewModel.readyUpdatePasswordLiveData.observe(viewLifecycleOwner, Observer { ready ->
             if (ready) {
-                Log.i("user account", "about to update password")
+                Log.i("user account", "password is valid")
                 binding.updatePasswordButton.visibility = View.VISIBLE
             }
         })
 
         binding.updateEmailButton.setOnClickListener {
-            userNewEmail = binding.edittextEmail.text.toString()
-            requirePasswordAlert(userNewEmail)
+            firebaseViewModel.userAccountState.value = UserAccountState.UPDATE_EMAIL
         }
 
         binding.updatePasswordButton.setOnClickListener {
-            firebaseViewModel.updateUserPassword(binding.edittextPassword.text.toString(),
-                binding.edittextCurrentPassword.text.toString())
+            firebaseViewModel.userAccountState.value = UserAccountState.UPDATE_PASSWORD
         }
 
-
-
-        /*
-        firebaseViewModel.updateUserEmailServerError.observe(viewLifecycleOwner, Observer { error ->
-            if (error) {
-                updateEmailServerErrorAlert()
+        firebaseViewModel.systemLogout.observe(viewLifecycleOwner, Observer { logout ->
+            if (logout) {
+                Log.i("systemLogout", "auth is null")
+                // when I use the first navigation technique, the user account fragment
+                // navigate to Login fragment no matter what condition systemLogout is
+                // so, I use pop back stack.  The behaviour is alright.
+                //findNavController().navigate(R.id.action_userAccountFragment_to_LoginFragment)
+                findNavController().popBackStack()
             }
         })
-
-        firebaseViewModel.updateUserEmailDataError.observe(viewLifecycleOwner, Observer { error ->
-            if (error) {
-                updateEmailDataErrorAlert()
-            }
-        })
-
-        firebaseViewModel.updateUserEmailPasswordError.observe(viewLifecycleOwner, Observer { error ->
-            if (error) {
-                updateEmailPasswordErrorAlert(binding.edittextEmail.text.toString())
-            }
-        })
-
-        firebaseViewModel.updateEmailSuccess.observe(viewLifecycleOwner, Observer { success ->
-            if (success) {
-                updateEmailSuccessAlert()
-            }
-        })
-
-        firebaseViewModel.updatePasswordDataError.observe(viewLifecycleOwner, Observer { error ->
-            if (error) {
-                updatePasswordDataErrorAlert()
-            }
-        })
-
-        firebaseViewModel.updatePasswordServerError.observe(viewLifecycleOwner, Observer { error ->
-            if (error) {
-                updatePasswordServerErrorAlert()
-            }
-        })
-
-        firebaseViewModel.updatePasswordSuccess.observe(viewLifecycleOwner, Observer { success ->
-            if (success) {
-                updatePasswordSuccessAlert()
-            }
-        })
-
-         */
 
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-        // clear all update errors here
-        //firebaseViewModel.updateUserEmailDataError.value = false
-        //firebaseViewModel.updateUserEmailServerError.value = false
-        //firebaseViewModel.updateUserEmailPasswordError.value = false
-        //firebaseViewModel.updateEmailSuccess.value = false
-
-        //firebaseViewModel.updatePasswordDataError.value = false
-        //firebaseViewModel.updatePasswordServerError.value = false
-        //firebaseViewModel.updatePasswordSuccess.value = false
+        Log.i("onResume", "reset app state")
+        firebaseViewModel.resetAppState()
     }
 
     override fun onDestroyView() {
@@ -141,12 +101,62 @@ class UserAccountFragment : Fragment() {
     private fun observerUserAccountAppState() {
         firebaseViewModel.userAccountState.observe(viewLifecycleOwner, Observer { appState ->
             when (appState) {
-                UserAccountState.UPDATE_EMAIL_DATA_ERROR -> updateEmailDataErrorAlert()
-                UserAccountState.UPDATE_EMAIL_SERVER_ERROR -> updateEmailServerErrorAlert()
-                UserAccountState.UPDATE_EMAIL_PASSWORD_ERROR -> updateEmailPasswordErrorAlert(userNewEmail)
-                UserAccountState.UPDATE_PASSWORD_DATA_ERROR -> updatePasswordDataErrorAlert()
-                UserAccountState.UPDATE_PASSWORD_SERVER_ERROR -> updatePasswordServerErrorAlert()
-                UserAccountState.UPDATE_PASSWORD_LOGIN_ERROR -> upd
+                UserAccountState.NORMAL -> {
+                    Log.i("observe state", "app state changed to normal")
+                }
+                UserAccountState.UPDATE_EMAIL -> {
+                    userNewEmail = binding.edittextEmail.text.toString()
+                    requirePasswordAlert(userNewEmail)
+                }
+                UserAccountState.UPDATE_PASSWORD -> {
+                    userCurrentPassword = binding.edittextCurrentPassword.text.toString()
+                    userNewPassword = binding.edittextPassword.text.toString()
+                    Log.i("current password ${userCurrentPassword}", "new password ${userNewPassword}")
+                    firebaseViewModel.updateUserPassword(newPassword = userNewPassword,
+                        oldPassword = userCurrentPassword)
+                }
+                UserAccountState.UPDATE_EMAIL_DATA_ERROR -> {
+                    updateEmailDataErrorAlert()
+                    firebaseViewModel.resetAppState()
+                }
+                UserAccountState.UPDATE_EMAIL_SERVER_ERROR -> {
+                    updateEmailServerErrorAlert()
+                    firebaseViewModel.resetAppState()
+                }
+                UserAccountState.UPDATE_EMAIL_PASSWORD_ERROR -> {
+                    updateEmailPasswordErrorAlert(userNewEmail)
+                    firebaseViewModel.resetAppState()
+                }
+
+                UserAccountState.UPDATE_EMAIL_SUCCESS -> {
+                    Log.i("observe app state", "update email success state triggered")
+                    updateEmailSuccessAlert()
+                    //firebaseViewModel.resetAppState()
+                }
+                UserAccountState.UPDATE_PASSWORD_DATA_ERROR -> {
+                    updatePasswordDataErrorAlert()
+                    firebaseViewModel.resetAppState()
+                }
+                UserAccountState.UPDATE_PASSWORD_SERVER_ERROR -> {
+                    updatePasswordServerErrorAlert()
+                    firebaseViewModel.resetAppState()
+                }
+                UserAccountState.UPDATE_PASSWORD_LOGIN_ERROR -> {
+                    updatePasswordLoginAlert()
+                    firebaseViewModel.resetAppState()
+                }
+                UserAccountState.UPDATE_PASSWORD_SUCCESS -> {
+                    updatePasswordSuccessAlert()
+                    //firebaseViewModel.resetAppState()
+                }
+                UserAccountState.LOGGED_OUT_USER -> {
+                    // logout user and navigate to login page
+                    firebaseViewModel.logoutUser()
+                    Log.i("appState", "logged out user")
+
+                    //findNavController().popBackStack()
+                    firebaseViewModel.resetAppState()
+                }
             }
         })
     }
@@ -156,14 +166,18 @@ class UserAccountFragment : Fragment() {
         val passwordEditText = EditText(context)
 
         passwordAlert.setCancelable(false)
-        passwordAlert.setTitle("Password Confirmation")
-        passwordAlert.setMessage("Password is required to change the email.  We need to do re-authentication.  Thanks.")
+        passwordAlert.setTitle(getString(R.string.require_password_alert_title))
+        passwordAlert.setMessage(getString(R.string.require_password_alert_desc))
         passwordAlert.setView(passwordEditText)
 
         passwordAlert.setPositiveButton(getString(R.string.button_send),
             DialogInterface.OnClickListener { dialog, button ->
                 val password = passwordEditText.text.toString()
-                firebaseViewModel.updateUserEmail(newEmail, password)
+                if (!password.isNullOrEmpty()) {
+                    firebaseViewModel.updateUserEmail(newEmail, password)
+                } else {
+                    nullPasswordAlert()
+                }
 
             })
 
@@ -175,17 +189,31 @@ class UserAccountFragment : Fragment() {
         passwordAlert.show()
     }
 
+    private fun nullPasswordAlert() {
+        val passwordAlert = AlertDialog.Builder(requireContext())
+
+        passwordAlert.setCancelable(false)
+        passwordAlert.setTitle(getString(R.string.null_password_alert_title))
+        passwordAlert.setMessage(getString(R.string.null_password_alert_desc))
+
+        passwordAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+            })
+
+
+        passwordAlert.show()
+    }
+
     private fun updateEmailServerErrorAlert() {
         val serverAlert = AlertDialog.Builder(requireContext())
 
         serverAlert.setCancelable(false)
-        serverAlert.setTitle("Update Email Error")
-        serverAlert.setMessage("There is error in the server when updating the email.  Please try again later.")
+        serverAlert.setTitle(getString(R.string.update_email_server_error_alert_title))
+        serverAlert.setMessage(getString(R.string.update_email_server_error_alert_desc))
 
         serverAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
                 // do nothing
-                firebaseViewModel.updateUserEmailServerError.value = false
             })
 
         serverAlert.show()
@@ -195,14 +223,12 @@ class UserAccountFragment : Fragment() {
         val dataAlert = AlertDialog.Builder(requireContext())
 
         dataAlert.setCancelable(false)
-        dataAlert.setTitle("Update Email Error")
-        dataAlert.setMessage("There is error when getting user's information.  Please logout and login again and try.")
+        dataAlert.setTitle(getString(R.string.update_email_data_error_alert_title))
+        dataAlert.setMessage(getString(R.string.update_email_data_error_alert_desc))
 
         dataAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
                 // do nothing
-                // reset error
-                firebaseViewModel.updateUserEmailDataError.value = false
             })
 
         dataAlert.show()
@@ -213,21 +239,23 @@ class UserAccountFragment : Fragment() {
         val passwordEditText = EditText(context)
 
         passwordAlert.setCancelable(false)
-        passwordAlert.setTitle("Update Email Error")
-        passwordAlert.setMessage("There is error when logging in user's account to change the email.  Please make sure the password is correct.  Please enter the password again.")
+        passwordAlert.setTitle(getString(R.string.update_email_password_error_alert_title))
+        passwordAlert.setMessage(getString(R.string.update_email_password_error_alert_desc))
         passwordAlert.setView(passwordEditText)
 
         passwordAlert.setPositiveButton(getString(R.string.button_send),
             DialogInterface.OnClickListener { dialog, button ->
-                firebaseViewModel.updateUserEmailPasswordError.value = false
                 // try to update again
                 val password = passwordEditText.text.toString()
-                firebaseViewModel.updateUserEmail(newEmail, password)
+                if (!password.isNullOrEmpty()) {
+                    firebaseViewModel.updateUserEmail(newEmail, password)
+                } else {
+                    nullPasswordAlert()
+                }
             })
 
         passwordAlert.setNegativeButton(getString(R.string.cancel_button),
             DialogInterface.OnClickListener { dialog, button ->
-                firebaseViewModel.updateUserEmailPasswordError.value = false
                 // do nothing
             })
 
@@ -238,17 +266,12 @@ class UserAccountFragment : Fragment() {
         val successAlert = AlertDialog.Builder(requireContext())
 
         successAlert.setCancelable(false)
-        successAlert.setTitle("Updated Email")
-        successAlert.setMessage("The email has been updated successfully.  But since the email is the login key, you need to login again now.  Please use the new email to login.")
+        successAlert.setTitle(getString(R.string.update_email_success_alert_title))
+        successAlert.setMessage(getString(R.string.update_email_success_alert_desc))
 
         successAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
-                // reset success
-                firebaseViewModel.updateEmailSuccess.value = false
-                // logout user and navigate to login page
-                firebaseViewModel.logoutUser()
-                // instead, use auth == null
-                findNavController().navigate(R.id.action_userAccountFragment_to_LoginFragment)
+                firebaseViewModel.userAccountState.value = UserAccountState.LOGGED_OUT_USER
             })
 
         successAlert.show()
@@ -258,14 +281,12 @@ class UserAccountFragment : Fragment() {
         val dataAlert = AlertDialog.Builder(requireContext())
 
         dataAlert.setCancelable(false)
-        dataAlert.setTitle("Update Password Error")
-        dataAlert.setMessage("There is error when getting user's information.  Please logout and login again and try.")
+        dataAlert.setTitle(getString(R.string.update_password_data_error_alert_title))
+        dataAlert.setMessage(getString(R.string.update_password_data_error_alert_desc))
 
         dataAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
                 // do nothing
-                // reset error
-                firebaseViewModel.updatePasswordDataError.value = false
             })
 
         dataAlert.show()
@@ -275,14 +296,12 @@ class UserAccountFragment : Fragment() {
         val serverAlert = AlertDialog.Builder(requireContext())
 
         serverAlert.setCancelable(false)
-        serverAlert.setTitle("Update Password Error")
-        serverAlert.setMessage("There is error in the server when updating the password.  Please try again later.")
+        serverAlert.setTitle(getString(R.string.update_password_server_error_alert_title))
+        serverAlert.setMessage(getString(R.string.update_password_server_error_alert_desc))
 
         serverAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
                 // do nothing
-                // reset error
-                firebaseViewModel.updatePasswordServerError.value = false
             })
 
         serverAlert.show()
@@ -293,18 +312,21 @@ class UserAccountFragment : Fragment() {
         val passwordEditText = EditText(context)
 
         loginAlert.setCancelable(false)
-        loginAlert.setTitle("Update Password Error")
-        loginAlert.setMessage("There is error when logging in user's account to change the password.  Please make sure the current password is correct.  Please enter the current password again.")
+        loginAlert.setTitle(getString(R.string.update_password_login_alert_title))
+        loginAlert.setMessage(getString(R.string.update_password_login_alert_desc))
         loginAlert.setView(passwordEditText)
 
         loginAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
                 // do nothing
-                // reset error
-                //firebaseViewModel.updatePasswordServerError.value = false
                 // try to update again
-                val currentPassword = passwordEditText.text.toString()
-                firebaseViewModel.updateUserPassword(, currentPassword)
+                val password = passwordEditText.text.toString()
+                if (!password.isNullOrEmpty()) {
+                    firebaseViewModel.updateUserPassword(newPassword = userNewPassword,
+                        oldPassword = password)
+                } else {
+                    nullPasswordAlert()
+                }
             })
 
         loginAlert.show()
@@ -314,14 +336,14 @@ class UserAccountFragment : Fragment() {
         val successAlert = AlertDialog.Builder(requireContext())
 
         successAlert.setCancelable(false)
-        successAlert.setTitle("Updated Password")
-        successAlert.setMessage("The password has been updated successfully.")
+        successAlert.setTitle(getString(R.string.update_password_success_alert_title))
+        successAlert.setMessage(getString(R.string.update_password_success_alert_desc))
 
         successAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
                 // do nothing
-                // reset success
-                firebaseViewModel.updatePasswordSuccess.value = false
+                firebaseViewModel.userAccountState.value = UserAccountState.LOGGED_OUT_USER
+                dialog.dismiss()
             })
 
         successAlert.show()
