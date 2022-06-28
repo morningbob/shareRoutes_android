@@ -175,7 +175,6 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
     var readyLoginLiveData = MediatorLiveData<Boolean>()
     // for user account fragment
     var readyUpdatePasswordLiveData = MediatorLiveData<Boolean>()
-    //var readyChangeEmailLiveData = MutableLiveData<Boolean>(emailValid.value)
 
     init {
         auth.addAuthStateListener(authStateListener)
@@ -299,6 +298,10 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
 
     fun updateUserEmail(newEmail: String, password: String) {
 
+        // this part, we update the email in our database
+        updateUserEmailInDatabase(newEmail)
+
+        // this part updates email in Firebase Auth
         // here we need to signin again before updating the email.  it is sensitive info
         if (auth.currentUser != null) {
             auth.signInWithEmailAndPassword(auth.currentUser!!.email!!, password)
@@ -379,13 +382,13 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
     }
 
     private fun saveUser(id: String, name: String, email: String, password: String) {
-        user = createUser(id, name, email, password)
+        user = createUser(id, name, email)
         saveUserInDatabase(user!!)
 
     }
 
-    private fun createUser(id: String, name: String, email: String, password: String) : User {
-        return User(id = id, name = name, email = email, password = password,
+    private fun createUser(id: String, name: String, email: String) : User {
+        return User(id = id, name = name, email = email,
             routes = HashMap<String, Route>())
     }
 
@@ -403,6 +406,30 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
         val keyID = database.push().key
         keyID?.let { key ->
             database.child("emails").child(key).setValue(user.userEmail)
+        }
+    }
+
+    private fun updateUserEmailInDatabase(newEmail: String) {
+        // this part is to update the email in the emails folder
+        //userObject.value?.userEmail?.let { email ->
+        //    Log.i("update method", "user email: ${userObject.value!!.userEmail!!}")
+        //    checkEmailInFolder(email!!)
+        //}
+
+        // this part is to update the email property in the user object
+        // we access the email field directly and change it.
+        userObject.value?.let {
+            database.child("users").child(userObject.value!!.userID)
+                .child("email")
+                .setValue(newEmail) { error: DatabaseError?, ref: DatabaseReference ->
+                    if (error != null) {
+                        Log.i(TAG, "there is error writing to database: ${error.message}")
+
+                    } else {
+                        Log.i(TAG, "successfully saved email in user")
+                        // here we decided the share route task succeeded
+                    }
+                }
         }
     }
 
@@ -468,14 +495,31 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
         }
     }
 
-    fun checkIfEmailUsed(email: String) {
-        database
-            .child("users")
-            .orderByChild("userEmail")
-            .equalTo(email)
-            .addListenerForSingleValueEvent(emailValueEventListener)
-    }
+    private var updateEmailValueEventListener = object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            Log.i("onDataChange", "got back snapshot")
+            if (snapshot.children.count() > 0) {
+                snapshot.children.map { emailSnapshot ->
+                    Log.i("update listener", "result: $emailSnapshot")
+                }
+            } else {
+                Log.i("update listener", "error, can't find user email.")
+            }
+        }
 
+        override fun onCancelled(error: DatabaseError) {
+
+        }
+    }
+/*
+    fun checkEmailInFolder(email: String) {
+        database
+            .child("emails")
+            .orderByKey()
+            .equalTo(email)
+            .addListenerForSingleValueEvent(updateEmailValueEventListener)
+    }
+*/
     fun logoutUser() {
         resetLoginState()
         auth.signOut()

@@ -42,7 +42,7 @@
     <string name="markers_num_alert_title">Number of Markers</string>
     <string name="marker_num_alert_desc">There is not enough marker to create a route.  Please add up to 10 markers.</string>
     <string name="create_route_intro_alert_title">Create a Route</string>
-    <string name="create_route_intro_alert_desc">You can tap on the map to add a marker.  The app will try to connect all the markers to create a route.  Or you can tap the record button to record the route as you walk along.</string>
+    <string name="create_route_intro_alert_desc">You can tap on the map to add a marker.  The app will try to connect all the markers to create a route.</string>
     <string name="confirm_button">Confirm</string>
     <string name="remove_marker_alert_title">Remove Marker</string>
     <string name="remove_marker_alert_desc">Do you want to remove the marker?</string>
@@ -93,5 +93,11 @@
     <string name="update_password_login_alert_desc">There is error when logging in user\'s account to change the password.  Please make sure the current password is correct.  Please enter the current password again.</string>
     <string name="update_password_success_alert_title">Updated Password</string>
     <string name="update_password_success_alert_desc">The password has been updated successfully.  Since you changed the password, you need to login again.</string>
+    <string name="share_the_route_alert_title">Share the Route</string>
+    <string name="share_the_route_alert_desc">The route will be saved in the database.  It will be suggested to the other users.</string>
 
 </resources>
+
+<!--
+<string name="explain_route_creation">You can tap on the map to add a marker.  The app will try to connect all the markers to create a route.  Or you can tap the record button to record the route as you walk along.</string>
+-->

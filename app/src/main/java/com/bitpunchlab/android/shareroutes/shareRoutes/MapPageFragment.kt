@@ -158,8 +158,8 @@ class MapPageFragment : Fragment() {
         val shareAlert = AlertDialog.Builder(requireContext())
 
         shareAlert.setCancelable(false)
-        shareAlert.setTitle("Share the Route")
-        shareAlert.setMessage("Once the Firebase realtime database is set up, I will send it to the database.")
+        shareAlert.setTitle(getString(R.string.share_the_route_alert_title))
+        shareAlert.setMessage(getString(R.string.share_the_route_alert_desc))
 
         shareAlert.setPositiveButton(getString(R.string.ok_button),
             DialogInterface.OnClickListener { dialog, button ->
