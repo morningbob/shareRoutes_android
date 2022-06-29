@@ -10,11 +10,14 @@
             type="com.bitpunchlab.android.shareroutes.FirebaseClientViewModel" />
     </data>
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/green_background"
-
     android:orientation="vertical">
 
     <ImageView
@@ -162,4 +165,6 @@
         android:layout_gravity="center"/>
 
 </LinearLayout>
+    </ScrollView>
+
 </layout>

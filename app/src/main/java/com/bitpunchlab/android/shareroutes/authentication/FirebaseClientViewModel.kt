@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
 import android.util.Patterns
+import android.widget.Toast
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.lifecycle.*
@@ -68,6 +69,8 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
     val currentPassword = MutableLiveData<String?>()
     val userAccountState = MutableLiveData<UserAccountState>(UserAccountState.NORMAL)
     val systemLogout = MutableLiveData<Boolean>(false)
+
+    val resetPasswordSuccess = MutableLiveData<Boolean?>()
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         // this is when user is in the logout process, it is not completed yet,
@@ -361,6 +364,22 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
         } else {
             Log.i("update user password", "can't get user's profile.")
             userAccountState.value = UserAccountState.UPDATE_PASSWORD_DATA_ERROR
+        }
+    }
+
+    fun sendPasswordResetEmail(givenEmail: String) {
+        // we reset this resetEmailSuccess variable here, to make sure the value is correct
+        // when we make the request.
+        // null -> no result yet    false -> failed to send     true -> success
+        resetPasswordSuccess.value = null
+        auth.sendPasswordResetEmail(givenEmail).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.i("reset password email", "is successfully sent.")
+                resetPasswordSuccess.postValue(true)
+            } else {
+                Log.i("error sending password reset email.", "error: ${task.exception}")
+                resetPasswordSuccess.postValue(false)
+            }
         }
     }
 

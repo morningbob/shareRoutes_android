@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -47,6 +49,10 @@ class LoginFragment : Fragment() {
             findNavController().navigate(R.id.action_LoginFragment_to_createUserFragment)
         }
 
+        binding.forgotPasswordTextview!!.setOnClickListener {
+            forgotPasswordAlert()
+        }
+
         firebaseViewModel.loggedInUser.observe(viewLifecycleOwner, Observer { loggedIn ->
             if (loggedIn == true) {
                 Log.i(TAG, "logged in user")
@@ -65,6 +71,15 @@ class LoginFragment : Fragment() {
             if (error) {
                 loginFailureAlert()
             }
+        })
+
+        firebaseViewModel.resetPasswordSuccess.observe(viewLifecycleOwner, Observer { success ->
+            if (success == true) {
+                resetPasswordSuccessAlert()
+            } else if (success == false) {
+                resetPasswordFailureAlert()
+            }
+            // if success == null, don't do anything
         })
 
         return binding.root
@@ -98,5 +113,76 @@ class LoginFragment : Fragment() {
             })
 
         loginAlert.show()
+    }
+
+    private fun forgotPasswordAlert() {
+        val forgotAlert = AlertDialog.Builder(requireContext())
+        val emailEditText = EditText(requireContext())
+
+        forgotAlert.setCancelable(false)
+        forgotAlert.setTitle(getString(R.string.forgot_password_alert_title))
+        forgotAlert.setMessage(getString(R.string.forget_password_alert_desc))
+        forgotAlert.setView(emailEditText)
+
+        forgotAlert.setPositiveButton(getString(R.string.button_send),
+            DialogInterface.OnClickListener { dialog, button ->
+                val email = emailEditText.text.toString()
+                if (!email.isNullOrEmpty()) {
+                    // send the reset email
+                    firebaseViewModel.sendPasswordResetEmail(email)
+                } else {
+                    // alert empty email
+                    emailEmptyAlert()
+                }
+            })
+
+        forgotAlert.setNegativeButton(getString(R.string.cancel_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing
+            })
+
+        forgotAlert.show()
+    }
+
+    private fun emailEmptyAlert() {
+        val emailAlert = AlertDialog.Builder(requireContext())
+
+        emailAlert.setTitle(getString(R.string.empty_email_alert_title))
+        emailAlert.setMessage(getString(R.string.empty_email_alert_desc))
+
+        emailAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+
+            })
+
+        emailAlert.show()
+    }
+
+    private fun resetPasswordSuccessAlert() {
+        val resetAlert = AlertDialog.Builder(requireContext())
+
+        resetAlert.setTitle(getString(R.string.reset_password_success_alert_title))
+        resetAlert.setMessage(getString(R.string.reset_password_success_alert_desc))
+
+        resetAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing
+            })
+
+        resetAlert.show()
+    }
+
+    private fun resetPasswordFailureAlert() {
+        val resetAlert = AlertDialog.Builder(requireContext())
+
+        resetAlert.setTitle(getString(R.string.reset_password_failure_alert_title))
+        resetAlert.setMessage(getString(R.string.reset_password_failure_alert_desc))
+
+        resetAlert.setPositiveButton(getString(R.string.ok_button),
+            DialogInterface.OnClickListener { dialog, button ->
+                // do nothing
+            })
+
+        resetAlert.show()
     }
 }

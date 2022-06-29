@@ -15,7 +15,7 @@
     <string name="login_fragment">Login Page</string>
     <string name="login_email">Login email: </string>
     <string name="button_send">Send</string>
-    <string name="create_account">Create a New Account</string>
+    <string name="create_account">Create New Account</string>
     <string name="create_account_title">Create Account</string>
     <string name="button_login">Login</string>
     <string name="password">Password: </string>
@@ -95,6 +95,15 @@
     <string name="update_password_success_alert_desc">The password has been updated successfully.  Since you changed the password, you need to login again.</string>
     <string name="share_the_route_alert_title">Share the Route</string>
     <string name="share_the_route_alert_desc">The route will be saved in the database.  It will be suggested to the other users.</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="empty_email_alert_title">Empty Email</string>
+    <string name="empty_email_alert_desc">Email must not be empty.</string>
+    <string name="forgot_password_alert_title">Forgot Password</string>
+    <string name="forget_password_alert_desc">Please enter your email: </string>
+    <string name="reset_password_success_alert_title">Reset Password Email</string>
+    <string name="reset_password_success_alert_desc">The reset password email has been successfully sent to your email.  Please click the reset link in your email.  If you can\'t find the email, please also check the spam folder.</string>
+    <string name="reset_password_failure_alert_title">Reset Password Email</string>
+    <string name="reset_password_failure_alert_desc">There is error sending the reset password email.  Please make sure this email is the one registered in the app.</string>
 
 </resources>
 
