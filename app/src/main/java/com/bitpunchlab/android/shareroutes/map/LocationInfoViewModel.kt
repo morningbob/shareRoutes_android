@@ -51,6 +51,9 @@ class LocationInfoViewModel : ViewModel() {
     var _dismissMapPage = MutableLiveData(false)
     val dismissMapPage get() = _dismissMapPage
 
+    var _searchCity = MutableLiveData<String>()
+    val searchCity get() = _searchCity
+
     fun addToMarkerList(marker: Marker) {
         var list = mutableListOf<Marker>()//emptyList<MarkerOptions>()
         if (!markerList.value.isNullOrEmpty()) {

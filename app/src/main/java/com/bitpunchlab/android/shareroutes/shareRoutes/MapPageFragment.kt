@@ -2,6 +2,7 @@ package com.bitpunchlab.android.shareroutes.shareRoutes
 
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -21,7 +22,9 @@ import com.bitpunchlab.android.shareroutes.*
 import com.bitpunchlab.android.shareroutes.databinding.FragmentMapPageBinding
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 import com.bitpunchlab.android.shareroutes.suggestRoutes.SuggestRoutesFragment
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.net.PlacesClient
+import java.util.*
 
 // this class responsible for displaying the share routes interface
 // the map view, the controls of sharing.
@@ -41,6 +44,7 @@ class MapPageFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var locationViewModel: LocationInfoViewModel
     private lateinit var firebaseViewModel: FirebaseClientViewModel
+    private lateinit var geoCoder : Geocoder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +61,8 @@ class MapPageFragment : Fragment() {
             .get(LocationInfoViewModel::class.java)
         firebaseViewModel = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
             .get(FirebaseClientViewModel::class.java)
+
+        geoCoder = Geocoder(requireContext(), Locale.getDefault())
         observeAppState()
 
         locationViewModel.runSuggestRoutesFragment.observe(viewLifecycleOwner, Observer { run ->
@@ -87,6 +93,16 @@ class MapPageFragment : Fragment() {
                 userDataErrorAlert()
             }
         })
+
+        // we post a request to collect the point's info, like city, here
+        // Later, send to Firebase for search routes in the same city
+        locationViewModel.chosenSearchLocation.observe(viewLifecycleOwner, Observer { location ->
+            location?.let {
+                //locationViewModel.searchCity.value = searchPlaceCity(location)
+                firebaseViewModel.searchRoutesSameCity(location)
+            }
+        })
+
         return binding.root
     }
 
@@ -271,6 +287,15 @@ class MapPageFragment : Fragment() {
         dataErrorAlert.show()
     }
 
+    private fun searchPlaceCity(latLngPoint: LatLng) : String? {
+        val addressList = geoCoder.getFromLocation(latLngPoint.latitude, latLngPoint.longitude, 1)
+
+        if (!addressList.isNullOrEmpty()) {
+            return addressList.get(0).locality
+        }
+        return null
+    }
+
     private fun observeAppState() {
         locationViewModel.shareRouteAppState.observe(viewLifecycleOwner, Observer { appState ->
             when (appState) {
@@ -373,7 +398,7 @@ class MapPageFragment : Fragment() {
                 }
 
                 SuggestRoutesState.PICK_LOCATION -> {
-                    //prepareLayoutForSuggestion()
+
                 }
 
                 SuggestRoutesState.DISPLAY_ROUTES -> {

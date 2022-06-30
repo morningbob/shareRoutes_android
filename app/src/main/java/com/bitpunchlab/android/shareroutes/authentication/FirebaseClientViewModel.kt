@@ -72,6 +72,9 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
 
     val resetPasswordSuccess = MutableLiveData<Boolean?>()
 
+    var _routesSameCityResult = MutableLiveData<List<Route>>()
+    val routesSameCityResult get() = _routesSameCityResult
+
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         // this is when user is in the logout process, it is not completed yet,
         // so, the user is still logged in.
@@ -514,6 +517,30 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
         }
     }
 
+    private var routesSameCityValueEventListener = object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            Log.i("routes search result", "got back")
+            if (snapshot.children.count() > 0) {
+                Log.i("routes search same city result", "there is at least 1 route.")
+                val resultListRoute : MutableList<Route> = mutableListOf()
+                snapshot.children.map { routeSnapshot ->
+                    val route = routeSnapshot.getValue<Route>()
+                    route?.let {
+                        resultListRoute.add(route)
+                    }
+                }
+                Log.i("routes search result, routes size: ", resultListRoute.size.toString())
+                routesSameCityResult.postValue(resultListRoute)
+            } else {
+                Log.i("routes search result", "there is no route found.")
+            }
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            Log.i("error: ", error.message)
+        }
+    }
+
     private var updateEmailValueEventListener = object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
             Log.i("onDataChange", "got back snapshot")
@@ -651,6 +678,17 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
             //.equalTo(email)
             .addListenerForSingleValueEvent(routesValueEventListener)
     }
+
+    fun searchRoutesSameCity(clickedLocation: LatLng) {
+        // firstly, we
+
+        database
+            .child("routes")
+            .orderByChild("city")
+            .equalTo("markham")
+            .addListenerForSingleValueEvent(routesSameCityValueEventListener)
+    }
+
 }
 
 class FirebaseClientViewModelFactory(private val activity: Activity)

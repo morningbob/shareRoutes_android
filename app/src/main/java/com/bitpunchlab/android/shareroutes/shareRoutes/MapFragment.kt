@@ -25,6 +25,7 @@ import com.bitpunchlab.android.shareroutes.ShareRouteState
 import com.bitpunchlab.android.shareroutes.SuggestRoutesState
 import com.bitpunchlab.android.shareroutes.map.LocationInfoViewModel
 import com.bitpunchlab.android.shareroutes.models.Route
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -35,6 +36,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
@@ -71,6 +74,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private lateinit var placeClient: PlacesClient
     private lateinit var geoCoder : Geocoder
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -86,6 +90,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             .get(LocationInfoViewModel::class.java)
 
         observeAppState()
+
+        geoCoder = Geocoder(requireContext(), Locale.getDefault())
 
         supportMapFragment = childFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -662,14 +668,17 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         searchAlert.show()
     }
 
-    private fun getRouteInfo(point: LatLng) : Address {
+    private fun getRouteInfo(point: LatLng) : Address? {
         // the result comes back as a list of address objects.
         // we only need the first one, and I restrict the result to be 1 only too
 
-        geoCoder = Geocoder(requireContext(), Locale.getDefault())
-        var addressList: List<Address> = geoCoder.getFromLocation(point.latitude, point.longitude, 1)
 
-        return addressList.first()
+        val addressList: List<Address> = geoCoder.getFromLocation(point.latitude, point.longitude, 1)
+        if (!addressList.isNullOrEmpty()) {
+            return addressList.first()
+        }
+
+        return null
     }
 
     private fun createRouteObject(points: List<LatLng>) : Route {
@@ -677,12 +686,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         val pointsMap = transformPointsToMap(points)
 
         val addressObject = getRouteInfo(origin)
-        val address = addressObject.getAddressLine(0)
-        val city = addressObject.locality
-        val state = addressObject.adminArea
-        val country = addressObject.countryName
+        val address = addressObject?.getAddressLine(0)
+        val city = addressObject?.locality
+        val state = addressObject?.adminArea
+        val country = addressObject?.countryName
         var name = ""
-        addressObject.featureName?.let { knownName ->
+        addressObject?.featureName?.let { knownName ->
             name = knownName
         }
 
@@ -707,6 +716,31 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             })
         clearAlert.show()
     }
+
+    private fun searchPlaceCity1() {
+        // Define a Place ID.
+        val placeId = "INSERT_PLACE_ID_HERE"
+
+        // Specify the fields to return.
+        val placeFields = listOf(Place.Field.ID, Place.Field.NAME)
+
+        // Construct a request object, passing the place ID and fields array.
+        val request = FetchPlaceRequest.newInstance(placeId, placeFields)
+
+        placeClient.fetchPlace(request)
+            .addOnSuccessListener { response: FetchPlaceResponse ->
+                val place = response.place
+                //Log.i(PlaceDetailsActivity.TAG, "Place found: ${place.name}")
+            }.addOnFailureListener { exception: Exception ->
+                if (exception is ApiException) {
+                    Log.e(TAG, "Place not found: ${exception.message}")
+                    val statusCode = exception.statusCode
+
+                }
+            }
+    }
+
+
 
     private fun observeAppState() {
         locationViewModel.shareRouteAppState.observe(viewLifecycleOwner, Observer { appState ->
@@ -767,9 +801,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             when (appState) {
                 SuggestRoutesState.NORMAL -> 0
 
+                // we post a request to collect the point's info, like city, here
+                // Later, send to Firebase for search routes in the same city
                 SuggestRoutesState.PICK_LOCATION -> {
                     // reset this variable, so, it is set to true only when a location is picked
-                    //locationViewModel._clearSuggestRoutesListener.value = false
                     // enable map click listener
                     map.setOnMapClickListener { clickedLocation ->
                         Log.i("user tapped the map: ", "location $clickedLocation")
@@ -822,33 +857,3 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         })
     }
 }
-
-/*
-    private fun constructPath() {
-        if (path.value!!.isNotEmpty()) {
-            val opts = PolylineOptions().addAll(path.value!!).color(Color.BLUE).width(
-                PATH_LINE_WIDTH)
-            locationViewModel._routeLine.value = map.addPolyline(opts)
-            val transformedPoints = transformPointsToMap(path.value!!)
-            // create the Route object and share it
-            locationViewModel._routeToShare.value = Route(transformedPoints)
-        }
-    }
-
-        var location = LatLng(43.6532, 79.3832)
-
-        var marker = map.addMarker(MarkerOptions().position(
-            location).title("Current location"))
-        map.moveCamera(CameraUpdateFactory.newLatLng(location))
-
-        val cameraPosition = CameraPosition.Builder()
-            .target(location)
-            .zoom(18f)
-            .bearing(90f)
-            .tilt(30f)
-            .build()
-
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-
-
-*/
