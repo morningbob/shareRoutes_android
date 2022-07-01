@@ -104,6 +104,7 @@
     <string name="reset_password_success_alert_desc">The reset password email has been successfully sent to your email.  Please click the reset link in your email.  If you can\'t find the email, please also check the spam folder.</string>
     <string name="reset_password_failure_alert_title">Reset Password Email</string>
     <string name="reset_password_failure_alert_desc">There is error sending the reset password email.  Please make sure this email is the one registered in the app.</string>
+    <string name="map_intro">The app provides a place for dog owners to share dog walk routes. The user can share routes as well as getting suggestions of routes near a chosen location.</string>
 
 </resources>
 

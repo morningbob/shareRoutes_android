@@ -44,7 +44,7 @@ class SuggestRoutesFragment : Fragment() {
             locationViewModel.onRouteClicked(route)
         })
         binding.routesRecycler.adapter = routeAdapter
-
+/*
         firebaseViewModel.routesResult.observe(viewLifecycleOwner, Observer { routeList ->
             if (!routeList.isNullOrEmpty()) {
                 Log.i("suggest fragment", "got routes: ${routeList.size}")
@@ -52,15 +52,14 @@ class SuggestRoutesFragment : Fragment() {
                 routeAdapter.notifyDataSetChanged()
             }
         })
-        // reset
-        //locationViewModel._clearSuggestRoutesListener.value = false
-
-        //locationViewModel.chosenRoute.observe(viewLifecycleOwner, Observer { route ->
-        ///    route?.let {
-                // construct the route in the map
-                //locationViewModel._shouldShowRoute.value = true
-        //    }
-        //})
+*/
+        firebaseViewModel.routesSameCityResult.observe(viewLifecycleOwner, Observer { routeList ->
+            if (!routeList.isNullOrEmpty()) {
+                Log.i("suggest fragment", "got routes: ${routeList.size}")
+                routeAdapter.submitList(routeList)
+                routeAdapter.notifyDataSetChanged()
+            }
+        })
 
         binding.closeTextview.setOnClickListener {
             locationViewModel._suggestRoutesAppState.value = SuggestRoutesState.END

@@ -98,9 +98,12 @@ class MapPageFragment : Fragment() {
         // Later, send to Firebase for search routes in the same city
         locationViewModel.chosenSearchLocation.observe(viewLifecycleOwner, Observer { location ->
             location?.let {
-                //locationViewModel.searchCity.value = searchPlaceCity(location)
-                firebaseViewModel.searchRoutesSameCity(location)
+                locationViewModel.searchCity.value = searchPlaceCity(location)
             }
+        })
+
+        locationViewModel.searchCity.observe(viewLifecycleOwner, Observer { city ->
+            firebaseViewModel.searchRoutesSameCity(city)
         })
 
         return binding.root

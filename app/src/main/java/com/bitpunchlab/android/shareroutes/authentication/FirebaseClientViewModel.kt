@@ -679,14 +679,24 @@ class FirebaseClientViewModel(@SuppressLint("StaticFieldLeak") val activity: Act
             .addListenerForSingleValueEvent(routesValueEventListener)
     }
 
-    fun searchRoutesSameCity(clickedLocation: LatLng) {
-        // firstly, we
+    // if city is null, return all routes for now
+    fun searchRoutesSameCity(city: String?) {
 
-        database
-            .child("routes")
-            .orderByChild("city")
-            .equalTo("markham")
-            .addListenerForSingleValueEvent(routesSameCityValueEventListener)
+        if (!city.isNullOrEmpty()) {
+            Log.i("searching...", "city is $city")
+            database
+                .child("routes")
+                .orderByChild("city")
+                .equalTo(city)
+                .addListenerForSingleValueEvent(routesSameCityValueEventListener)
+        } else {
+            Log.i("searching...", "city is null")
+            database
+                .child("routes")
+                .orderByChild("city")
+                //.equalTo(city)
+                .addListenerForSingleValueEvent(routesSameCityValueEventListener)
+        }
     }
 
 }
