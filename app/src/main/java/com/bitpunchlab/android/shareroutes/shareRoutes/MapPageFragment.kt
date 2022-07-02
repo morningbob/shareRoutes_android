@@ -267,9 +267,6 @@ class MapPageFragment : Fragment() {
                 // do nothing.
                 // reset notifier
                 firebaseViewModel._shareSuccess.value = false
-                // here, we also clean the route info to prevent the user to share the same route
-                // again
-                //locationViewModel._clearSuggestRoutesListener.value = true
             })
 
         shareAlert.show()

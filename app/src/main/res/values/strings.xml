@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">shareRoutes</string>
+    <string name="app_name">Walking Dogs</string>
     <string name="title_activity_maps">MapsActivity</string>
 
     <string name="location_permission_alert_title">Location Permission</string>
@@ -7,11 +7,8 @@
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
     <string name="permission_intro">The app needs access to your location in order to suggest routes and/or share routes to the other users.</string>
-    <string name="title_activity_main">MainActivity</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
 
-    <string name="main_fragment">Home</string>
+    <string name="main_fragment">Walking Dogs</string>
     <string name="login_fragment">Login Page</string>
     <string name="login_email">Login email: </string>
     <string name="button_send">Send</string>
